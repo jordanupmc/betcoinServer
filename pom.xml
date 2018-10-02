@@ -36,6 +36,13 @@
         <artifactId>tomcat-jsp-api</artifactId>
         <version>${tomcat.version}</version>
     </dependency>
+      <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+      <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>42.2.2</version>
+      </dependency>
+
   </dependencies>
   <build>
     <finalName>embeddedTomcatSample</finalName>
@@ -61,6 +68,14 @@
                     </goals>
                 </execution>
             </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>6</source>
+                <target>6</target>
+            </configuration>
         </plugin>
     </plugins>
   </build>
