@@ -35,6 +35,7 @@ public class HelloServlet extends HttpServlet {
             Connection c =  Database.getConnection();
             PreparedStatement ps = c.prepareStatement("SELECT * FROM Jojo_Currency");
             ResultSet resultSet = ps.executeQuery();
+            out.println("------SQL----------");
             if(resultSet.next()){
                 out.println("\n"+resultSet.getString(1));
                 out.println(resultSet.getDouble(2));
