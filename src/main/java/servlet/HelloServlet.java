@@ -1,8 +1,10 @@
 package servlet;
 
 import bd.Database;
+import services.UserService;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.*;
@@ -17,16 +19,27 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(
         name = "HelloServlet",
         urlPatterns = {"/hello"}
-    )
+)
 public class HelloServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        ServletOutputStream out = resp.getOutputStream();
-        out.write("hello jojo".getBytes());
-        testReqBD(out);
-        out.flush();
+
+        resp.setContentType( "text / plain" );
+        PrintWriter out = resp.getWriter();
+        out.println("hello jojo");
+        /*testReqBD(out);*/
+        String login=req.getParameter("login");
+        String mdp=req.getParameter("password");
+
+        if(login != null && mdp!= null) {
+            out.println("ou plutot.... hello  +login");
+
+            out.print(
+                    UserService.subscribe(login, mdp, "dupond", "aignan", "bob@etu.fac.fr", Date.valueOf("1988-3-10"), "FRANCE")
+            );
+        }
         out.close();
     }
 
@@ -55,5 +68,5 @@ public class HelloServlet extends HttpServlet {
     }
 
 
-    
+
 }
