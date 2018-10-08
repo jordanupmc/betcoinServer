@@ -34,7 +34,7 @@ public class HelloServlet extends HttpServlet {
         String mdp=req.getParameter("password");
 
         if(login != null && mdp!= null) {
-            out.println("ou plutot.... hello  +login");
+            out.println("ou plutot.... hello  "+login);
 
             out.print(
                     UserService.subscribe(login, mdp, "dupond", "aignan", "bob@etu.fac.fr", Date.valueOf("1988-3-10"), "FRANCE")
