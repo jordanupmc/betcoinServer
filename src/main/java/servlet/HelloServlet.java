@@ -1,6 +1,11 @@
 package servlet;
 
 import bd.Database;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import services.UserService;
 
 import java.io.IOException;
@@ -15,6 +20,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.crypto.Data;
 
 @WebServlet(
         name = "HelloServlet",
@@ -30,6 +36,7 @@ public class HelloServlet extends HttpServlet {
         PrintWriter out = resp.getWriter();
         out.println("hello JOJO");
         /*testReqBD(out);*/
+        testMongo(out);
         String login=req.getParameter("login");
         String mdp=req.getParameter("password");
 
@@ -43,30 +50,17 @@ public class HelloServlet extends HttpServlet {
         out.close();
     }
 
-    private void testReqBD(ServletOutputStream out){
-        try {
-            Connection c =  Database.getConnection();
-            PreparedStatement ps = c.prepareStatement("SELECT * FROM Jojo_Currency");
-            ResultSet resultSet = ps.executeQuery();
-            out.println("\n------SQL----------");
-            if(resultSet.next()){
-                out.println("\n"+resultSet.getString(1));
-                out.println(resultSet.getDouble(2));
-            }
-            resultSet.close();
-            ps.close();
-            c.close();
 
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void testMongo(PrintWriter out){
+        MongoClientURI uri  = new MongoClientURI(Database.mongoURI);
+        MongoClient client = new MongoClient(uri);
+        MongoDatabase db = client.getDatabase(uri.getDatabase());
+        MongoCollection<Document> v = db.getCollection("dummy");
+        Document d = v.find().first();
+        out.println(d.toJson());
+        client.close();
 
     }
-
 
 
 }
