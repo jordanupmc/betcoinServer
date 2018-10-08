@@ -9,9 +9,9 @@ public class UserService {
     /*Login*Mdp*ConfirmMdp*Email*Nom*Prenom*DateNaissance(dd/mm/aaaa)*Pays->void
      */
     //TODO check ce mettre d'accord sur le type de date a utiliser
-    public static JSONObject subscribe(String login, String mdp, String email, String nom, String prenom,  Date birthDate, String country){
+    public static JSONObject subscribe(String login, String mdp, String cmdp ,String email, String nom, String prenom,  Date birthDate, String country){
         JSONObject j=new JSONObject();
-        if(UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
+        if(cmdp.equals(mdp) && UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
             j.put("status", "OK");
         }
         else{

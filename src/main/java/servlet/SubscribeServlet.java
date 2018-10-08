@@ -6,6 +6,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.json.JSONObject;
 import services.UserService;
 
 import java.io.IOException;
@@ -23,10 +24,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.Data;
 
 @WebServlet(
-        name = "HelloServlet",
-        urlPatterns = {"/hello"}
+        name = "SubscribeServlet",
+        urlPatterns = {"/subscribe"}
 )
-public class HelloServlet extends HttpServlet {
+public class SubscribeServlet extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req,resp);
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -34,18 +40,29 @@ public class HelloServlet extends HttpServlet {
 
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
-        out.println("hello JOJO");
-        /*testReqBD(out);*/
-        testMongo(out);
+
+
+        //Login*Mdp*ConfirmMdp*Email*Nom*Prenom*DateNaissance(dd/mm/aaaa)*Pays->void
+
         String login=req.getParameter("login");
         String mdp=req.getParameter("password");
+        String cmdp=req.getParameter("confirmPassword");
+        String email=req.getParameter("email");
+        String nom=req.getParameter("lastName");
+        String prenom=req.getParameter("firstName");
+        String dateNaiss=req.getParameter("dateNaiss");
+        String pays=req.getParameter("country");
 
-        if(login != null && mdp!= null) {
-            out.println("ou plutot.... hello  "+login);
-
+        if(login != null && mdp!= null && cmdp != null && email!= null && nom != null && prenom!= null && dateNaiss != null && pays!= null) {
             out.print(
-                    UserService.subscribe(login, mdp, "dupond", "aignan", "bob@etu.fac.fr", Date.valueOf("1988-3-10"), "FRANCE")
+                    UserService.subscribe(login, mdp, cmdp,email, nom, prenom, Date.valueOf(dateNaiss), pays)
             );
+        }
+        else {
+            JSONObject j =new JSONObject();
+            j.put("status", "KO");
+            j.put("errorMsg", "Subscribe fail");
+            out.print(j);
         }
         out.close();
     }
