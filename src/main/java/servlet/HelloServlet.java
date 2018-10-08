@@ -28,7 +28,7 @@ public class HelloServlet extends HttpServlet {
 
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
-        out.println("hello jojo");
+        out.println("hello JOJO");
         /*testReqBD(out);*/
         String login=req.getParameter("login");
         String mdp=req.getParameter("password");
