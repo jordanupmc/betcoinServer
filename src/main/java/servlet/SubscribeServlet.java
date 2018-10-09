@@ -75,7 +75,6 @@ public class SubscribeServlet extends HttpServlet {
         Document d = v.find().first();
         out.println(d.toJson());
         client.close();
-
     }
 
 

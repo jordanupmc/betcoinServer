@@ -1,5 +1,8 @@
 package bd;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -23,9 +26,8 @@ jdbc:postgresql://ec2-54-225-68-133.compute-1.amazonaws.com/ds85knecevckl?sslmod
         );
         String username = dbUri.getUserInfo().split(":")[0];
         String password = dbUri.getUserInfo().split(":")[1];
-        System.out.println(username+" psw = "+ password);
+
         String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath()+"?sslmode=require";
-        System.out.println(dbUrl);
         return DriverManager.getConnection(dbUrl, username, password);
     }
 
