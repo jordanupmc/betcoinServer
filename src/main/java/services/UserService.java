@@ -20,4 +20,17 @@ public class UserService {
         }
         return j;
     }
+
+    public static JSONObject unsubscribe(String login, String token){
+        JSONObject j=new JSONObject();
+
+        if(UserTools.unsubscribe(login)){
+            j.put("status", "OK");
+        }else{
+            j.put("status", "KO");
+            j.put("errorMsg", "Unsubscribe fail");
+        }
+
+        return j;
+    }
 }
