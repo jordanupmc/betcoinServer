@@ -16,7 +16,6 @@ public class BetTools {
         try(Connection c = Database.getConnection();
             PreparedStatement pstmt = c.prepareStatement(query);
             ResultSet v = pstmt.executeQuery();
-            
         ) {
             JSONObject j=null;
 
