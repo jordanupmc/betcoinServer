@@ -1,5 +1,14 @@
 package bd;
 
+import com.mongodb.DBCursor;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.util.JSON;
+import org.bson.Document;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -7,6 +16,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Date;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
 
 public class UserTools {
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country){
@@ -43,6 +55,17 @@ public class UserTools {
         }catch (Exception e){
             return false;
         }
+    }
+
+    public static boolean disconnect(String login,String token){
+        MongoClientURI uri = new MongoClientURI(Database.mongoURI);
+        MongoClient client = new MongoClient(uri);
+        MongoDatabase db = client.getDatabase(uri.getDatabase());
+        MongoCollection<Document> sesCollection = db.getCollection("session");
+
+        sesCollection.updateOne(and(eq("login", login),eq("token", token)), new Document("$set", new Document("isConnected", false)));
+
+        return true;
     }
 
 

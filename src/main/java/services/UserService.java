@@ -35,4 +35,16 @@ public class UserService {
 
         return j;
     }
+
+    public static JSONObject disconnect(String login, String token){
+        JSONObject json = new JSONObject();
+
+        if(SessionTools.checkToken(token, login)){
+            UserTools.disconnect(login,token);
+        }else{
+            json.put("status","KO");
+            json.put("errorMsg", "Already disconnected");
+        }
+        return json;
+    }
 }
