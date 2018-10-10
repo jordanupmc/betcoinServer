@@ -60,7 +60,7 @@ public class SubscribeServlet extends HttpServlet {
         else {
             JSONObject j =new JSONObject();
             j.put("status", "KO");
-            j.put("errorMsg", "Subscribe fail");
+            j.put("errorMsg", "Subscribe fail error param");
             out.print(j);
         }
         out.close();

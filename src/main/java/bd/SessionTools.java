@@ -14,14 +14,15 @@ public class SessionTools {
 
 
     /*check si le token est valide*/
-    public static boolean checkToken(String token){
+    public static boolean checkToken(String token, String login){
         MongoClientURI uri  = new MongoClientURI(Database.mongoURI);
         try(MongoClient client = new MongoClient(uri);) {
             MongoDatabase db = client.getDatabase(uri.getDatabase());
             MongoCollection<Document> collection = db.getCollection("Session");
             Document d =
                     collection
-                            .find(new BsonDocument().append("token", new BsonString(token)))
+                            .find(new BsonDocument().append("token", new BsonString(token))
+                                                    .append("login", new BsonString(login)))
                             .first();
 
             if(d==null)

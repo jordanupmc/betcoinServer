@@ -35,8 +35,14 @@ public class UnsubscribeServlet extends HttpServlet {
         String login=req.getParameter("login");
         String token=req.getParameter("token");
 
-        if(login !=null){
+        if(login !=null && token != null){
             out.println(UserService.unsubscribe(login, token));
+        }
+        else{
+            JSONObject j = new JSONObject();
+            j.put("status", "KO");
+            j.put("errorMsg", "Unsubscribe fail");
+            out.println(j);
         }
 
         out.close();
