@@ -18,9 +18,7 @@ public class EnterPoolService {
         boolean connected = userConnected(login);
         if(!connected) return serviceKO("EnterPool Fail : User not connected");
 
-        if(UserTools.enterPool(login, idPool)){
-            return serviceOK();
-        }
-        return serviceKO("EnterPool Fail : User not connected");
+        UserTools.enterPool(login, idPool);
+        return serviceOK();
     }
 }

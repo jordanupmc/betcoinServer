@@ -15,45 +15,45 @@ import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
 
 public class UserTools {
-    public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country){
+    public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?);";
-        try( Connection c = Database.getConnection();
+        try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
-        ){
+        ) {
             pstmt.setString(1, login);
             pstmt.setString(2, mdp);
             pstmt.setString(3, nom);
-            pstmt.setString(4,prenom);
-            pstmt.setString(5,email);
-            pstmt.setDate(6,birthDate);
-            pstmt.setString(7,country);
+            pstmt.setString(4, prenom);
+            pstmt.setString(5, email);
+            pstmt.setDate(6, birthDate);
+            pstmt.setString(7, country);
 
             pstmt.executeUpdate();
             return true;
-        } catch (Exception E){
+        } catch (Exception E) {
             return false;
         }
     }
 
-    public static boolean unsubscribe(String login){
+    public static boolean unsubscribe(String login) {
         String query = "DELETE FROM USERS WHERE login=?";
 
-        try( Connection c = Database.getConnection();
+        try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
-        ){
+        ) {
             pstmt.setString(1, login);
             pstmt.executeUpdate();
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
 
     /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
-    public static String connect(String login, String mdp ) {
+    public static String connect(String login, String mdp) {
         MongoCollection<Document> collection = getMongoCollection("Session");
         String token = generateToken();
 
@@ -66,69 +66,62 @@ public class UserTools {
         return token;
     }
 
-    public static boolean checkPasswd(String login, String mdp){
-        try {
-            Connection co = Database.getConnection();
+    /* Vérifie pour un login et un mdp donné qu'il s'agit d'un login valide et qu'il s'agit du bon mdp */
+    public static boolean checkPasswd(String login, String mdp) throws URISyntaxException, SQLException {
+        Connection co = Database.getConnection();
 
-            String query = "SELECT * FROM USERS WHERE login='" + login
-                    + "' AND password='" + mdp + "'";
-            PreparedStatement pstmt = co.prepareStatement(query);
+        String query = "SELECT * FROM USERS WHERE login='" + login
+                + "' AND password='" + mdp + "'";
+        PreparedStatement pstmt = co.prepareStatement(query);
 
-            ResultSet res = pstmt.executeQuery();
-            if (res.next()) {
-                pstmt.close();
-                co.close();
-                return true;
-            }
+        ResultSet res = pstmt.executeQuery();
+        if (res.next()) {
             pstmt.close();
             co.close();
-            return false;
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
-            return false;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return false;
+            return true;
         }
+        pstmt.close();
+        co.close();
+        return false;
     }
 
-    public static boolean userConnected(String login){
+    /* Renvoi true si l'utilisateur login est connecté */
+    public static boolean userConnected(String login) {
         MongoCollection<Document> collection = getMongoCollection("Session");
         Document d =
                 collection
                         .find(new BsonDocument().append("login", new BsonString(login)))
                         .first();
 
-        if(d==null ||d.getString("token") == null)
+        if (d == null || d.getString("token") == null)
             return false;
 
         return true;
     }
 
 
-    public static boolean enterPool(String login, String idPool) {
+    /* Fais entrer un utilisateur login dans la pool idPool, s'il était deja dedans ne fais rien */
+    public static void enterPool(String login, String idPool) {
         MongoCollection<Document> collection = getMongoCollection("SubscribePool");
         Document d =
                 collection
                         .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
                         .first();
 
-        if(d == null){
+        if (d == null) {
             List<Document> idBetPools = new ArrayList<>();
             idBetPools.add(new Document("idPool", new BsonString(idPool)));
             Document toInsert = new Document("gamblerLogin", login)
                     .append("idBetPool", idBetPools);
             collection.insertOne(toInsert);
-            return true;
-        }else {
+            return;
+        } else {
             BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
             List<Document> idBetPools = (List<Document>) d.get("idBetPool");
 
-            for(int i=0; i<idBetPools.size(); i++){
-                System.out.println(idBetPools.get(i).get("idPool"));
-
-                if(idBetPools.get(i).get("idPool").equals(idPool)){
-                    return true;
+            for (int i = 0; i < idBetPools.size(); i++) {
+                if (idBetPools.get(i).get("idPool").equals(idPool)) {
+                    return;
                 }
             }
 
@@ -136,7 +129,6 @@ public class UserTools {
             collection.updateOne(filter, new Document("$set", new Document("idBetPool", idBetPools)));
 
         }
-
-        return true;
     }
+
 }
