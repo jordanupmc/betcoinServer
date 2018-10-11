@@ -8,8 +8,8 @@ import java.sql.SQLException;
 
 import static bd.UserTools.checkPasswd;
 import static bd.UserTools.userConnected;
-import static tools.ServiceTools.serviceKO;
-import static tools.ServiceTools.serviceOK;
+import static services.ServiceTools.serviceKO;
+import static services.ServiceTools.serviceOK;
 
 public class LoginService {
     public static JSONObject connect(String login, String mdp){

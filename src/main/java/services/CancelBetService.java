@@ -2,7 +2,6 @@ package services;
 
 import bd.BetTools;
 import bd.SessionTools;
-import bd.UserTools;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -10,8 +9,8 @@ import java.sql.SQLException;
 
 import static bd.BetTools.canCancelBet;
 import static bd.UserTools.userConnected;
-import static tools.ServiceTools.serviceKO;
-import static tools.ServiceTools.serviceOK;
+import static services.ServiceTools.serviceKO;
+import static services.ServiceTools.serviceOK;
 
 public class CancelBetService {
     public static JSONObject cancelBet(String login, String idPool, String token){

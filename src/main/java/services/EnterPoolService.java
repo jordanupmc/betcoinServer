@@ -2,16 +2,14 @@ package services;
 
 import bd.PoolTools;
 import bd.SessionTools;
-import bd.UserTools;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
-import static bd.UserTools.checkPasswd;
 import static bd.UserTools.userConnected;
-import static tools.ServiceTools.serviceKO;
-import static tools.ServiceTools.serviceOK;
+import static services.ServiceTools.serviceKO;
+import static services.ServiceTools.serviceOK;
 
 public class EnterPoolService {
     public static JSONObject enterPool(String login, String idPool, String token){
