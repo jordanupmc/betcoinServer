@@ -99,36 +99,4 @@ public class UserTools {
         return true;
     }
 
-
-    /* Fais entrer un utilisateur login dans la pool idPool, s'il était deja dedans ne fais rien */
-    public static void enterPool(String login, String idPool) {
-        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
-                        .first();
-
-        if (d == null) {
-            List<Document> idBetPools = new ArrayList<>();
-            idBetPools.add(new Document("idPool", new BsonString(idPool)));
-            Document toInsert = new Document("gamblerLogin", login)
-                    .append("idBetPool", idBetPools);
-            collection.insertOne(toInsert);
-            return;
-        } else {
-            BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
-            List<Document> idBetPools = (List<Document>) d.get("idBetPool");
-
-            for (int i = 0; i < idBetPools.size(); i++) {
-                if (idBetPools.get(i).get("idPool").equals(idPool)) {
-                    return;
-                }
-            }
-
-            idBetPools.add(new Document("idPool", new BsonString(idPool)));
-            collection.updateOne(filter, new Document("$set", new Document("idBetPool", idBetPools)));
-
-        }
-    }
-
 }

@@ -1,8 +1,12 @@
 package services;
 
+import bd.PoolTools;
 import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+import java.sql.SQLException;
 
 import static bd.UserTools.checkPasswd;
 import static bd.UserTools.userConnected;
@@ -23,7 +27,18 @@ public class EnterPoolService {
             return serviceKO("EnterPool Fail : Wrong token");
         }
 
-        UserTools.enterPool(login, idPool);
+        try {
+            if(!PoolTools.poolExist(idPool)){
+                return serviceKO("EnterPool Fail : This pool does not exist");
+            }
+        } catch (URISyntaxException e) {
+            return serviceKO("EnterPool Fail : URISyntaxException");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return serviceKO("EnterPool Fail : SQLException");
+        }
+
+        PoolTools.enterPool(login, idPool);
         return serviceOK();
     }
 }

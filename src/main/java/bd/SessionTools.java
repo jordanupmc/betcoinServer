@@ -19,8 +19,6 @@ public class SessionTools {
 
     /*check si le token est valide*/
     public static boolean checkToken(String token, String login) {
-        MongoClientURI uri = new MongoClientURI(Database.mongoURI);
-
         MongoCollection<Document> collection = getMongoCollection("Session");
         Document d =
                 collection
@@ -31,8 +29,6 @@ public class SessionTools {
         if (d == null)
             return false;
         return true;
-
-
     }
 
     /*Genere un token qui n'est pas utilise*/
