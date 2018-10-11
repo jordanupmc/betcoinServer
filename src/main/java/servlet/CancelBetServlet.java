@@ -32,9 +32,11 @@ public class CancelBetServlet extends HttpServlet {
 
         String login=req.getParameter("login");
         String idPool=req.getParameter("idPool");
+        String token=req.getParameter("token");
+
 
         out.print(
-                CancelBetService.cancelBet(login, idPool)
+                CancelBetService.cancelBet(login, idPool, token)
         );
 
         out.close();

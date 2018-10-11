@@ -33,9 +33,11 @@ public class EnterPoolServlet extends HttpServlet {
 
         String login=req.getParameter("login");
         String idPool=req.getParameter("idPool");
+        String token=req.getParameter("token");
+
 
         out.print(
-                EnterPoolService.enterPool(login, idPool)
+                EnterPoolService.enterPool(login, idPool, token)
         );
 
         out.close();

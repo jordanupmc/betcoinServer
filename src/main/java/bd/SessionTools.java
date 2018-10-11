@@ -18,31 +18,30 @@ public class SessionTools {
 
 
     /*check si le token est valide*/
-    public static boolean checkToken(String token, String login){
-        MongoClientURI uri  = new MongoClientURI(Database.mongoURI);
-        try(MongoClient client = new MongoClient(uri);) {
-            MongoDatabase db = client.getDatabase(uri.getDatabase());
-            MongoCollection<Document> collection = db.getCollection("Session");
-            Document d =
-                    collection
-                            .find(new BsonDocument().append("token", new BsonString(token))
-                                                    .append("login", new BsonString(login)))
-                            .first();
+    public static boolean checkToken(String token, String login) {
+        MongoClientURI uri = new MongoClientURI(Database.mongoURI);
 
-            if(d==null)
-                return false;
-            return d.getBoolean("isConnected");
+        MongoCollection<Document> collection = getMongoCollection("Session");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("token", new BsonString(token))
+                                .append("login", new BsonString(login)))
+                        .first();
 
-        }
+        if (d == null)
+            return false;
+        return true;
+
+
     }
 
     /*Genere un token qui n'est pas utilise*/
     public static String generateToken() {
-        String token = UUID.randomUUID().hashCode()+"";
+        String token = UUID.randomUUID().hashCode() + "";
         while (!unusedToken(token)) {
-            token = UUID.randomUUID().hashCode()+"";
+            token = UUID.randomUUID().hashCode() + "";
         }
-        return token ;
+        return token;
     }
 
     /* Verifie si un token est deja utilise*/

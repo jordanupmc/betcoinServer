@@ -1,6 +1,7 @@
 package services;
 
 import bd.BetTools;
+import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
@@ -13,14 +14,18 @@ import static tools.ServiceTools.serviceKO;
 import static tools.ServiceTools.serviceOK;
 
 public class CancelBetService {
-    public static JSONObject cancelBet(String login, String idPool){
+    public static JSONObject cancelBet(String login, String idPool, String token){
 
-        if((login == null) || (idPool == null)) {
+        if((login == null) || (idPool == null) || (token == null)) {
             return serviceKO("CancelBet Fail : Wrong arguments, expecting: login idPool");
         }
 
         boolean connected = userConnected(login);
         if(!connected) return serviceKO("CancelBet Fail : User not connected");
+
+        if(!SessionTools.checkToken(token, login)){
+            return serviceKO("CancelBet Fail : Wrong token");
+        }
 
         try {
             boolean canCancel = canCancelBet(idPool);
