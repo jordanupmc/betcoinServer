@@ -8,6 +8,8 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
@@ -104,4 +106,37 @@ public class UserTools {
     }
 
 
+    public static boolean enterPool(String login, String idPool) {
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .first();
+
+        if(d == null){
+            List<Document> idBetPools = new ArrayList<>();
+            idBetPools.add(new Document("idPool", new BsonString(idPool)));
+            Document toInsert = new Document("gamblerLogin", login)
+                    .append("idBetPool", idBetPools);
+            collection.insertOne(toInsert);
+            return true;
+        }else {
+            BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
+            List<Document> idBetPools = (List<Document>) d.get("idBetPool");
+
+            for(int i=0; i<idBetPools.size(); i++){
+                System.out.println(idBetPools.get(i).get("idPool"));
+
+                if(idBetPools.get(i).get("idPool").equals(idPool)){
+                    return true;
+                }
+            }
+
+            idBetPools.add(new Document("idPool", new BsonString(idPool)));
+            collection.updateOne(filter, new Document("$set", new Document("idBetPool", idBetPools)));
+
+        }
+
+        return true;
+    }
 }
