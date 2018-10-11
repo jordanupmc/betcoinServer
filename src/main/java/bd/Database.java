@@ -2,6 +2,10 @@ package bd;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,6 +16,7 @@ import java.sql.SQLException;
 public class Database {
 
     public static final String mongoURI = "mongodb://betcoin:betcoin2018@ds125673.mlab.com:25673/heroku_7kxfs0jk";
+    private static MongoDatabase mongoDB = null;
 
     private Database(){
     }
@@ -29,6 +34,17 @@ jdbc:postgresql://ec2-54-225-68-133.compute-1.amazonaws.com/ds85knecevckl?sslmod
 
         String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath()+"?sslmode=require";
         return DriverManager.getConnection(dbUrl, username, password);
+    }
+
+    /* Renvoi la collection mongoDB correspondant au parametre */
+    public static MongoCollection<Document> getMongoCollection(String nomColl){
+        if(mongoDB == null) {
+            MongoClientURI uri = new MongoClientURI(Database.mongoURI);
+            MongoClient client = new MongoClient(uri);
+            mongoDB = client.getDatabase(uri.getDatabase());
+        }
+        MongoCollection<Document> collection = mongoDB.getCollection(nomColl);
+        return collection;
     }
 
 }

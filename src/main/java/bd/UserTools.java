@@ -1,12 +1,16 @@
 package bd;
 
+import com.mongodb.client.MongoCollection;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.bson.Document;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Date;
+import java.sql.*;
+
+import static bd.Database.getMongoCollection;
+import static bd.SessionTools.generateToken;
 
 public class UserTools {
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country){
@@ -43,6 +47,60 @@ public class UserTools {
         }catch (Exception e){
             return false;
         }
+    }
+
+
+    /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
+    public static String connect(String login, String mdp ) {
+        MongoCollection<Document> collection = getMongoCollection("Session");
+        String token = generateToken();
+
+        Document d = new Document("login", login)
+                .append("token", token)
+                .append("lastConnection", new Timestamp(System.currentTimeMillis()));
+
+        collection.insertOne(d);
+
+        return token;
+    }
+
+    public static boolean checkPasswd(String login, String mdp){
+        try {
+            Connection co = Database.getConnection();
+
+            String query = "SELECT * FROM USERS WHERE login='" + login
+                    + "' AND password='" + mdp + "'";
+            PreparedStatement pstmt = co.prepareStatement(query);
+
+            ResultSet res = pstmt.executeQuery();
+            if (res.next()) {
+                pstmt.close();
+                co.close();
+                return true;
+            }
+            pstmt.close();
+            co.close();
+            return false;
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+            return false;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean userConnected(String login){
+        MongoCollection<Document> collection = getMongoCollection("Session");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("login", new BsonString(login)))
+                        .first();
+
+        if(d==null ||d.getString("token") == null)
+            return false;
+
+        return true;
     }
 
 
