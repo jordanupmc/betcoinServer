@@ -17,7 +17,7 @@ import static bd.Database.getMongoCollection;
 public class SessionTools {
 
 
-    /*check si le token est valide*/
+    /*check si un user est connecte avec un certain token*/
     public static boolean checkToken(String token, String login) {
         MongoCollection<Document> collection = getMongoCollection("Session");
         Document d =

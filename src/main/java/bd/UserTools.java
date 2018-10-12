@@ -1,6 +1,7 @@
 package bd;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
@@ -37,6 +38,7 @@ public class UserTools {
         }
     }
 
+    /*desinscription: suppression de la table users + suppression dans Session*/
     public static boolean unsubscribe(String login) {
         String query = "DELETE FROM USERS WHERE login=?";
 
@@ -45,12 +47,18 @@ public class UserTools {
         ) {
             pstmt.setString(1, login);
             pstmt.executeUpdate();
-            return true;
+            return removeSessionUser(login);
         } catch (Exception e) {
             return false;
         }
     }
 
+
+    private static boolean removeSessionUser(String login){
+        MongoCollection<Document> collection = getMongoCollection("Session");
+        DeleteResult d = collection.deleteOne(new BsonDocument().append("login", new BsonString(login)));
+        return d.getDeletedCount()  == 1;
+    }
 
     /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
     public static String connect(String login, String mdp) {
