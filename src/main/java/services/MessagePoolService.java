@@ -15,7 +15,11 @@ public class MessagePoolService {
     public static JSONObject messagePool(String login, String idPool, String token, String message){
 
         if((login == null) || (idPool == null) || (token == null) || (message == null)) {
-            return serviceKO("MessagePool Fail : Wrong arguments, expecting: login idPool message");
+            return serviceKO("MessagePool Fail : Wrong arguments, expecting: login idPool token message");
+        }
+
+        if(message.length()==0){
+            return serviceKO("MessagePool Fail : Can't post a empty message");
         }
 
         boolean connected = userConnected(login);

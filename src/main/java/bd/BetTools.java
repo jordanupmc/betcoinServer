@@ -48,9 +48,11 @@ public class BetTools {
     public static boolean canCancelBet(String idPool) throws URISyntaxException, SQLException {
 
         Connection c = Database.getConnection();
-        String query = "SELECT * FROM BETPOOL WHERE idbetpool='" + idPool
-                + "'";
+        String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
+
         PreparedStatement pstmt = c.prepareStatement(query);
+
+        pstmt.setInt(1, Integer.parseInt(idPool));
 
         ResultSet res = pstmt.executeQuery();
         if (res.next()) {
@@ -65,6 +67,7 @@ public class BetTools {
         return false;
     }
 
+    /* Annule un bet*/
     public static boolean cancelBet(String login, String idPool){
         MongoCollection<Document> collection = getMongoCollection("L_Bet");
         Document d =

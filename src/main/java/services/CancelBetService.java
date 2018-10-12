@@ -16,7 +16,7 @@ public class CancelBetService {
     public static JSONObject cancelBet(String login, String idPool, String token){
 
         if((login == null) || (idPool == null) || (token == null)) {
-            return serviceKO("CancelBet Fail : Wrong arguments, expecting: login idPool");
+            return serviceKO("CancelBet Fail : Wrong arguments, expecting: login idPool token");
         }
 
         boolean connected = userConnected(login);
@@ -34,6 +34,7 @@ public class CancelBetService {
         } catch (URISyntaxException e) {
             return serviceKO("CancelBet Fail : URISyntaxException");
         } catch (SQLException e) {
+            e.printStackTrace();
             return serviceKO("CancelBet Fail : SQLException");
         }
 

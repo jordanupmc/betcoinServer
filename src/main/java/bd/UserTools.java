@@ -70,9 +70,11 @@ public class UserTools {
     public static boolean checkPasswd(String login, String mdp) throws URISyntaxException, SQLException {
         Connection co = Database.getConnection();
 
-        String query = "SELECT * FROM USERS WHERE login='" + login
-                + "' AND password='" + mdp + "'";
+        String query = "SELECT * FROM USERS WHERE login=? AND password=?";
         PreparedStatement pstmt = co.prepareStatement(query);
+        pstmt.setString(1, login);
+        pstmt.setString(2, mdp);
+
 
         ResultSet res = pstmt.executeQuery();
         if (res.next()) {

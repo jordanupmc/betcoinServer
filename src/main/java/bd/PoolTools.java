@@ -19,8 +19,9 @@ public class PoolTools {
     public static boolean poolExist(String idPool) throws URISyntaxException, SQLException {
         Connection co = Database.getConnection();
 
-        String query = "SELECT * FROM BETPOOL WHERE idbetpool='" + idPool + "'";
+        String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
         PreparedStatement pstmt = co.prepareStatement(query);
+        pstmt.setInt(1, Integer.parseInt(idPool));
 
 
         ResultSet res = pstmt.executeQuery();
