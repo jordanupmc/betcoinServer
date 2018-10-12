@@ -22,7 +22,6 @@ public class UserService {
         return j;
     }
 
-    /*TODO que faire apres la suppression en base ? supprimer l'obet dans la collection Session ou bien mettre isConnected a false ?*/
     public static JSONObject unsubscribe(String login, String token){
         JSONObject j=new JSONObject();
 

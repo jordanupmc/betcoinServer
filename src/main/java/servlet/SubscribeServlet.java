@@ -21,6 +21,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 
 @WebServlet(
         name = "SubscribeServlet",
@@ -43,24 +44,34 @@ public class SubscribeServlet extends HttpServlet {
 
         //Login*Mdp*ConfirmMdp*Email*Nom*Prenom*DateNaissance(dd/mm/aaaa)*Pays->void
 
-        String login=req.getParameter("login");
-        String mdp=req.getParameter("password");
-        String cmdp=req.getParameter("confirmPassword");
-        String email=req.getParameter("email");
-        String nom=req.getParameter("lastName");
-        String prenom=req.getParameter("firstName");
-        String dateNaiss=req.getParameter("dateNaiss");
-        String pays=req.getParameter("country");
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String mdp = ValidatorHelper.getParam(req, "password", true);
+            String cmdp = ValidatorHelper.getParam(req, "confirmPassword", true);
+            String email = ValidatorHelper.getParam(req, "email", true);
+            String nom = ValidatorHelper.getParam(req, "lastName", true);
+            String prenom = ValidatorHelper.getParam(req, "firstName", true);
+            String dateNaiss = ValidatorHelper.getParam(req, "dateNaiss", true);
+            String pays = ValidatorHelper.getParam(req, "country", true);
 
-        if(login != null && mdp!= null && cmdp != null && email!= null && nom != null && prenom!= null && dateNaiss != null && pays!= null) {
-            out.print(
-                    UserService.subscribe(login, mdp, cmdp,email, nom, prenom, Date.valueOf(dateNaiss), pays)
-            );
-        }
-        else {
+            if(login != null && mdp!= null && cmdp != null && email!= null && nom != null && prenom!= null && dateNaiss != null && pays!= null
+                && ValidatorHelper.isEmail(email)
+            ) {
+                out.print(
+                        UserService.subscribe(login, mdp, cmdp,email, nom, prenom, Date.valueOf(dateNaiss), pays)
+                );
+            }
+            else {
+                JSONObject j =new JSONObject();
+                j.put("status", "KO");
+                j.put("errorMsg", "Subscribe fail error param");
+                out.print(j);
+            }
+        }catch (ValidationException ve){
+
             JSONObject j =new JSONObject();
             j.put("status", "KO");
-            j.put("errorMsg", "Subscribe fail error param");
+            j.put("errorMsg", ve.getMessage());
             out.print(j);
         }
         out.close();
