@@ -108,9 +108,14 @@ public class UserTools {
                 arr.put(tmp);
             }
             json.put("subscribePools", arr);
+            //TODO ajouter les infos des paris fais
         }catch(Exception e){
             return null;
         }
         return json;
+    }
+
+    public static JSONObject addBet(){
+
     }
 }
