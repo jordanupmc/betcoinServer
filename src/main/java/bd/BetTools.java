@@ -83,6 +83,8 @@ public class BetTools {
         collection = getMongoCollection("L_Bet");
         Document d = collection.find(new BsonDocument().append("idPool", new BsonString(idPool))).first();
         d.append("bet",obj);
+        BsonDocument filter = new BsonDocument().append("idPool", new BsonString(idPool));
+        collection.updateOne(filter, new Document("$set", d));
 
         return true;
     }
