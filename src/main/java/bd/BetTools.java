@@ -1,11 +1,18 @@
 package bd;
 
+import com.mongodb.client.MongoCollection;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
+import static bd.Database.getMongoCollection;
 
 public class BetTools {
 
@@ -35,5 +42,21 @@ public class BetTools {
         finally {
             return ar;
         }
+    }
+    public static boolean quitPool(String login, String idPool){
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .first();
+        if(d==null){
+            JOptionPane.showMessageDialog(null,"User has no subscription yet");
+            return false;
+        }else{
+
+
+
+        }
+        return true;
     }
 }
