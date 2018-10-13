@@ -49,4 +49,16 @@ public class UserService {
         }
         return json;
     }
+
+    public static JSONObject visualiseAcc(String login){
+        JSONObject json = new JSONObject();
+        json = UserTools.visualiseAccount(login);
+        if(json!=null){
+            json.put("status","OK");
+        }else{
+            json.put("status","KO");
+            json.put("errMsg","couldn't retrieve the informations");
+        }
+        return json;
+    }
 }

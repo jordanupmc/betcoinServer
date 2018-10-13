@@ -13,10 +13,7 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Date;
+import java.sql.*;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -80,5 +77,25 @@ public class UserTools {
         return true;
     }
 
+    public static JSONObject visualiseAccount(String login){
+        String query = "SELECT * IN USERS WHERE login=?";
+        JSONObject json = new JSONObject();
+        try( Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query)
+        ){
+            pstmt.setString(1,login);
+            pstmt.execute();
+            ResultSet data = (ResultSet)pstmt.getMetaData();
+            json.put("login",data.getString("login"));
+            json.put("email",data.getString("email"));
+            json.put("last_name",data.getString("last_name"));
+            json.put("first_name",data.getString("first_name"));
+            json.put("birthday",data.getString("birthday"));
+            json.put("country",data.getString("country"));
 
+        }catch(Exception e){
+            return null;
+        }
+        return json;
+    }
 }
