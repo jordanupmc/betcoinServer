@@ -57,7 +57,7 @@ public class UserTools {
 
     /*desinscription: suppression de la table users + suppression dans Session*/
     public static boolean unsubscribe(String login) {
-        String query = "DELETE FROM USERS WHERE login=?";
+        String query = "UPDATE USERS SET isLock=true WHERE login=?";
 
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
