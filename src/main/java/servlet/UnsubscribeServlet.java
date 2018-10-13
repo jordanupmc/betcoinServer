@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
@@ -31,20 +32,24 @@ public class UnsubscribeServlet extends HttpServlet {
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
 
-        String login=req.getParameter("login");
-        String token=req.getParameter("token");
-
-        if(login !=null && token != null){
-            out.println(UserService.unsubscribe(login, token));
-        }
-        else{
+            if (login != null && token != null) {
+                out.println(UserService.unsubscribe(login, token));
+            } else {
+                JSONObject j = new JSONObject();
+                j.put("status", "KO");
+                j.put("errorMsg", "Unsubscribe fail");
+                out.println(j);
+            }
+        }catch (ValidationException ve){
             JSONObject j = new JSONObject();
             j.put("status", "KO");
-            j.put("errorMsg", "Unsubscribe fail");
+            j.put("errorMsg", "Unsubscribe fail "+ve.getMessage());
             out.println(j);
         }
-
         out.close();
     }
 }

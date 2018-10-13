@@ -18,7 +18,7 @@ public class MessagePoolService {
             return serviceKO("MessagePool Fail : Wrong arguments, expecting: login idPool token message");
         }
 
-        if(message.length()==0){
+        if(message.isEmpty()){
             return serviceKO("MessagePool Fail : Can't post a empty message");
         }
 

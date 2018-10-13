@@ -1,11 +1,8 @@
 package bd;
 
-import java.io.IOException;
-import java.nio.CharBuffer;
-
 public enum CryptoEnum {
-    ETH("Ethereum"), //
-    BTC("Bitcoin"), //
+    ETH("Ethereum"),
+    BTC("Bitcoin"),
     ETC("EthereumClassic"),
     LTC("LiteCoin"),
     EOS("EOS"),

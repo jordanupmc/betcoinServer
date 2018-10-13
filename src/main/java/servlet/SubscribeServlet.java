@@ -54,7 +54,7 @@ public class SubscribeServlet extends HttpServlet {
             String dateNaiss = ValidatorHelper.getParam(req, "dateNaiss", true);
             String pays = ValidatorHelper.getParam(req, "country", true);
 
-            if(login != null && mdp!= null && cmdp != null && email!= null && nom != null && prenom!= null && dateNaiss != null && pays!= null
+            if(login != null && mdp!= null && cmdp != null && nom != null && prenom!= null && dateNaiss != null && pays!= null
                 && ValidatorHelper.isEmail(email)
             ) {
                 out.print(
@@ -76,17 +76,5 @@ public class SubscribeServlet extends HttpServlet {
         }
         out.close();
     }
-
-
-    private void testMongo(PrintWriter out){
-        MongoClientURI uri  = new MongoClientURI(Database.mongoURI);
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
-        MongoCollection<Document> v = db.getCollection("dummy");
-        Document d = v.find().first();
-        out.println(d.toJson());
-        client.close();
-    }
-
 
 }
