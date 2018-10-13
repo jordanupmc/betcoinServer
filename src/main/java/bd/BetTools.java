@@ -12,6 +12,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.net.URISyntaxException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static bd.Database.getMongoCollection;
@@ -87,5 +90,54 @@ public class BetTools {
         collection.updateOne(filter, new Document("$set", d));
 
         return true;
+
+    }
+    /* Renvoi true si un pari est toujours annulable */
+    public static boolean canCancelBet(String idPool) throws URISyntaxException, SQLException {
+
+        Connection c = Database.getConnection();
+        String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
+
+        PreparedStatement pstmt = c.prepareStatement(query);
+
+        pstmt.setInt(1, Integer.parseInt(idPool));
+
+        ResultSet res = pstmt.executeQuery();
+        if (res.next()) {
+            if(res.getTimestamp("closingbet").after(new Timestamp(System.currentTimeMillis()))){
+                pstmt.close();
+                c.close();
+                return true;
+            }
+        }
+        pstmt.close();
+        c.close();
+        return false;
+    }
+
+    /* Annule un bet*/
+    public static boolean cancelBet(String login, String idPool){
+        MongoCollection<Document> collection = getMongoCollection("L_Bet");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                        .first();
+        if (d == null) {
+            return false;
+        } else {
+            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
+
+            List<Document> bets = (List<Document>) d.get("bet");
+
+            for (int i = 0; i < bets.size(); i++) {
+                if (bets.get(i).get("gamblerLogin").equals(login)) {
+                    bets.remove(i);
+                    collection.updateOne(filter, new Document("$set", new Document("bet", bets)));
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
