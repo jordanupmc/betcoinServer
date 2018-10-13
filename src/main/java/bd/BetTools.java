@@ -72,13 +72,13 @@ public class BetTools {
     public static boolean addBet(String idPool, String login, float betAmmount, float betValue){
         MongoCollection<Document> collection = getMongoCollection("Bet");
 
-        JSONObject obj = new JSONObject();
-        obj.put("gamblerLogin",login);
-        obj.put("betAmount",betAmmount);
-        obj.put("betValue",betValue);
+        Document obj = new Document();
+        obj.append("gamblerLogin",login);
+        obj.append("betAmount",betAmmount);
+        obj.append("betValue",betValue);
         Timestamp tsp = new Timestamp(System.currentTimeMillis());
-        obj.put("betDate",tsp.toString());
-        collection.insertOne(new Document("bet",obj));
+        obj.append("betDate",tsp.toString());
+        collection.insertOne(obj);
 
         collection = getMongoCollection("L_Bet");
         Document d = collection.find(new BsonDocument().append("idPool", new BsonString(idPool))).first();
