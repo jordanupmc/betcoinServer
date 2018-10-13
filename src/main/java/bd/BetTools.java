@@ -68,5 +68,8 @@ public class BetTools {
         }
     }
 
+    public static boolean addBet(String login, float betAmmount, float betValue){
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
 
+    }
 }

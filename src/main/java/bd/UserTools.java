@@ -115,7 +115,5 @@ public class UserTools {
         return json;
     }
 
-    public static JSONObject addBet(){
 
-    }
 }
