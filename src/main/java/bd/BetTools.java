@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.List;
 
 import static bd.Database.getMongoCollection;
@@ -68,8 +69,21 @@ public class BetTools {
         }
     }
 
-    public static boolean addBet(String login, float betAmmount, float betValue){
-        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+    public static boolean addBet(String idPool, String login, float betAmmount, float betValue){
+        MongoCollection<Document> collection = getMongoCollection("Bet");
 
+        JSONObject obj = new JSONObject();
+        obj.put("gamblerLogin",login);
+        obj.put("betAmount",betAmmount);
+        obj.put("betValue",betValue);
+        Timestamp tsp = new Timestamp(System.currentTimeMillis());
+        obj.put("betDate",tsp.toString());
+        collection.insertOne(new Document("bet",obj));
+
+        collection = getMongoCollection("L_Bet");
+        Document d = collection.find(new BsonDocument().append("idPool", new BsonString(idPool))).first();
+        d.append("bet",obj);
+
+        return true;
     }
 }
