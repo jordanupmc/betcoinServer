@@ -11,6 +11,7 @@ import com.mongodb.util.JSON;
 import org.bson.Document;
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -63,7 +64,18 @@ public class UserTools {
         MongoDatabase db = client.getDatabase(uri.getDatabase());
         MongoCollection<Document> sesCollection = db.getCollection("session");
 
-        sesCollection.updateOne(and(eq("login", login),eq("token", token)), new Document("$set", new Document("isConnected", false)));
+        Document is_here = sesCollection.find(eq("login", login)).first();
+        if(is_here!=null) {
+            if (is_here.get(token) != null) {
+                sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$set", new Document("token", null)));
+            }else{
+                JOptionPane.showMessageDialog(null,"User already disconnected");
+                return false;
+            }
+        }else{
+            JOptionPane.showMessageDialog(null,"User not found");
+            return false;
+        }
 
         return true;
     }
