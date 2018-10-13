@@ -45,31 +45,6 @@ public class BetTools {
         }
     }
 
-    public static boolean cancelBet(String login, String idPool){
-        MongoCollection<Document> collection = getMongoCollection("L_Bet");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
-                        .first();
-        if (d == null) {
-            return false;
-        } else {
-            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
-
-            List<Document> bets = (List<Document>) d.get("bet");
-
-            for (int i = 0; i < bets.size(); i++) {
-                if (bets.get(i).get("gamblerLogin").equals(login)) {
-                    bets.remove(i);
-                    collection.updateOne(filter, new Document("$set", new Document("bet", bets)));
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
     public static boolean quitPool(String login, String idPool){
         MongoCollection<Document> collection = getMongoCollection("SubscribePool");
         Document d =
@@ -89,8 +64,8 @@ public class BetTools {
                     return true;
                 }
             }
-
+            return false;
         }
-        return true;
+
     }
 }
