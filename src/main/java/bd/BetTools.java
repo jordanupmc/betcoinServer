@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 import static bd.Database.getMongoCollection;
 
@@ -43,6 +44,32 @@ public class BetTools {
             return ar;
         }
     }
+
+    public static boolean cancelBet(String login, String idPool){
+        MongoCollection<Document> collection = getMongoCollection("L_Bet");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                        .first();
+        if (d == null) {
+            return false;
+        } else {
+            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
+
+            List<Document> bets = (List<Document>) d.get("bet");
+
+            for (int i = 0; i < bets.size(); i++) {
+                if (bets.get(i).get("gamblerLogin").equals(login)) {
+                    bets.remove(i);
+                    collection.updateOne(filter, new Document("$set", new Document("bet", bets)));
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
     public static boolean quitPool(String login, String idPool){
         MongoCollection<Document> collection = getMongoCollection("SubscribePool");
         Document d =
@@ -53,8 +80,15 @@ public class BetTools {
             JOptionPane.showMessageDialog(null,"User has no subscription yet");
             return false;
         }else{
-
-
+            BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
+            List<Document> pools = (List<Document>) d.get("idBetPool");
+            for(int i = 0; i < pools.size();i++){
+                if(pools.get(i).get("idPool").equals(idPool)){
+                    pools.remove(i);
+                    collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
+                    return true;
+                }
+            }
 
         }
         return true;
