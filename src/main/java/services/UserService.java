@@ -41,6 +41,8 @@ public class UserService {
 
         if(SessionTools.checkToken(token, login)){
             UserTools.disconnect(login,token);
+            json.put("status", "OK");
+            json.put("disconnectedLogin",login);
         }else{
             json.put("status","KO");
             json.put("errorMsg", "Already disconnected");
