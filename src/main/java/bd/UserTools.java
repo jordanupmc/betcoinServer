@@ -8,12 +8,16 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.util.JSON;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
 import org.bson.Document;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -92,7 +96,18 @@ public class UserTools {
             json.put("first_name",data.getString("first_name"));
             json.put("birthday",data.getString("birthday"));
             json.put("country",data.getString("country"));
-
+            MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+            Document d =
+                    collection
+                            .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                            .first();
+            List<Document> pools = (List<Document>) d.get("idBetPool");
+            JSONArray arr = new JSONArray();
+            for(int i = 0; i < pools.size();i++){
+                Document tmp = pools.get(i);
+                arr.put(tmp);
+            }
+            json.put("subscribePools", arr);
         }catch(Exception e){
             return null;
         }
