@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
 
+import static services.ServiceTools.serviceKO;
+
 @WebServlet(
         name = "SubscribeServlet",
         urlPatterns = {"/subscribe"}
@@ -62,17 +64,10 @@ public class SubscribeServlet extends HttpServlet {
                 );
             }
             else {
-                JSONObject j =new JSONObject();
-                j.put("status", "KO");
-                j.put("errorMsg", "Subscribe fail error param");
-                out.print(j);
+                out.print(serviceKO("Subscribe fail error param"));
             }
         }catch (ValidationException ve){
-
-            JSONObject j =new JSONObject();
-            j.put("status", "KO");
-            j.put("errorMsg", ve.getMessage());
-            out.print(j);
+            out.print(serviceKO(ve.getMessage()));
         }
         out.close();
     }

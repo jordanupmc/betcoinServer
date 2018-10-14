@@ -22,8 +22,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @WebServlet(
-        name = "SubscribeServlet",
-        urlPatterns = {"/subscribe"}
+        name = "VisualiseAccountServlet",
+        urlPatterns = {"/getAccountInfo"}
 )
 public class VisualiseAccountServlet extends HttpServlet {
 

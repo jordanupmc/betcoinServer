@@ -21,8 +21,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @WebServlet(
-        name = "SubscribeServlet",
-        urlPatterns = {"/subscribe"}
+        name = "DisconnectServlet",
+        urlPatterns = {"/disconnect"}
 )
 public class DisconnectServlet extends HttpServlet {
 

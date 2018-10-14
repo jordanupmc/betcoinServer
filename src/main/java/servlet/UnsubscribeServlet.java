@@ -1,6 +1,7 @@
 package servlet;
 
 import org.json.JSONObject;
+import services.ServiceTools;
 import services.UserService;
 
 import javax.jws.soap.SOAPBinding;
@@ -39,16 +40,10 @@ public class UnsubscribeServlet extends HttpServlet {
             if (login != null && token != null) {
                 out.println(UserService.unsubscribe(login, token));
             } else {
-                JSONObject j = new JSONObject();
-                j.put("status", "KO");
-                j.put("errorMsg", "Unsubscribe fail");
-                out.println(j);
+                out.println(ServiceTools.serviceKO("Unsubscribe fail"));
             }
         }catch (ValidationException ve){
-            JSONObject j = new JSONObject();
-            j.put("status", "KO");
-            j.put("errorMsg", "Unsubscribe fail "+ve.getMessage());
-            out.println(j);
+            out.println(ServiceTools.serviceKO( "Unsubscribe fail "+ve.getMessage()));
         }
         out.close();
     }

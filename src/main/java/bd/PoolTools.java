@@ -27,10 +27,8 @@ public class PoolTools {
         ResultSet res = pstmt.executeQuery();
         if (res.next()) {
             pstmt.close();
-            pstmt.close();
             return true;
         }
-        pstmt.close();
         pstmt.close();
         return false;
     }
