@@ -1,22 +1,12 @@
 package servlet;
 
-import bd.Database;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
-import org.json.JSONObject;
 import services.UserService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.*;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -56,8 +46,8 @@ public class SubscribeServlet extends HttpServlet {
             String dateNaiss = ValidatorHelper.getParam(req, "dateNaiss", true);
             String pays = ValidatorHelper.getParam(req, "country", true);
 
-            if(login != null && mdp!= null && cmdp != null && nom != null && prenom!= null && dateNaiss != null && pays!= null
-                && ValidatorHelper.isEmail(email)
+            if(ValidatorHelper.isEmail(email) && ValidatorHelper.isDateSQL(dateNaiss) && !ValidatorHelper.containsWhiteSpace(login)
+                    && !ValidatorHelper.containsWhiteSpace(mdp) && !ValidatorHelper.containsWhiteSpace(nom) && !ValidatorHelper.containsWhiteSpace(prenom)
             ) {
                 out.print(
                         UserService.subscribe(login, mdp, cmdp,email, nom, prenom, Date.valueOf(dateNaiss), pays)
