@@ -72,11 +72,11 @@ public class UserTools {
             if (userConnected(login)) {
                 sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$unset", new Document("token", "")));
             }else{
-                JOptionPane.showMessageDialog(null,"User already disconnected");
+                JOptionPane.showMessageDialog(null,"Disconnection Fail : User already disconnected");
                 return false;
             }
         }else{
-            JOptionPane.showMessageDialog(null,"User not found");
+            JOptionPane.showMessageDialog(null,"Disconnection Fail : User not found");
             return false;
         }
 
@@ -220,18 +220,19 @@ public class UserTools {
 
     /* Modifie les informations du compte utilisateur */
     public static boolean accountModification(String login, String field_name, String new_value) {
-        String query = "UPDATE USER SET ?=? WHERE login=?";
+        String query = "UPDATE USERS SET "+field_name+"=? WHERE login=?";
 
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
         ) {
-            pstmt.setString(1, field_name);
-            pstmt.setString(2, new_value);
-            pstmt.setString(3, login);
+
+            pstmt.setString(1, new_value);
+            pstmt.setString(2, login);
 
             pstmt.executeUpdate();
             return true;
-        } catch (Exception E) {
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,e.toString());
             return false;
         }
     }

@@ -1,11 +1,15 @@
 package services;
 
 import bd.BetTools;
+import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+
+import static bd.UserTools.userConnected;
+import static services.ServiceTools.serviceKO;
 
 
 public class BetPoolService {
@@ -15,13 +19,21 @@ public class BetPoolService {
         return j;
     }
 
-    public static JSONObject quitPool(String login, String idPool){
+    public static JSONObject quitPool(String login, String idPool,String token){
         JSONObject obj;
+
+
+        if(!userConnected(login)) return serviceKO("QuitPool Fail : User not connected");
+
+        if(!SessionTools.checkToken(token, login)){
+            return serviceKO("QuitPool Fail : Wrong token");
+        }
+
         try {
             if(BetTools.quitPool(login,idPool)) {
                 obj = ServiceTools.serviceOK();
-                obj.put("poolQuitted", idPool);
-                obj.put("by",login);
+                obj.put("login",login);
+                obj.put("quittedPool", idPool);
             }else{
                 obj = ServiceTools.serviceKO("couldn't quit pool "+idPool);
             }

@@ -41,16 +41,17 @@ public class QuitPoolServlet extends HttpServlet {
 
         String login = req.getParameter("login");
         String idPool = req.getParameter("idPool");
+        String token = req.getParameter("token");
         JSONObject json = new JSONObject();
 
         if(login != null && idPool != null){
-            json = BetPoolService.quitPool(login, idPool);
+            json = BetPoolService.quitPool(login, idPool,token);
         }else{
 
             json.put("status", "KO");
             json.put("errMsg", "Missing login or idPool");
-            out.print(json);
         }
+        out.print(json);
         out.close();
 
 

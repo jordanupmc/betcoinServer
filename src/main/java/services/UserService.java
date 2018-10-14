@@ -9,6 +9,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 
 import static bd.UserTools.checkPasswd;
+import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
@@ -47,19 +48,28 @@ public class UserService {
     public static JSONObject disconnect(String login, String token){
         JSONObject json;
 
+
+        if(!userConnected(login)) return serviceKO("Disconnection Fail : User not connected");
+
         if(SessionTools.checkToken(token, login)){
             UserTools.disconnect(login,token);
             json = serviceOK();
             json.put("disconnectedLogin",login);
         }else{
-            json = serviceKO("Already disconnected");
+            json = serviceKO("Disconnection Fail : Wrong token");
         }
         return json;
     }
 
-    public static JSONObject visualiseAcc(String login){
+    public static JSONObject visualiseAcc(String login,String token){
         JSONObject json;
         json = UserTools.visualiseAccount(login);
+        boolean connected = userConnected(login);
+        if(!connected) return serviceKO("VisualiseAccount Fail : User not connected");
+
+        if(!SessionTools.checkToken(token, login)){
+            return serviceKO("VisualiseAccount Fail : Wrong token");
+        }
         if(json!=null){
             json.put("status","OK");
         }else{
@@ -68,8 +78,14 @@ public class UserService {
         return json;
     }
 
-    public static JSONObject changeFieldAccount(String login, String pwd, String field_name, String new_value){
+    public static JSONObject changeFieldAccount(String login, String pwd, String field_name, String new_value,String token){
         JSONObject json;
+
+        if(!userConnected(login)) return serviceKO("ChangeFieldAccount Fail : User not connected");
+
+        if(!SessionTools.checkToken(token, login)){
+            return serviceKO("ChangeFieldAccount Fail : Wrong token");
+        }
         try {
             if (!checkPasswd(login, pwd)) {
                 return serviceKO("AccountModification Failed : Wrong password");
@@ -82,7 +98,7 @@ public class UserService {
         if(UserTools.accountModification(login,field_name,new_value)){
             json = serviceOK();
         }else{
-            json = serviceKO("couldn't change your account's information");
+            json = serviceKO("AccountModification Failed : couldn't change your account's information");
         }
 
         return json;

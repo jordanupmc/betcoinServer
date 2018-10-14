@@ -68,7 +68,8 @@ public class BetTools {
                 if(pools.get(i).get("idPool").equals(idPool)){
                     pools.remove(i);
                     collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
-                    return cancelBet(login, idPool);
+                    cancelBet(login, idPool);
+                    return true;
                 }
             }
             return false;
