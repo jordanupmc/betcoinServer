@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
+import static bd.UserTools.accountClosed;
 import static bd.UserTools.checkPasswd;
 import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
@@ -18,14 +19,18 @@ public class LoginService {
             return serviceKO("Connect Fail : Wrong arguments, expecting: login password");
         }
 
+        boolean accountClosed = false;
         boolean passwd_OK = false;
         try {
             passwd_OK = checkPasswd(login, mdp);
+            accountClosed= accountClosed(login);
         } catch (URISyntaxException e) {
             return serviceKO("Connect Fail : URISyntaxException");
         } catch (SQLException e) {
             return serviceKO("Connect Fail : SQLException");
         }
+
+        if(accountClosed) return serviceKO("Connect Fail : Account closed");
         if(!passwd_OK) return serviceKO("Connect Fail : Invalid login and/or wrong password");
 
         boolean connected = userConnected(login);
