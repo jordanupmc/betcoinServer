@@ -49,6 +49,7 @@ public class BetTools {
         }
     }
 
+    /* Permet aux utilisateurs de quitter/se désinscrire d'un salon de pari */
     public static boolean quitPool(String login, String idPool){
         MongoCollection<Document> collection = getMongoCollection("SubscribePool");
         Document d =
@@ -72,9 +73,16 @@ public class BetTools {
         }
     }
 
+    /* Permet aux utilisateurs d'ajouter un nouveau pari*/
     public static boolean addBet(String idPool, String login, float betAmmount, float betValue){
         MongoCollection<Document> collection = getMongoCollection("Bet");
-
+        try {
+            if (!canCancelBet(idPool)) {
+                return false;
+            }
+        }catch(Exception e){
+            return false;
+        }
         Document obj = new Document();
         obj.append("gamblerLogin",login);
         obj.append("betAmount",betAmmount);
@@ -92,6 +100,7 @@ public class BetTools {
         return true;
 
     }
+
     /* Renvoi true si un pari est toujours annulable */
     public static boolean canCancelBet(String idPool) throws URISyntaxException, SQLException {
 

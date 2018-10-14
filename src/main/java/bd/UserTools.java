@@ -3,9 +3,7 @@ package bd;
 import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
@@ -70,6 +68,7 @@ public class UserTools {
         }
     }
 
+    /* Permet à l'utilisateur de se déconnecter */
     public static boolean disconnect(String login,String token){
         MongoClientURI uri = new MongoClientURI(Database.mongoURI);
         MongoClient client = new MongoClient(uri);
@@ -79,7 +78,7 @@ public class UserTools {
         Document is_here = sesCollection.find(eq("login", login)).first();
         if(is_here!=null) {
             if (is_here.get(token) != null) {
-                sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$set", new Document("token", null)));
+                sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$unset", new Document("token", "")));
             }else{
                 JOptionPane.showMessageDialog(null,"User already disconnected");
                 return false;
@@ -92,6 +91,7 @@ public class UserTools {
         return true;
     }
 
+    /* renvois un JSON avec toutes les informations affichable de l'utilisateur */
     public static JSONObject visualiseAccount(String login){
         String query = "SELECT * IN USERS WHERE login=?";
         JSONObject json = new JSONObject();
@@ -119,7 +119,15 @@ public class UserTools {
                 arr.put(tmp);
             }
             json.put("subscribePools", arr);
-            //TODO ajouter les infos des paris fais
+            collection = getMongoCollection("Bet");
+            JSONArray arr_bet = new JSONArray();
+            List<Document> listdoc = (List<Document>)collection
+                .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
+            for(int j = 0; j < listdoc.size();j++){
+                arr_bet.put(listdoc.get(j));
+            }
+
+            json.put("bets", arr_bet);
         }catch(Exception e){
             return null;
         }
