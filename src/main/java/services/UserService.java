@@ -4,7 +4,13 @@ import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.sql.Date;
+import java.sql.SQLException;
+
+import static bd.UserTools.checkPasswd;
+import static services.ServiceTools.serviceKO;
+import static services.ServiceTools.serviceOK;
 
 public class UserService {
     /*Login*Mdp*ConfirmMdp*Email*Nom*Prenom*DateNaissance(dd/mm/aaaa)*Pays->void
@@ -13,10 +19,10 @@ public class UserService {
     public static JSONObject subscribe(String login, String mdp, String cmdp ,String email, String nom, String prenom,  Date birthDate, String country){
         JSONObject j;
         if(cmdp.equals(mdp) && UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
-            j = ServiceTools.serviceOK();
+            j = serviceOK();
         }
         else{
-           j= ServiceTools.serviceKO("Subscribe fail");
+           j= serviceKO("Subscribe fail");
         }
         return j;
     }
@@ -25,9 +31,9 @@ public class UserService {
         JSONObject j;
 
         if(SessionTools.checkToken(token, login) && UserTools.unsubscribe(login)){
-            j = ServiceTools.serviceOK();
+            j = serviceOK();
         }else{
-            j = ServiceTools.serviceKO( "Unsubscribe fail");
+            j = serviceKO( "Unsubscribe fail");
         }
 
         return j;
@@ -38,10 +44,10 @@ public class UserService {
 
         if(SessionTools.checkToken(token, login)){
             UserTools.disconnect(login,token);
-            json = ServiceTools.serviceOK();
+            json = serviceOK();
             json.put("disconnectedLogin",login);
         }else{
-            json = ServiceTools.serviceKO("Already disconnected");
+            json = serviceKO("Already disconnected");
         }
         return json;
     }
@@ -52,9 +58,28 @@ public class UserService {
         if(json!=null){
             json.put("status","OK");
         }else{
-            json.put("status","KO");
-            json.put("message","couldn't retrieve the informations");
+            json = serviceKO("VisualiseAccount Failed : couldn't retrieve the informations");
         }
+        return json;
+    }
+
+    public static JSONObject changeFieldAccount(String login, String pwd, String field_name, String new_value){
+        JSONObject json;
+        try {
+            if (!checkPasswd(login, pwd)) {
+                return serviceKO("AccountModification Failed : Wrong password");
+            }
+        }catch(SQLException e){
+            return serviceKO("AccountModification Failed : SQLException ");
+        }catch (URISyntaxException e){
+            return serviceKO("AccountModification Failed : URISyntaxException ");
+        }
+        if(UserTools.accountModification(login,field_name,new_value)){
+            json = serviceOK();
+        }else{
+            json = serviceKO("couldn't change your account's information");
+        }
+
         return json;
     }
 }

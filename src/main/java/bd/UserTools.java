@@ -29,6 +29,8 @@ import java.util.List;
 
 import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
+import static services.ServiceTools.serviceKO;
+import static services.ServiceTools.serviceOK;
 
 public class UserTools {
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
@@ -188,6 +190,24 @@ public class UserTools {
             return false;
 
         return true;
+    }
+
+    /* Modifie les informations du compte utilisateur */
+    public static boolean accountModification(String login, String field_name, String new_value){
+        String query = "UPDATE USER SET ?=? WHERE login=?";
+
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);
+        ) {
+            pstmt.setString(1, field_name);
+            pstmt.setString(2, new_value);
+            pstmt.setString(3, login);
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (Exception E) {
+            return false;
+        }
     }
 
 }
