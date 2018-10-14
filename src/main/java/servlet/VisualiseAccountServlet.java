@@ -21,6 +21,8 @@ import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static services.ServiceTools.serviceKO;
+
 @WebServlet(
         name = "VisualiseAccountServlet",
         urlPatterns = {"/getAccountInfo"}
@@ -47,8 +49,7 @@ public class VisualiseAccountServlet extends HttpServlet {
             json = UserService.visualiseAcc(login);
         }else{
 
-            json.put("status", "KO");
-            json.put("errMsg", "Missing login");
+            serviceKO("Missing login");
             out.print(json);
         }
         out.close();
