@@ -36,7 +36,16 @@ public class LoginService {
         boolean connected = userConnected(login);
         if(connected) return serviceKO("Connect Fail : User already connected");
 
-        String token = UserTools.connect(login, mdp);
+        String token = null;
+        try {
+            token = UserTools.connect(login, mdp);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return serviceKO("Connect Fail : URISyntaxException");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return serviceKO("Connect Fail : SQLException");
+        }
 
         JSONObject j = serviceOK();
         j.put("token", token);

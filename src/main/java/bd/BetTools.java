@@ -49,7 +49,7 @@ public class BetTools {
         }
     }
 
-    public static boolean quitPool(String login, String idPool){
+    public static boolean quitPool(String login, String idPool) throws URISyntaxException, SQLException {
         MongoCollection<Document> collection = getMongoCollection("SubscribePool");
         Document d =
                 collection
@@ -116,7 +116,7 @@ public class BetTools {
     }
 
     /* Annule un bet*/
-    public static boolean cancelBet(String login, String idPool){
+    public static boolean cancelBet(String login, String idPool) throws URISyntaxException, SQLException {
         MongoCollection<Document> collection = getMongoCollection("L_Bet");
         Document d =
                 collection
@@ -131,8 +131,18 @@ public class BetTools {
 
             for (int i = 0; i < bets.size(); i++) {
                 if (bets.get(i).get("gamblerLogin").equals(login)) {
+                    int toRefound = bets.get(i).getInteger("betAmount");
                     bets.remove(i);
                     collection.updateOne(filter, new Document("$set", new Document("bet", bets)));
+
+
+                    Connection co = Database.getConnection();
+                    String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
+                    PreparedStatement pstmt = co.prepareStatement(query);
+                    pstmt.setDouble(1, toRefound);
+                    pstmt.setString(2, login);
+                    pstmt.executeUpdate();
+                    pstmt.close();
                     return true;
                 }
             }
