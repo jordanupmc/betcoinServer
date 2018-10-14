@@ -1,22 +1,11 @@
 package bd;
 
-import com.mongodb.DBCursor;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.json.JSONArray;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.DeleteResult;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
-import org.bson.Document;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -26,8 +15,6 @@ import java.util.List;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import java.util.ArrayList;
-import java.util.List;
 
 import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
@@ -71,10 +58,7 @@ public class UserTools {
     }
 
     public static boolean disconnect(String login,String token){
-        MongoClientURI uri = new MongoClientURI(Database.mongoURI);
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
-        MongoCollection<Document> sesCollection = db.getCollection("session");
+        MongoCollection<Document> sesCollection = getMongoCollection("Session");
 
         Document is_here = sesCollection.find(eq("login", login)).first();
         if(is_here!=null) {
@@ -138,11 +122,22 @@ public class UserTools {
         MongoCollection<Document> collection = getMongoCollection("Session");
         String token = generateToken();
 
-        Document d = new Document("login", login)
-                .append("token", token)
-                .append("lastConnection", new Timestamp(System.currentTimeMillis()));
+        Document firstConnection =
+                collection
+                        .find(new BsonDocument().append("login", new BsonString(login)))
+                        .first();
 
-        collection.insertOne(d);
+        if(firstConnection == null){ //Premiere connection
+            Document d = new Document("login", login)
+                    .append("token", token)
+                    .append("lastConnection", new Timestamp(System.currentTimeMillis()));
+
+            collection.insertOne(d);
+        }else{
+            BsonDocument filter = new BsonDocument().append("login", new BsonString(login));
+            collection.updateOne(filter, new Document("$set", new Document("token", token)));
+            collection.updateOne(filter, new Document("$set", new Document("lastConnection", new Timestamp(System.currentTimeMillis()))));
+        }
 
         return token;
     }
@@ -180,6 +175,25 @@ public class UserTools {
             return false;
 
         return true;
+    }
+
+    /* Renvoi true si comtpe est ferme*/
+    public static boolean accountClosed(String login) throws SQLException, URISyntaxException {
+        Connection co = Database.getConnection();
+        String query = "SELECT * FROM USERS WHERE login=?";
+        PreparedStatement pstmt = co.prepareStatement(query);
+        pstmt.setString(1, login);
+
+
+        ResultSet res = pstmt.executeQuery();
+        if (res.next() && res.getBoolean("islock")){
+            pstmt.close();
+            co.close();
+            return true;
+        }
+        pstmt.close();
+        co.close();
+        return false;
     }
 
 }
