@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import javax.swing.*;
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.Calendar;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.and;
@@ -20,6 +21,8 @@ import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
 
 public class UserTools {
+    static int everydayConnectionReward = 100;
+
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
@@ -118,7 +121,7 @@ public class UserTools {
     }
 
     /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
-    public static String connect(String login, String mdp) {
+    public static String connect(String login, String mdp) throws URISyntaxException, SQLException {
         MongoCollection<Document> collection = getMongoCollection("Session");
         String token = generateToken();
 
@@ -134,6 +137,28 @@ public class UserTools {
 
             collection.insertOne(d);
         }else{
+            java.util.Date date = firstConnection.getDate("lastConnection");
+            Calendar cal = Calendar.getInstance();
+            int todayDay = cal.get(Calendar.DAY_OF_YEAR);
+            int todayYear = cal.get(Calendar.YEAR);
+
+            cal.setTime(date);
+            int lastCoDay = cal.get(Calendar.DAY_OF_YEAR);
+            int lastCoYear = cal.get(Calendar.YEAR);
+
+            if(lastCoDay < todayDay || lastCoYear<todayYear){
+                Connection co = Database.getConnection();
+
+                String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
+                PreparedStatement pstmt = co.prepareStatement(query);
+                pstmt.setInt(1, everydayConnectionReward);
+                pstmt.setString(2, login);
+                pstmt.executeUpdate();
+                pstmt.close();
+                co.close();
+
+            }
+
             BsonDocument filter = new BsonDocument().append("login", new BsonString(login));
             collection.updateOne(filter, new Document("$set", new Document("token", token)));
             collection.updateOne(filter, new Document("$set", new Document("lastConnection", new Timestamp(System.currentTimeMillis()))));

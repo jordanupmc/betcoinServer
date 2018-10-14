@@ -38,8 +38,17 @@ public class CancelBetService {
             return serviceKO("CancelBet Fail : SQLException");
         }
 
-        if(BetTools.cancelBet(login, idPool)){
-            return serviceOK();
+        try {
+            if(BetTools.cancelBet(login, idPool)){
+                return serviceOK();
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return serviceKO("CancelBet Fail : URISyntaxException");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return serviceKO("CancelBet Fail : SQLException");
+
         }
 
         return serviceKO("CancelBet Fail : No such Pool or No bet done");
