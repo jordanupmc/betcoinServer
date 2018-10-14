@@ -1,31 +1,22 @@
 package bd;
 
-import com.mongodb.DBCursor;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.*;
-import com.mongodb.client.model.Filters;
-import com.mongodb.util.JSON;
+
+import com.mongodb.client.MongoCollection;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.json.JSONArray;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.DeleteResult;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
-import org.bson.Document;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.Calendar;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import java.util.ArrayList;
-import java.util.List;
 
 import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
@@ -33,6 +24,8 @@ import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
 public class UserTools {
+    static int everydayConnectionReward = 100;
+
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
@@ -72,10 +65,7 @@ public class UserTools {
 
     /* Permet à l'utilisateur de se déconnecter */
     public static boolean disconnect(String login,String token){
-        MongoClientURI uri = new MongoClientURI(Database.mongoURI);
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
-        MongoCollection<Document> sesCollection = db.getCollection("session");
+        MongoCollection<Document> sesCollection = getMongoCollection("Session");
 
         Document is_here = sesCollection.find(eq("login", login)).first();
         if(is_here!=null) {
@@ -144,15 +134,48 @@ public class UserTools {
     }
 
     /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
-    public static String connect(String login, String mdp) {
+    public static String connect(String login, String mdp) throws URISyntaxException, SQLException {
         MongoCollection<Document> collection = getMongoCollection("Session");
         String token = generateToken();
 
-        Document d = new Document("login", login)
-                .append("token", token)
-                .append("lastConnection", new Timestamp(System.currentTimeMillis()));
+        Document firstConnection =
+                collection
+                        .find(new BsonDocument().append("login", new BsonString(login)))
+                        .first();
 
-        collection.insertOne(d);
+        if(firstConnection == null){ //Premiere connection
+            Document d = new Document("login", login)
+                    .append("token", token)
+                    .append("lastConnection", new Timestamp(System.currentTimeMillis()));
+
+            collection.insertOne(d);
+        }else{
+            java.util.Date date = firstConnection.getDate("lastConnection");
+            Calendar cal = Calendar.getInstance();
+            int todayDay = cal.get(Calendar.DAY_OF_YEAR);
+            int todayYear = cal.get(Calendar.YEAR);
+
+            cal.setTime(date);
+            int lastCoDay = cal.get(Calendar.DAY_OF_YEAR);
+            int lastCoYear = cal.get(Calendar.YEAR);
+
+            if(lastCoDay < todayDay || lastCoYear<todayYear){
+                Connection co = Database.getConnection();
+
+                String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
+                PreparedStatement pstmt = co.prepareStatement(query);
+                pstmt.setInt(1, everydayConnectionReward);
+                pstmt.setString(2, login);
+                pstmt.executeUpdate();
+                pstmt.close();
+                co.close();
+
+            }
+
+            BsonDocument filter = new BsonDocument().append("login", new BsonString(login));
+            collection.updateOne(filter, new Document("$set", new Document("token", token)));
+            collection.updateOne(filter, new Document("$set", new Document("lastConnection", new Timestamp(System.currentTimeMillis()))));
+        }
 
         return token;
     }
@@ -193,7 +216,7 @@ public class UserTools {
     }
 
     /* Modifie les informations du compte utilisateur */
-    public static boolean accountModification(String login, String field_name, String new_value){
+    public static boolean accountModification(String login, String field_name, String new_value) {
         String query = "UPDATE USER SET ?=? WHERE login=?";
 
         try (Connection c = Database.getConnection();
@@ -208,6 +231,24 @@ public class UserTools {
         } catch (Exception E) {
             return false;
         }
+    }
+    /* Renvoi true si comtpe est ferme*/
+    public static boolean accountClosed(String login) throws SQLException, URISyntaxException {
+        Connection co = Database.getConnection();
+        String query = "SELECT * FROM USERS WHERE login=?";
+        PreparedStatement pstmt = co.prepareStatement(query);
+        pstmt.setString(1, login);
+
+
+        ResultSet res = pstmt.executeQuery();
+        if (res.next() && res.getBoolean("islock")){
+            pstmt.close();
+            co.close();
+            return true;
+        }
+        pstmt.close();
+        co.close();
+        return false;
     }
 
 }

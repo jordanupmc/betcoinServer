@@ -23,6 +23,11 @@ public class UserService {
         }
         else{
            j= serviceKO("Subscribe fail");
+            if(!cmdp.equals(mdp))
+                j= ServiceTools.serviceKO("Subscribe fail two different password");
+
+            else
+                j= ServiceTools.serviceKO("Subscribe fail");
         }
         return j;
     }
