@@ -36,7 +36,7 @@ public class AddBetService {
             return serviceKO("AddBet Fail : URISyntaxException");
 
         }
-        if (BetTools.addBet(login, idPool, Float.parseFloat(ammount), Float.parseFloat(value)))
+        if (BetTools.addBet(login, idPool, Integer.parseInt(ammount), Double.parseDouble(value)))
             return serviceOK();
 
         return serviceKO("AddBet Fail : Unkwown Error");

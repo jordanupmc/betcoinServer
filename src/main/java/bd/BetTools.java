@@ -74,7 +74,7 @@ public class BetTools {
     }
 
     /* Permet aux utilisateurs d'ajouter un nouveau pari*/
-    public static boolean addBet(String idPool, String login, float betAmmount, float betValue){
+    public static boolean addBet(String idPool, String login, int betAmmount, double betValue){
         MongoCollection<Document> collection = getMongoCollection("Bet");
         try {
             if (!canCancelBet(idPool)) {
