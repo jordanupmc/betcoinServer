@@ -37,12 +37,10 @@ public class UnsubscribeServlet extends HttpServlet {
             String login = ValidatorHelper.getParam(req, "login", true);
             String token = ValidatorHelper.getParam(req, "token", true);
 
-            if (login != null && token != null) {
-                out.println(UserService.unsubscribe(login, token));
-            } else {
-                out.println(ServiceTools.serviceKO("Unsubscribe fail"));
-            }
+            out.println(UserService.unsubscribe(login, token));
+
         }catch (ValidationException ve){
+
             out.println(ServiceTools.serviceKO( "Unsubscribe fail "+ve.getMessage()));
         }
         out.close();
