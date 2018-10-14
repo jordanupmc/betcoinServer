@@ -42,7 +42,8 @@ public class DisconnectServlet extends HttpServlet {
         String token = req.getParameter("token");
 
         if(login != null && token != null){
-            UserService.disconnect(login, token);
+            JSONObject tmp = UserService.disconnect(login, token);
+            out.print(tmp);
         }else{
             JSONObject json = new JSONObject();
             json.put("status", "KO");

@@ -22,8 +22,8 @@ public class SessionTools {
         MongoCollection<Document> collection = getMongoCollection("Session");
         Document d =
                 collection
-                        .find(new BsonDocument().append("token", new BsonString(token))
-                                .append("login", new BsonString(login)))
+                        .find(new BsonDocument().append("login", new BsonString(login))
+                                .append("token", new BsonString(token)))
                         .first();
 
         if (d == null)

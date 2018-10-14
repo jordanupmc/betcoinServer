@@ -43,15 +43,16 @@ public class VisualiseAccountServlet extends HttpServlet {
 
         String login = req.getParameter("login");
 
-        JSONObject json = new JSONObject();
+        JSONObject json;
 
         if(login != null){
             json = UserService.visualiseAcc(login);
         }else{
 
-            serviceKO("Missing login");
-            out.print(json);
+            json = serviceKO("Missing login");
+
         }
+        out.print(json);
         out.close();
 
 

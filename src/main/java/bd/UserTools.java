@@ -69,7 +69,7 @@ public class UserTools {
 
         Document is_here = sesCollection.find(eq("login", login)).first();
         if(is_here!=null) {
-            if (is_here.get(token) != null) {
+            if (userConnected(login)) {
                 sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$unset", new Document("token", "")));
             }else{
                 JOptionPane.showMessageDialog(null,"User already disconnected");
@@ -85,14 +85,15 @@ public class UserTools {
 
     /* renvois un JSON avec toutes les informations affichable de l'utilisateur */
     public static JSONObject visualiseAccount(String login){
-        String query = "SELECT * IN USERS WHERE login=?";
+        String query = "SELECT * FROM USERS WHERE login=?";
         JSONObject json = new JSONObject();
-        try( Connection c = Database.getConnection();
-             PreparedStatement pstmt = c.prepareStatement(query)
-        ){
+        try{
+            Connection c = Database.getConnection();
+            PreparedStatement pstmt = c.prepareStatement(query);
             pstmt.setString(1,login);
             pstmt.execute();
-            ResultSet data = (ResultSet)pstmt.getMetaData();
+            ResultSet data = pstmt.getResultSet();
+            data.next();
             json.put("login",data.getString("login"));
             json.put("email",data.getString("email"));
             json.put("last_name",data.getString("last_name"));
@@ -104,22 +105,24 @@ public class UserTools {
                     collection
                             .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
                             .first();
-            List<Document> pools = (List<Document>) d.get("idBetPool");
-            JSONArray arr = new JSONArray();
-            for(int i = 0; i < pools.size();i++){
-                Document tmp = pools.get(i);
-                arr.put(tmp);
-            }
-            json.put("subscribePools", arr);
-            collection = getMongoCollection("Bet");
-            JSONArray arr_bet = new JSONArray();
-            List<Document> listdoc = (List<Document>)collection
-                .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
-            for(int j = 0; j < listdoc.size();j++){
-                arr_bet.put(listdoc.get(j));
-            }
+            if(d!=null) {
+                List<Document> pools = (List<Document>) d.get("idBetPool");
+                JSONArray arr = new JSONArray();
+                for (int i = 0; i < pools.size(); i++) {
+                    Document tmp = pools.get(i);
+                    arr.put(tmp);
+                }
+                json.put("subscribePools", arr);
+                collection = getMongoCollection("Bet");
+                JSONArray arr_bet = new JSONArray();
+                List<Document> listdoc = (List<Document>) collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
+                for (int j = 0; j < listdoc.size(); j++) {
+                    arr_bet.put(listdoc.get(j));
+                }
 
-            json.put("bets", arr_bet);
+                json.put("bets", arr_bet);
+            }
         }catch(Exception e){
             return null;
         }
