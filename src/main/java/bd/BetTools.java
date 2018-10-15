@@ -38,7 +38,7 @@ public class BetTools {
                 j.put("name", v.getString(2));
                 j.put("openingbet", v.getTimestamp(3));
                 j.put("closingbet", v.getTimestamp(4));
-                j.put("resultbet", v.getBigDecimal(5));
+                j.put("resultbet", v.getTimestamp(5));
                 j.put("cryptocurrency", v.getString(6));
                 j.put("pooltype", v.getBoolean(7));
                 ar.put(j);
