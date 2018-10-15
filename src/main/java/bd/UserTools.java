@@ -1,6 +1,8 @@
 package bd;
 
 
+import com.mongodb.Block;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
@@ -89,11 +91,19 @@ public class UserTools {
             json.put("subscribePools", arr);
             collection = getMongoCollection("Bet");
             JSONArray arr_bet = new JSONArray();
-            Document listdoc = (Document) collection
+            FindIterable<Document> listdoc = collection
                     .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
-            for (int j = 0; j < listdoc.size(); j++) {
-                arr_bet.put(listdoc.get(j));
-            }
+            listdoc.forEach(new Block<Document>() {
+                @Override
+                public void apply(Document document) {
+                    Document gros_doc = new Document();
+                    gros_doc.append("idBetPool",document.get("idBetPool"));
+                    gros_doc.append("betAmount",document.get("betAmount"));
+                    gros_doc.append("betValue",document.get("betValue"));
+                    gros_doc.append("betDate",document.get("betDate"));
+                    arr_bet.put(gros_doc);
+                }
+            });
 
             json.put("bets", arr_bet);
         }
