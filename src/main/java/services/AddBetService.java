@@ -13,7 +13,7 @@ import static services.ServiceTools.*;
 
 public class AddBetService {
     public static JSONObject addBet(String token, String login, String idPool, String ammount, String value) {
-        if ((login == null) || (idPool == null) || (ammount == null) || (value == null)) {
+        if ((login == null) || (idPool == null) || (ammount == null) || (value == null) || (token == null)) {
             return serviceKO("AddBet Fail : Wrong arguments, expecting: login idPool ammount value");
         }
 
