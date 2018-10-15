@@ -63,6 +63,7 @@ public class UserService {
 
     public static JSONObject visualiseAcc(String login,String token){
         JSONObject json;
+        if((login == null)||(token == null)) return serviceKO("VisualiseAccount Fail : Null Parameter");
         json = UserTools.visualiseAccount(login);
         boolean connected = userConnected(login);
         if(!connected) return serviceKO("VisualiseAccount Fail : User not connected");

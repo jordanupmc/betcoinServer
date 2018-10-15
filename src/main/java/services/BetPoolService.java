@@ -22,7 +22,7 @@ public class BetPoolService {
     public static JSONObject quitPool(String login, String idPool,String token){
         JSONObject obj;
 
-
+        if((login==null)||(idPool==null)||(token==null)) return serviceKO("QuitPool : Null argument");
         if(!userConnected(login)) return serviceKO("QuitPool Fail : User not connected");
 
         if(!SessionTools.checkToken(token, login)){
