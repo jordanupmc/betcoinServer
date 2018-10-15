@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
-import static bd.BetTools.canCancelBet;
+import static bd.BetTools.betPoolOpen;
 import static bd.UserTools.userConnected;
 import static services.ServiceTools.*;
 
@@ -25,7 +25,7 @@ public class AddBetService {
         }
 
         try {
-            if (canCancelBet(idPool)) {
+            if (!betPoolOpen(idPool)) {
                 return serviceKO("AddBet Fail : Too late to add a new bet");
             }
 

@@ -79,8 +79,15 @@ public class BetTools {
     /* Permet aux utilisateurs d'ajouter un nouveau pari*/
     public static boolean addBet(String idPool, String login, int betAmmount, double betValue){
         MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                        .first();
+        if (d == null) {
+            return false;
+        }
         try {
-            if (!canCancelBet(idPool)) {
+            if (!betPoolOpen(idPool)) {
                 return false;
             }
         }catch(Exception e){
@@ -95,7 +102,7 @@ public class BetTools {
         collection.insertOne(obj);
 
         collection = getMongoCollection("L_Bet");
-        Document d = collection.find(new BsonDocument().append("idPool", new BsonString(idPool))).first();
+        d = collection.find(new BsonDocument().append("idPool", new BsonString(idPool))).first();
         d.append("bet",obj);
         BsonDocument filter = new BsonDocument().append("idPool", new BsonString(idPool));
         collection.updateOne(filter, new Document("$set", d));
@@ -105,7 +112,7 @@ public class BetTools {
     }
 
     /* Renvoi true si un pari est toujours annulable */
-    public static boolean canCancelBet(String idPool) throws URISyntaxException, SQLException {
+    public static boolean betPoolOpen(String idPool) throws URISyntaxException, SQLException {
 
         Connection c = Database.getConnection();
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";

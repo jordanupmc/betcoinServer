@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
-import static bd.BetTools.canCancelBet;
+import static bd.BetTools.betPoolOpen;
 import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
@@ -27,7 +27,7 @@ public class CancelBetService {
         }
 
         try {
-            boolean canCancel = canCancelBet(idPool);
+            boolean canCancel = betPoolOpen(idPool);
             if(!canCancel){
                 return serviceKO("CancelBet Fail : Too late to cancel");
             }

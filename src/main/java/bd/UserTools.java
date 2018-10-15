@@ -123,6 +123,7 @@ public class UserTools {
 
                 json.put("bets", arr_bet);
             }
+            data.close();
         }catch(Exception e){
             return null;
         }
