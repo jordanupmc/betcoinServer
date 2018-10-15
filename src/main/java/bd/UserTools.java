@@ -63,19 +63,13 @@ public class UserTools {
     }
 
     /* Permet à l'utilisateur de se déconnecter */
-    public static boolean disconnect(String login,String token){
+    public static boolean disconnect(String login, String token) {
         MongoCollection<Document> sesCollection = getMongoCollection("Session");
 
         Document is_here = sesCollection.find(eq("login", login)).first();
-        if(is_here!=null) {
-            if (userConnected(login)) {
-                sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$unset", new Document("token", "")));
-            }else{
-                JOptionPane.showMessageDialog(null,"Disconnection Fail : User already disconnected");
-                return false;
-            }
-        }else{
-            JOptionPane.showMessageDialog(null,"Disconnection Fail : User not found");
+        if (is_here != null) {
+            sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$unset", new Document("token", "")));
+        } else {
             return false;
         }
 
@@ -83,57 +77,55 @@ public class UserTools {
     }
 
     /* renvois un JSON avec toutes les informations affichable de l'utilisateur */
-    public static JSONObject visualiseAccount(String login){
+    public static JSONObject visualiseAccount(String login) throws URISyntaxException, SQLException {
         String query = "SELECT * FROM USERS WHERE login=?";
         JSONObject json = new JSONObject();
-        try{
-            Connection c = Database.getConnection();
-            PreparedStatement pstmt = c.prepareStatement(query);
-            pstmt.setString(1,login);
-            pstmt.execute();
-            ResultSet data = pstmt.getResultSet();
-            data.next();
-            json.put("login",data.getString("login"));
-            json.put("email",data.getString("email"));
-            json.put("last_name",data.getString("last_name"));
-            json.put("first_name",data.getString("first_name"));
-            json.put("birthday",data.getString("birthday"));
-            json.put("country",data.getString("country"));
-            MongoCollection<Document> collection = getMongoCollection("SubscribePool");
-            Document d =
-                    collection
-                            .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
-                            .first();
-            if(d!=null) {
-                List<Document> pools = (List<Document>) d.get("idBetPool");
-                JSONArray arr = new JSONArray();
-                for (int i = 0; i < pools.size(); i++) {
-                    Document tmp = pools.get(i);
-                    arr.put(tmp);
-                }
-                json.put("subscribePools", arr);
-                collection = getMongoCollection("Bet");
-                JSONArray arr_bet = new JSONArray();
-                List<Document> listdoc = (List<Document>) collection
-                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
-                for (int j = 0; j < listdoc.size(); j++) {
-                    arr_bet.put(listdoc.get(j));
-                }
 
-                json.put("bets", arr_bet);
+        Connection c = Database.getConnection();
+        PreparedStatement pstmt = c.prepareStatement(query);
+        pstmt.setString(1, login);
+        pstmt.execute();
+        ResultSet data = pstmt.getResultSet();
+        data.next();
+        json.put("login", data.getString("login"));
+        json.put("email", data.getString("email"));
+        json.put("last_name", data.getString("last_name"));
+        json.put("first_name", data.getString("first_name"));
+        json.put("birthday", data.getString("birthday"));
+        json.put("country", data.getString("country"));
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .first();
+        if (d != null) {
+            List<Document> pools = (List<Document>) d.get("idBetPool");
+            JSONArray arr = new JSONArray();
+            for (int i = 0; i < pools.size(); i++) {
+                Document tmp = pools.get(i);
+                arr.put(tmp);
             }
-            data.close();
-        }catch(Exception e){
-            return null;
+            json.put("subscribePools", arr);
+            collection = getMongoCollection("Bet");
+            JSONArray arr_bet = new JSONArray();
+            List<Document> listdoc = (List<Document>) collection
+                    .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
+            for (int j = 0; j < listdoc.size(); j++) {
+                arr_bet.put(listdoc.get(j));
+            }
+
+            json.put("bets", arr_bet);
         }
+        data.close();
+
         return json;
     }
 
     /* suppression d'un session de connexion */
-    private static boolean removeSessionUser(String login){
+    private static boolean removeSessionUser(String login) {
         MongoCollection<Document> collection = getMongoCollection("Session");
         DeleteResult d = collection.deleteOne(new BsonDocument().append("login", new BsonString(login)));
-        return d.getDeletedCount()  == 1;
+        return d.getDeletedCount() == 1;
     }
 
     /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
@@ -146,13 +138,13 @@ public class UserTools {
                         .find(new BsonDocument().append("login", new BsonString(login)))
                         .first();
 
-        if(firstConnection == null){ //Premiere connection
+        if (firstConnection == null) { //Premiere connection
             Document d = new Document("login", login)
                     .append("token", token)
                     .append("lastConnection", new Timestamp(System.currentTimeMillis()));
 
             collection.insertOne(d);
-        }else{
+        } else {
             java.util.Date date = firstConnection.getDate("lastConnection");
             Calendar cal = Calendar.getInstance();
             int todayDay = cal.get(Calendar.DAY_OF_YEAR);
@@ -162,7 +154,7 @@ public class UserTools {
             int lastCoDay = cal.get(Calendar.DAY_OF_YEAR);
             int lastCoYear = cal.get(Calendar.YEAR);
 
-            if(lastCoDay < todayDay || lastCoYear<todayYear){
+            if (lastCoDay < todayDay || lastCoYear < todayYear) {
                 Connection co = Database.getConnection();
 
                 String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
@@ -219,23 +211,18 @@ public class UserTools {
     }
 
     /* Modifie les informations du compte utilisateur */
-    public static boolean accountModification(String login, String field_name, String new_value) {
-        String query = "UPDATE USERS SET "+field_name+"=? WHERE login=?";
+    public static boolean accountModification(String login, String field_name, String new_value) throws URISyntaxException, SQLException {
+        String query = "UPDATE USERS SET " + field_name + "=? WHERE login=?";
 
-        try (Connection c = Database.getConnection();
-             PreparedStatement pstmt = c.prepareStatement(query);
-        ) {
+        Connection c = Database.getConnection();
+        PreparedStatement pstmt = c.prepareStatement(query);
+        pstmt.setString(1, new_value);
+        pstmt.setString(2, login);
+        pstmt.executeUpdate();
+        return true;
 
-            pstmt.setString(1, new_value);
-            pstmt.setString(2, login);
-
-            pstmt.executeUpdate();
-            return true;
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,e.toString());
-            return false;
-        }
     }
+
     /* Renvoi true si compte est ferme*/
     public static boolean accountClosed(String login) throws SQLException, URISyntaxException {
         Connection co = Database.getConnection();
@@ -245,7 +232,7 @@ public class UserTools {
 
 
         ResultSet res = pstmt.executeQuery();
-        if (res.next() && res.getBoolean("islock")){
+        if (res.next() && res.getBoolean("islock")) {
             pstmt.close();
             co.close();
             return true;

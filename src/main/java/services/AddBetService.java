@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 import static bd.BetTools.betPoolOpen;
+import static bd.BetTools.checkBetExist;
 import static bd.UserTools.userConnected;
 import static services.ServiceTools.*;
 
@@ -21,6 +22,7 @@ public class AddBetService {
 
         boolean connected = userConnected(login);
         if (!connected) return serviceKO("AddBet Fail : User not connected");
+
 
         if (!SessionTools.checkToken(token, login)) {
             return serviceKO("AddBet Fail : Wrong token");
@@ -38,9 +40,12 @@ public class AddBetService {
             return serviceKO("AddBet Fail : URISyntaxException");
 
         }
-        if (BetTools.addBet(login, idPool, Integer.parseInt(ammount), Double.parseDouble(value)))
+
+        if(checkBetExist(login,idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
+
+        if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value)))
             return serviceOK();
 
-        return serviceKO("AddBet Fail : Unkwown Error");
+        return serviceKO("AddBet Fail : BetPool not found");
     }
 }

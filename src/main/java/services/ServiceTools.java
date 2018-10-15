@@ -10,7 +10,7 @@ public class ServiceTools {
         try{
             JSONObject json = new JSONObject();
             json.put("status", "KO");
-            json.put("message", str);
+            json.put("errorMessage", str);
             return json;
         }catch(JSONException je){
             je.printStackTrace();

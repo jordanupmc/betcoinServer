@@ -51,7 +51,6 @@ public class UserService {
     public static JSONObject disconnect(String login, String token){
         JSONObject json;
 
-
         if(!userConnected(login)) return serviceKO("Disconnection Fail : User not connected");
 
         if(SessionTools.checkToken(token, login)){
@@ -69,16 +68,21 @@ public class UserService {
     public static JSONObject visualiseAcc(String login,String token){
         JSONObject json;
         if((login == null)||(token == null)) return serviceKO("VisualiseAccount Fail : Null Parameter");
-        json = UserTools.visualiseAccount(login);
+
         boolean connected = userConnected(login);
         if(!connected) return serviceKO("VisualiseAccount Fail : User not connected");
 
         if(!SessionTools.checkToken(token, login)){
             return serviceKO("VisualiseAccount Fail : Wrong token");
         }
-        if(json!=null){
-            json.put("status","OK");
-        }else{
+        try {
+            json = UserTools.visualiseAccount(login);
+        } catch (URISyntaxException e) {
+            json = serviceKO(e.getMessage());
+        } catch (SQLException e) {
+            json = serviceKO(e.getMessage());
+        }
+        if(json==null){
             json = serviceKO("VisualiseAccount Failed : couldn't retrieve the informations");
         }
         return json;
@@ -102,10 +106,16 @@ public class UserService {
         }catch (URISyntaxException e){
             return serviceKO("AccountModification Failed : URISyntaxException ");
         }
-        if(UserTools.accountModification(login,field_name,new_value)){
-            json = serviceOK();
-        }else{
-            json = serviceKO("AccountModification Failed : couldn't change your account's information");
+        try {
+            if(UserTools.accountModification(login,field_name,new_value)){
+                json = serviceOK();
+            }else{
+                json = serviceKO("AccountModification Failed : couldn't change your account's information");
+            }
+        } catch (URISyntaxException e) {
+            json = serviceKO(e.getMessage());
+        } catch (SQLException e) {
+            json = serviceKO(e.getMessage());
         }
 
         return json;

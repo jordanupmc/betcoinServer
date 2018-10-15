@@ -5,11 +5,13 @@ import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 
+import javax.swing.*;
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static bd.BetTools.cancelBet;
 import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
 
@@ -92,6 +94,31 @@ public class PoolTools {
 
             messages.add(msgToInsert);
             collection.updateOne(filter, new Document("$set", new Document("messages", messages)));
+        }
+    }
+
+    /* Permet aux utilisateurs de quitter/se désinscrire d'un salon de pari */
+    public static boolean quitPool(String login, String idPool) throws URISyntaxException, SQLException {
+
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .first();
+        if(d==null){
+            return false;
+        }else{
+            BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
+            List<Document> pools = (List<Document>) d.get("idBetPool");
+            for(int i = 0; i < pools.size();i++){
+                if(pools.get(i).get("idPool").equals(idPool)){
+                    pools.remove(i);
+                    collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
+                    cancelBet(login, idPool);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

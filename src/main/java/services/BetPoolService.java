@@ -1,13 +1,11 @@
 package services;
 
 import bd.BetTools;
+import bd.PoolTools;
 import bd.SessionTools;
-import bd.UserTools;
 import org.json.JSONObject;
-
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-
 import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
 
@@ -33,7 +31,7 @@ public class BetPoolService {
         }
 
         try {
-            if(BetTools.quitPool(login,idPool)) {
+            if(PoolTools.quitPool(login,idPool)) {
                 obj = ServiceTools.serviceOK();
                 obj.put("login",login);
                 obj.put("quittedPool", idPool);
