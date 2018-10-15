@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.json.JSONObject;
+import services.LoginService;
 import services.UserService;
 
 import javax.servlet.ServletException;
@@ -42,7 +43,7 @@ public class DisconnectServlet extends HttpServlet {
         String token = req.getParameter("token");
 
         if(login != null && token != null){
-            JSONObject tmp = UserService.disconnect(login, token);
+            JSONObject tmp = LoginService.disconnect(login, token);
             out.print(tmp);
         }else{
             JSONObject json = new JSONObject();

@@ -1,7 +1,6 @@
 package servlet;
 
-import services.CancelBetService;
-import services.MessagePoolService;
+import services.BetPoolService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -38,7 +37,7 @@ public class MessagePoolServlet extends HttpServlet {
 
 
         out.print(
-                MessagePoolService.messagePool(login, idPool, token, msg)
+                BetPoolService.messagePool(login, idPool, token, msg)
         );
 
         out.close();

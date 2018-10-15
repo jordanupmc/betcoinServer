@@ -1,6 +1,6 @@
 package servlet;
 
-import services.EnterPoolService;
+import services.BetPoolService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -37,7 +37,7 @@ public class EnterPoolServlet extends HttpServlet {
 
 
         out.print(
-                EnterPoolService.enterPool(login, idPool, token)
+                BetPoolService.enterPool(login, idPool, token)
         );
 
         out.close();

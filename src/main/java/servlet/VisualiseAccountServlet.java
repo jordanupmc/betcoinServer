@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.json.JSONObject;
+import services.AccountService;
 import services.BetPoolService;
 import services.UserService;
 
@@ -46,7 +47,7 @@ public class VisualiseAccountServlet extends HttpServlet {
         JSONObject json;
 
         if(login != null && token != null){
-            json = UserService.visualiseAcc(login,token);
+            json = AccountService.visualiseAcc(login,token);
         }else{
 
             json = serviceKO("Missing login or token");

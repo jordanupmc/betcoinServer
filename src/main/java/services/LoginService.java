@@ -1,5 +1,6 @@
 package services;
 
+import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
@@ -52,5 +53,21 @@ public class LoginService {
         JSONObject j = serviceOK();
         j.put("token", token);
         return j;
+    }
+
+    /* service de deconnexion d'un utilisateur */
+    public static JSONObject disconnect(String login, String token){
+        JSONObject json;
+
+        if(!userConnected(login)) return serviceKO("Disconnection Fail : User not connected");
+
+        if(SessionTools.checkToken(token, login)){
+            UserTools.disconnect(login,token);
+            json = serviceOK();
+            json.put("disconnectedLogin",login);
+        }else{
+            json = serviceKO("Disconnection Fail : Wrong token");
+        }
+        return json;
     }
 }

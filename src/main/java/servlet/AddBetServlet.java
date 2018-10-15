@@ -1,8 +1,6 @@
 package servlet;
 
-import services.AddBetService;
-import services.CancelBetService;
-import services.LoginService;
+import services.BetService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -39,7 +37,7 @@ public class AddBetServlet extends HttpServlet {
 
 
         out.print(
-                AddBetService.addBet(token,login, idPool, ammount,value)
+                BetService.addBet(token,login, idPool, ammount,value)
         );
 
         out.close();
