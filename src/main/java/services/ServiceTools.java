@@ -5,7 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ServiceTools {
-
+    /* renvois un json pour un service KO */
     public static JSONObject serviceKO(String str) {
         try{
             JSONObject json = new JSONObject();
@@ -18,6 +18,7 @@ public class ServiceTools {
         }
     }
 
+    /* renvois un json pour un service OK */
     public static JSONObject serviceOK(){
         JSONObject json = new JSONObject();
         json.put("status", "OK");

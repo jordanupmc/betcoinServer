@@ -12,6 +12,8 @@ import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
 public class EnterPoolService {
+
+    /* service permettant l'entrée dans un salon de pari */
     public static JSONObject enterPool(String login, String idPool, String token){
 
         if((login == null) || (idPool == null) || (token == null)) {

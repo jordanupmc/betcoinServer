@@ -21,6 +21,7 @@ import static bd.Database.getMongoCollection;
 
 public class BetTools {
 
+    /* renvois la liste des salons de pari encore actif */
     public static JSONArray getListPoolsActive(){
         JSONArray ar=new JSONArray();
         String query =

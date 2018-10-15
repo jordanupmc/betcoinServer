@@ -13,12 +13,15 @@ import static services.ServiceTools.serviceKO;
 
 
 public class BetPoolService {
+
+    /*service de récupération de la liste des salons de pari actif */
     public static JSONObject getListPoolsActive(){
         JSONObject j=ServiceTools.serviceOK();
         j.put("betpools", BetTools.getListPoolsActive());
         return j;
     }
 
+    /* service permettant de quitter un salon de pari */
     public static JSONObject quitPool(String login, String idPool,String token){
         JSONObject obj;
 

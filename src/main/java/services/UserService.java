@@ -17,6 +17,7 @@ public class UserService {
     /*Login*Mdp*ConfirmMdp*Email*Nom*Prenom*DateNaissance(dd/mm/aaaa)*Pays->void
      */
     //TODO check ce mettre d'accord sur le type de date a utiliser
+    /* service d'inscription d'un utilisateur */
     public static JSONObject subscribe(String login, String mdp, String cmdp ,String email, String nom, String prenom,  Date birthDate, String country){
         JSONObject j;
         if(cmdp.equals(mdp) && UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
@@ -33,6 +34,7 @@ public class UserService {
         return j;
     }
 
+    /* service de désinscription d'un utilisateur */
     public static JSONObject unsubscribe(String login, String token){
         JSONObject j;
 
@@ -45,6 +47,7 @@ public class UserService {
         return j;
     }
 
+    /* service de deconnexion d'un utilisateur */
     public static JSONObject disconnect(String login, String token){
         JSONObject json;
 
@@ -61,6 +64,8 @@ public class UserService {
         return json;
     }
 
+
+    /* service pour la visualisation des informations d'un compte utilisateur*/
     public static JSONObject visualiseAcc(String login,String token){
         JSONObject json;
         if((login == null)||(token == null)) return serviceKO("VisualiseAccount Fail : Null Parameter");
@@ -79,6 +84,7 @@ public class UserService {
         return json;
     }
 
+    /* service pour changer un des champs du compte utilisateur */
     public static JSONObject changeFieldAccount(String login, String pwd, String field_name, String new_value,String token){
         JSONObject json;
 

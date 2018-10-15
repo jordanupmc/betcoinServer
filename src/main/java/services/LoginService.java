@@ -13,6 +13,8 @@ import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
 public class LoginService {
+
+    /* service permettant la connexion d'un utilisateur */
     public static JSONObject connect(String login, String mdp){
 
         if((login == null) || (mdp == null)){

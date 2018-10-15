@@ -20,12 +20,11 @@ import static com.mongodb.client.model.Filters.eq;
 
 import static bd.Database.getMongoCollection;
 import static bd.SessionTools.generateToken;
-import static services.ServiceTools.serviceKO;
-import static services.ServiceTools.serviceOK;
 
 public class UserTools {
     static int everydayConnectionReward = 100;
 
+    /* inscription d'un nouvel utilisateur */
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
@@ -130,7 +129,7 @@ public class UserTools {
         return json;
     }
 
-
+    /* suppression d'un session de connexion */
     private static boolean removeSessionUser(String login){
         MongoCollection<Document> collection = getMongoCollection("Session");
         DeleteResult d = collection.deleteOne(new BsonDocument().append("login", new BsonString(login)));
@@ -237,7 +236,7 @@ public class UserTools {
             return false;
         }
     }
-    /* Renvoi true si comtpe est ferme*/
+    /* Renvoi true si compte est ferme*/
     public static boolean accountClosed(String login) throws SQLException, URISyntaxException {
         Connection co = Database.getConnection();
         String query = "SELECT * FROM USERS WHERE login=?";

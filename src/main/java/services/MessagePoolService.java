@@ -12,6 +12,8 @@ import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
 public class MessagePoolService {
+
+    /* service permettant de laisser un message sur un salon de pari */
     public static JSONObject messagePool(String login, String idPool, String token, String message){
 
         if((login == null) || (idPool == null) || (token == null) || (message == null)) {

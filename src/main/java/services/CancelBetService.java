@@ -13,6 +13,8 @@ import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
 public class CancelBetService {
+
+    /* service d'annulation d'un pari */
     public static JSONObject cancelBet(String login, String idPool, String token){
 
         if((login == null) || (idPool == null) || (token == null)) {
