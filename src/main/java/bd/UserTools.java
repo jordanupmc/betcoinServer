@@ -89,7 +89,7 @@ public class UserTools {
             json.put("subscribePools", arr);
             collection = getMongoCollection("Bet");
             JSONArray arr_bet = new JSONArray();
-            List<Document> listdoc = (List<Document>) collection
+            Document listdoc = (Document) collection
                     .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
             for (int j = 0; j < listdoc.size(); j++) {
                 arr_bet.put(listdoc.get(j));

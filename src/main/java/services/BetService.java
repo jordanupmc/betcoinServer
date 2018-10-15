@@ -2,6 +2,10 @@ package services;
 
 import bd.BetTools;
 import bd.SessionTools;
+import com.mongodb.client.MongoCollection;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.bson.Document;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -9,7 +13,9 @@ import java.sql.SQLException;
 
 import static bd.BetTools.betPoolOpen;
 import static bd.BetTools.checkBetExist;
+import static bd.Database.getMongoCollection;
 import static bd.SessionTools.userConnected;
+import static com.mongodb.client.model.Filters.and;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
@@ -42,12 +48,27 @@ public class BetService {
 
         }
 
+
+
         if(checkBetExist(login,idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
 
+        if(isSuscribed(login,idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
         if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value)))
             return serviceOK();
 
         return serviceKO("AddBet Fail : BetPool not found");
+    }
+
+    public static boolean isSuscribed(String login, String idPool){
+        MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document d =
+                collection
+                        .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
+                                new BsonDocument().append("gamblerLogin", new BsonString(login))))
+                        .first();
+        if(d!=null)
+            return true;
+        return false;
     }
 
     /* service d'annulation d'un pari */
