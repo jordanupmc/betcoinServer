@@ -49,7 +49,7 @@ public class AccountModificationServlet extends HttpServlet {
 
         JSONObject json = new JSONObject();
 
-        if(login != null){
+        if((login != null)&&(token!=null)&&(pwd!=null)&&(field_name!=null)&&(new_value!=null) ){
             json = UserService.changeFieldAccount(login,pwd,field_name,new_value,token);
         }else{
             serviceKO("Missing login");
