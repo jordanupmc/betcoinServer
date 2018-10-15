@@ -32,14 +32,12 @@ public class CryptoCompServlet extends HttpServlet {
 
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
-        Thread askingThread = new Thread();
-
         try{
             String cryptname = ValidatorHelper.getParam(req,"cryptName",true);
             String devise = ValidatorHelper.getParam(req, "devise",true);
-            String tmstp = ValidatorHelper.getParam(req, "toTs",true);
-            String limit = ValidatorHelper.getParam(req, "limit", true);
-            String result = APITools.getCrypto(cryptname,devise,tmstp,limit);
+            String fin = ValidatorHelper.getParam(req, "fin",true);
+            String debut = ValidatorHelper.getParam(req, "debut", true);
+            String result = APITools.getCrypto(cryptname,devise,fin,debut);
 
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
