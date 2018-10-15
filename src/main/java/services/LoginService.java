@@ -7,9 +7,9 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
+import static bd.SessionTools.userConnected;
 import static bd.UserTools.accountClosed;
 import static bd.UserTools.checkPasswd;
-import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
@@ -41,7 +41,7 @@ public class LoginService {
 
         String token = null;
         try {
-            token = UserTools.connect(login, mdp);
+            token = SessionTools.connect(login, mdp);
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return serviceKO("Connect Fail : URISyntaxException");
@@ -62,7 +62,7 @@ public class LoginService {
         if(!userConnected(login)) return serviceKO("Disconnection Fail : User not connected");
 
         if(SessionTools.checkToken(token, login)){
-            UserTools.disconnect(login,token);
+            SessionTools.disconnect(login,token);
             json = serviceOK();
             json.put("disconnectedLogin",login);
         }else{

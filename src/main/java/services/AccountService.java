@@ -7,8 +7,8 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
+import static bd.SessionTools.userConnected;
 import static bd.UserTools.checkPasswd;
-import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 

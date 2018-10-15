@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 import static bd.BetTools.betPoolOpen;
 import static bd.BetTools.checkBetExist;
-import static bd.UserTools.userConnected;
+import static bd.SessionTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 

@@ -4,12 +4,8 @@ import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.sql.Date;
-import java.sql.SQLException;
 
-import static bd.UserTools.checkPasswd;
-import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
