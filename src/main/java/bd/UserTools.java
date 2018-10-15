@@ -9,20 +9,15 @@ import org.json.JSONArray;
 import com.mongodb.client.result.DeleteResult;
 import org.json.JSONObject;
 
-import javax.swing.*;
+
 import java.net.URISyntaxException;
 import java.sql.*;
-import java.util.Calendar;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-
+import static bd.SessionTools.removeSessionUser;
 import static bd.Database.getMongoCollection;
-import static bd.SessionTools.generateToken;
 
 public class UserTools {
-    static int everydayConnectionReward = 100;
+
 
     /* inscription d'un nouvel utilisateur */
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
@@ -60,20 +55,6 @@ public class UserTools {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    /* Permet à l'utilisateur de se déconnecter */
-    public static boolean disconnect(String login, String token) {
-        MongoCollection<Document> sesCollection = getMongoCollection("Session");
-
-        Document is_here = sesCollection.find(eq("login", login)).first();
-        if (is_here != null) {
-            sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$unset", new Document("token", "")));
-        } else {
-            return false;
-        }
-
-        return true;
     }
 
     /* renvois un JSON avec toutes les informations affichable de l'utilisateur */
@@ -121,60 +102,6 @@ public class UserTools {
         return json;
     }
 
-    /* suppression d'un session de connexion */
-    private static boolean removeSessionUser(String login) {
-        MongoCollection<Document> collection = getMongoCollection("Session");
-        DeleteResult d = collection.deleteOne(new BsonDocument().append("login", new BsonString(login)));
-        return d.getDeletedCount() == 1;
-    }
-
-    /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
-    public static String connect(String login, String mdp) throws URISyntaxException, SQLException {
-        MongoCollection<Document> collection = getMongoCollection("Session");
-        String token = generateToken();
-
-        Document firstConnection =
-                collection
-                        .find(new BsonDocument().append("login", new BsonString(login)))
-                        .first();
-
-        if (firstConnection == null) { //Premiere connection
-            Document d = new Document("login", login)
-                    .append("token", token)
-                    .append("lastConnection", new Timestamp(System.currentTimeMillis()));
-
-            collection.insertOne(d);
-        } else {
-            java.util.Date date = firstConnection.getDate("lastConnection");
-            Calendar cal = Calendar.getInstance();
-            int todayDay = cal.get(Calendar.DAY_OF_YEAR);
-            int todayYear = cal.get(Calendar.YEAR);
-
-            cal.setTime(date);
-            int lastCoDay = cal.get(Calendar.DAY_OF_YEAR);
-            int lastCoYear = cal.get(Calendar.YEAR);
-
-            if (lastCoDay < todayDay || lastCoYear < todayYear) {
-                Connection co = Database.getConnection();
-
-                String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
-                PreparedStatement pstmt = co.prepareStatement(query);
-                pstmt.setInt(1, everydayConnectionReward);
-                pstmt.setString(2, login);
-                pstmt.executeUpdate();
-                pstmt.close();
-                co.close();
-
-            }
-
-            BsonDocument filter = new BsonDocument().append("login", new BsonString(login));
-            collection.updateOne(filter, new Document("$set", new Document("token", token)));
-            collection.updateOne(filter, new Document("$set", new Document("lastConnection", new Timestamp(System.currentTimeMillis()))));
-        }
-
-        return token;
-    }
-
     /* Vérifie pour un login et un mdp donné qu'il s'agit d'un login valide et qu'il s'agit du bon mdp */
     public static boolean checkPasswd(String login, String mdp) throws URISyntaxException, SQLException {
         Connection co = Database.getConnection();
@@ -194,20 +121,6 @@ public class UserTools {
         pstmt.close();
         co.close();
         return false;
-    }
-
-    /* Renvoi true si l'utilisateur login est connecté */
-    public static boolean userConnected(String login) {
-        MongoCollection<Document> collection = getMongoCollection("Session");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("login", new BsonString(login)))
-                        .first();
-
-        if (d == null || d.getString("token") == null)
-            return false;
-
-        return true;
     }
 
     /* Modifie les informations du compte utilisateur */
