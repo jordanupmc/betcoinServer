@@ -5,6 +5,7 @@ import bd.UserTools;
 import org.json.JSONObject;
 
 import java.sql.Date;
+import java.sql.SQLException;
 
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
