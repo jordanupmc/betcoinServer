@@ -22,7 +22,7 @@ public class UserTools {
 
 
     /* inscription d'un nouvel utilisateur */
-    public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
+    public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) throws SQLException {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?);";
@@ -39,7 +39,9 @@ public class UserTools {
 
             pstmt.executeUpdate();
             return true;
-        } catch (Exception E) {
+        } catch (Exception e) {
+            if(e.getMessage().contains("users_login_key"))
+                throw new SQLException("login "+login + " already exists");
             return false;
         }
     }

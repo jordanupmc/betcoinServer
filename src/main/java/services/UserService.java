@@ -5,6 +5,7 @@ import bd.UserTools;
 import org.json.JSONObject;
 
 import java.sql.Date;
+import java.sql.SQLException;
 
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
@@ -16,16 +17,20 @@ public class UserService {
     /* service d'inscription d'un utilisateur */
     public static JSONObject subscribe(String login, String mdp, String cmdp ,String email, String nom, String prenom,  Date birthDate, String country){
         JSONObject j;
-        if(cmdp.equals(mdp) && UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
-            j = serviceOK();
-        }
-        else{
-           j= serviceKO("Subscribe fail");
-            if(!cmdp.equals(mdp))
-                j= ServiceTools.serviceKO("Subscribe fail two different password");
+        try {
+            if(cmdp.equals(mdp) && UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
+                j = serviceOK();
+            }
+            else{
+               j= serviceKO("Subscribe fail");
+                if(!cmdp.equals(mdp))
+                    j= ServiceTools.serviceKO("Subscribe fail two different password");
 
-            else
-                j= ServiceTools.serviceKO("Subscribe fail");
+                else
+                    j= ServiceTools.serviceKO("Subscribe fail");
+            }
+        } catch (SQLException e) {
+            j= serviceKO(e.getMessage());
         }
         return j;
     }
