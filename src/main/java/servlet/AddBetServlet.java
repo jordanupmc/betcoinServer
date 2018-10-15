@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static services.ServiceTools.serviceKO;
+
 @WebServlet(
         name = "AddBetServlet",
         urlPatterns = {"/addBet"}
@@ -28,18 +30,20 @@ public class AddBetServlet extends HttpServlet {
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            String ammount = ValidatorHelper.getParam(req, "betAmmount", true);
+            String value = ValidatorHelper.getParam(req, "betValue", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
 
-        String login=req.getParameter("login");
-        String idPool=req.getParameter("idPool");
-        String ammount=req.getParameter("betAmmount");
-        String value = req.getParameter("betValue");
-        String token = req.getParameter("token");
 
-
-        out.print(
-                BetService.addBet(token,login, idPool, ammount,value)
-        );
-
+            out.print(
+                    BetService.addBet(token, login, idPool, ammount, value)
+            );
+        }catch(Exception e){
+            out.print(serviceKO(e.getMessage()));
+        }
         out.close();
     }
 }

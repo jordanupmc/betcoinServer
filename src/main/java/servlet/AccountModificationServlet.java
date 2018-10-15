@@ -1,15 +1,8 @@
 package servlet;
 
-import bd.Database;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
+
 import org.json.JSONObject;
 import services.AccountService;
-import services.BetPoolService;
-import services.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,9 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import static services.ServiceTools.serviceKO;
 
@@ -42,20 +32,25 @@ public class AccountModificationServlet extends HttpServlet {
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
 
-        String login = req.getParameter("login");
-        String pwd = req.getParameter("password");
-        String field_name = req.getParameter("fieldname");
-        String new_value = req.getParameter("newvalue");
-        String token = req.getParameter("token");
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String pwd = ValidatorHelper.getParam(req, "password", true);
+            String field_name = ValidatorHelper.getParam(req, "fieldname", true);
+            String new_value = ValidatorHelper.getParam(req, "newvalue", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
 
-        JSONObject json = new JSONObject();
+            JSONObject json = new JSONObject();
 
-        if((login != null)&&(token!=null)&&(pwd!=null)&&(field_name!=null)&&(new_value!=null) ){
-            json = AccountService.changeFieldAccount(login,pwd,field_name,new_value,token);
-        }else{
-            serviceKO("Missing login");
+            if ((login != null) && (token != null) && (pwd != null) && (field_name != null) && (new_value != null)) {
+                json = AccountService.changeFieldAccount(login, pwd, field_name, new_value, token);
+            } else {
+                serviceKO("Missing login");
+            }
+            out.print(json);
+
+        }catch(Exception e){
+            out.print(serviceKO(e.getMessage()));
         }
-        out.print(json);
         out.close();
 
 

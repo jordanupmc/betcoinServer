@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static services.ServiceTools.serviceKO;
+
 @WebServlet(
         name = "EnterPoolServlet",
         urlPatterns = {"/enterPool"}
@@ -30,15 +32,18 @@ public class EnterPoolServlet extends HttpServlet {
 
 
         //Login*Mdp -> token
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
 
-        String login=req.getParameter("login");
-        String idPool=req.getParameter("idPool");
-        String token=req.getParameter("token");
 
-
-        out.print(
-                BetPoolService.enterPool(login, idPool, token)
-        );
+            out.print(
+                    BetPoolService.enterPool(login, idPool, token)
+            );
+        }catch (Exception e){
+            out.print(serviceKO(e.getMessage()));
+        }
 
         out.close();
     }

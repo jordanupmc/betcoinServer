@@ -21,6 +21,8 @@ import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static services.ServiceTools.serviceKO;
+
 @WebServlet(
         name = "DisconnectServlet",
         urlPatterns = {"/disconnect"}
@@ -38,18 +40,21 @@ public class DisconnectServlet extends HttpServlet {
 
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
 
-        String login = req.getParameter("login");
-        String token = req.getParameter("token");
-
-        if(login != null && token != null){
-            JSONObject tmp = LoginService.disconnect(login, token);
-            out.print(tmp);
-        }else{
-            JSONObject json = new JSONObject();
-            json.put("status", "KO");
-            json.put("errMsg", "Missing login or token");
-            out.print(json);
+            if (login != null && token != null) {
+                JSONObject tmp = LoginService.disconnect(login, token);
+                out.print(tmp);
+            } else {
+                JSONObject json = new JSONObject();
+                json.put("status", "KO");
+                json.put("errMsg", "Missing login or token");
+                out.print(json);
+            }
+        }catch(Exception e){
+            out.print(serviceKO(e.getMessage()));
         }
         out.close();
 

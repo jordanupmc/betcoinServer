@@ -38,20 +38,23 @@ public class QuitPoolServlet extends HttpServlet {
 
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
+            JSONObject json = new JSONObject();
 
-        String login = req.getParameter("login");
-        String idPool = req.getParameter("idPool");
-        String token = req.getParameter("token");
-        JSONObject json = new JSONObject();
+            if (login != null && idPool != null) {
+                json = BetPoolService.quitPool(login, idPool, token);
+            } else {
 
-        if(login != null && idPool != null){
-            json = BetPoolService.quitPool(login, idPool,token);
-        }else{
-
-            json.put("status", "KO");
-            json.put("errMsg", "Missing login or idPool");
+                json.put("status", "KO");
+                json.put("errMsg", "Missing login or idPool");
+            }
+            out.print(json);
+        }catch(Exception e){
+            out.print(e.getMessage());
         }
-        out.print(json);
         out.close();
 
 

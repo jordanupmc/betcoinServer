@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static services.ServiceTools.serviceKO;
+
 @WebServlet(
         name = "ConnectServlet",
         urlPatterns = {"/connect"}
@@ -30,13 +32,16 @@ public class ConnectServlet extends HttpServlet {
 
 
         //Login*Mdp -> token
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String mdp = ValidatorHelper.getParam(req, "password", true);
 
-        String login=req.getParameter("login");
-        String mdp=req.getParameter("password");
-
-        out.print(
-                LoginService.connect(login, mdp)
-        );
+            out.print(
+                    LoginService.connect(login, mdp)
+            );
+        }catch(Exception e){
+            out.print(serviceKO(e.getMessage()));
+        }
 
         out.close();
     }
