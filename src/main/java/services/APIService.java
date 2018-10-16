@@ -2,7 +2,6 @@ package services;
 
 import bd.APITools;
 import org.json.JSONObject;
-
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 

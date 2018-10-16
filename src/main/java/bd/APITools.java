@@ -1,8 +1,5 @@
 package bd;
 
-import com.mongodb.util.JSON;
-import org.json.JSONObject;
-
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,9 +7,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 

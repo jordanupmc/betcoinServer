@@ -1,11 +1,6 @@
 package servlet;
 
 
-
-
-import org.json.JSONObject;
-
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,7 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import static services.APIService.getCryptoCurrency;
+import org.json.JSONObject;
+import services.APIService;
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
@@ -38,7 +34,7 @@ public class CryptoCompServlet extends HttpServlet {
             String devise = ValidatorHelper.getParam(req, "devise",true);
             String fin = ValidatorHelper.getParam(req, "fin",true);
             String debut = ValidatorHelper.getParam(req, "debut", true);
-            JSONObject result = getCryptoCurrency(cryptname,devise,fin,debut);
+            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut);
             out.print(result);
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
