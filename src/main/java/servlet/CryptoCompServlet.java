@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Timestamp;
 
+import static services.APIService.getCryptoCurrency;
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
@@ -39,7 +40,7 @@ public class CryptoCompServlet extends HttpServlet {
             String devise = ValidatorHelper.getParam(req, "devise",true);
             String fin = ValidatorHelper.getParam(req, "fin",true);
             String debut = ValidatorHelper.getParam(req, "debut", true);
-            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut);
+            JSONObject result = getCryptoCurrency(cryptname,devise,fin,debut);
             out.print(result);
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
