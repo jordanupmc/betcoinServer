@@ -12,8 +12,8 @@ import java.util.Date;
 
 public class APITools {
     private static String createURL(String cryptName, String devise, String fin, String debut){
-        Timestamp tmstp_fin = new Timestamp(Timestamp.parse(fin));
-        Timestamp tmstp_debut = new Timestamp(Timestamp.parse(debut));
+        Timestamp tmstp_fin = new Timestamp(Long.parseLong(fin));
+        Timestamp tmstp_debut = new Timestamp(Long.parseLong(debut));
 
 
         Date d1 = new Date(tmstp_fin.getTime());
