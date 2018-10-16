@@ -16,7 +16,7 @@ import java.util.Date;
 
 
 public class APITools {
-    private static String createURL(String cryptName, String devise, String fin, String debut) throws ParseException {
+    private static String createURL(String cryptName, String devise, String fin, String debut){
         Timestamp tmstp_fin = new Timestamp(Timestamp.parse(fin));
         Timestamp tmstp_debut = new Timestamp(Timestamp.parse(debut));
 
@@ -37,7 +37,7 @@ public class APITools {
         return retour;
     }
 
-    public static JSONObject tCrypto(String cryptName, String devise, String fin, String debut) throws IOException, ParseException {
+    public static String getCrypto(String cryptName, String devise, String fin, String debut) throws IOException {
         String source ="";
         String url = createURL(cryptName,devise,fin,debut);
         URL oracle = new URL(url);
@@ -50,6 +50,6 @@ public class APITools {
         while ((inputLine = in.readLine()) != null)
             source +=inputLine;
         in.close();
-        return new JSONObject(source);
+        return source;
     }
 }

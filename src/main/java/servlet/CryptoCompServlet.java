@@ -3,6 +3,8 @@ package servlet;
 
 
 import bd.APITools;
+import org.json.JSONObject;
+import services.APIService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -37,7 +39,7 @@ public class CryptoCompServlet extends HttpServlet {
             String devise = ValidatorHelper.getParam(req, "devise",true);
             String fin = ValidatorHelper.getParam(req, "fin",true);
             String debut = ValidatorHelper.getParam(req, "debut", true);
-            String result = APITools.getCrypto(cryptname,devise,fin,debut);
+            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut);
 
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
