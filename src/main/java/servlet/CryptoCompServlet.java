@@ -40,7 +40,7 @@ public class CryptoCompServlet extends HttpServlet {
             String fin = ValidatorHelper.getParam(req, "fin",true);
             String debut = ValidatorHelper.getParam(req, "debut", true);
             JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut);
-
+            out.print(result);
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }

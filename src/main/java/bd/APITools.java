@@ -3,6 +3,7 @@ package bd;
 import com.mongodb.util.JSON;
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +25,7 @@ public class APITools {
         Date d1 = new Date(tmstp_fin.getTime());
         Date d2 = new Date(tmstp_debut.getTime());
         int diffInHours = (int)(Math.abs(d1.getTime() - d2.getTime())/3600000);
+        JOptionPane.showMessageDialog(null,diffInHours);
 
         String retour = "https://min-api.cryptocompare.com/data/histohour?fsym=" +
                 cryptName +
