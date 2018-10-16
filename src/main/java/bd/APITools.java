@@ -18,7 +18,8 @@ public class APITools {
 
         Date d1 = new Date(tmstp_fin.getTime());
         Date d2 = new Date(tmstp_debut.getTime());
-        int diffInHours = (int)(Math.abs(d1.getTime() - d2.getTime())/3600000);
+//        int diffInHours = (int)(Math.abs(d1.getTime() - d2.getTime())/3600000);
+        int diffInHours = 2;
         JOptionPane.showMessageDialog(null,diffInHours);
 
         String retour = "https://min-api.cryptocompare.com/data/histohour?fsym=" +
