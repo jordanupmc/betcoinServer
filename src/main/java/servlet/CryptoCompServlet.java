@@ -2,9 +2,9 @@ package servlet;
 
 
 
-import bd.APITools;
+
 import org.json.JSONObject;
-import services.APIService;
+
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Timestamp;
-
 import static services.APIService.getCryptoCurrency;
 import static services.ServiceTools.serviceKO;
 
