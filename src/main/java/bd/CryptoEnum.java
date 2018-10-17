@@ -10,7 +10,7 @@ public enum CryptoEnum {
     XRP("XRP"),
     ZEC("ZCash"),
     NEO("NEO"),
-    Dash("Dash");
+    DASH("Dash");
 
     private final String readable;
 

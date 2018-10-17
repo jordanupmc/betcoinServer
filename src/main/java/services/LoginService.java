@@ -1,18 +1,21 @@
 package services;
 
+import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
+import static bd.SessionTools.userConnected;
 import static bd.UserTools.accountClosed;
 import static bd.UserTools.checkPasswd;
-import static bd.UserTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
 public class LoginService {
+
+    /* service permettant la connexion d'un utilisateur */
     public static JSONObject connect(String login, String mdp){
 
         if((login == null) || (mdp == null)){
@@ -38,7 +41,7 @@ public class LoginService {
 
         String token = null;
         try {
-            token = UserTools.connect(login, mdp);
+            token = SessionTools.connect(login, mdp);
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return serviceKO("Connect Fail : URISyntaxException");
@@ -50,5 +53,21 @@ public class LoginService {
         JSONObject j = serviceOK();
         j.put("token", token);
         return j;
+    }
+
+    /* service de deconnexion d'un utilisateur */
+    public static JSONObject disconnect(String login, String token){
+        JSONObject json;
+
+        if(!userConnected(login)) return serviceKO("Disconnection Fail : User not connected");
+
+        if(SessionTools.checkToken(token, login)){
+            SessionTools.disconnect(login,token);
+            json = serviceOK();
+            json.put("disconnectedLogin",login);
+        }else{
+            json = serviceKO("Disconnection Fail : Wrong token");
+        }
+        return json;
     }
 }

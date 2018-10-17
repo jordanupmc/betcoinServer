@@ -1,14 +1,8 @@
 package servlet;
 
-import bd.Database;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
+
 import org.json.JSONObject;
-import services.LoginService;
-import services.UserService;
+import services.AccountService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,17 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "DisconnectServlet",
-        urlPatterns = {"/disconnect"}
+        name = "AccountModificationServlet",
+        urlPatterns = {"/changeAccountInfo"}
 )
-public class DisconnectServlet extends HttpServlet {
+public class AccountModificationServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -40,19 +31,23 @@ public class DisconnectServlet extends HttpServlet {
 
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
+
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
+            String pwd = ValidatorHelper.getParam(req, "password", true);
+            String field_name = ValidatorHelper.getParam(req, "fieldname", true);
+            String new_value = ValidatorHelper.getParam(req, "newvalue", true);
             String token = ValidatorHelper.getParam(req, "token", true);
 
-            if (login != null && token != null) {
-                JSONObject tmp = LoginService.disconnect(login, token);
-                out.print(tmp);
+            JSONObject json = new JSONObject();
+
+            if ((login != null) && (token != null) && (pwd != null) && (field_name != null) && (new_value != null)) {
+                json = AccountService.changeFieldAccount(login, pwd, field_name, new_value, token);
             } else {
-                JSONObject json = new JSONObject();
-                json.put("status", "KO");
-                json.put("errMsg", "Missing login or token");
-                out.print(json);
+                serviceKO("Missing login");
             }
+            out.print(json);
+
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }

@@ -1,5 +1,8 @@
 package bd;
 
+
+import com.mongodb.Block;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
@@ -8,22 +11,18 @@ import org.json.JSONArray;
 import com.mongodb.client.result.DeleteResult;
 import org.json.JSONObject;
 
-import javax.swing.*;
+
 import java.net.URISyntaxException;
 import java.sql.*;
-import java.util.Calendar;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-
+import static bd.SessionTools.removeSessionUser;
 import static bd.Database.getMongoCollection;
-import static bd.SessionTools.generateToken;
 
 public class UserTools {
-    static int everydayConnectionReward = 100;
 
-    public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) {
+
+    /* inscription d'un nouvel utilisateur */
+    public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) throws SQLException {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?);";
@@ -40,7 +39,9 @@ public class UserTools {
 
             pstmt.executeUpdate();
             return true;
-        } catch (Exception E) {
+        } catch (Exception e) {
+            if(e.getMessage().contains("users_login_key"))
+                throw new SQLException("login "+login + " already exists");
             return false;
         }
     }
@@ -60,111 +61,57 @@ public class UserTools {
         }
     }
 
-    public static boolean disconnect(String login,String token){
-        MongoCollection<Document> sesCollection = getMongoCollection("Session");
-
-        Document is_here = sesCollection.find(eq("login", login)).first();
-        if(is_here!=null) {
-            if (is_here.get(token) != null) {
-                sesCollection.updateOne(and(eq("login", login), eq("token", token)), new Document("$set", new Document("token", null)));
-            }else{
-                JOptionPane.showMessageDialog(null,"User already disconnected");
-                return false;
-            }
-        }else{
-            JOptionPane.showMessageDialog(null,"User not found");
-            return false;
-        }
-
-        return true;
-    }
-
-    public static JSONObject visualiseAccount(String login){
-        String query = "SELECT * IN USERS WHERE login=?";
+    /* renvois un JSON avec toutes les informations affichable de l'utilisateur */
+    public static JSONObject visualiseAccount(String login) throws URISyntaxException, SQLException {
+        String query = "SELECT * FROM USERS WHERE login=?";
         JSONObject json = new JSONObject();
-        try( Connection c = Database.getConnection();
-             PreparedStatement pstmt = c.prepareStatement(query)
-        ){
-            pstmt.setString(1,login);
-            pstmt.execute();
-            ResultSet data = (ResultSet)pstmt.getMetaData();
-            json.put("login",data.getString("login"));
-            json.put("email",data.getString("email"));
-            json.put("last_name",data.getString("last_name"));
-            json.put("first_name",data.getString("first_name"));
-            json.put("birthday",data.getString("birthday"));
-            json.put("country",data.getString("country"));
-            MongoCollection<Document> collection = getMongoCollection("SubscribePool");
-            Document d =
-                    collection
-                            .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
-                            .first();
+
+        Connection c = Database.getConnection();
+        PreparedStatement pstmt = c.prepareStatement(query);
+        pstmt.setString(1, login);
+        pstmt.execute();
+        ResultSet data = pstmt.getResultSet();
+        data.next();
+        json.put("login", data.getString("login"));
+        json.put("email", data.getString("email"));
+        json.put("last_name", data.getString("last_name"));
+        json.put("first_name", data.getString("first_name"));
+        json.put("birthday", data.getString("birthday"));
+        json.put("country", data.getString("country"));
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .first();
+        if (d != null) {
             List<Document> pools = (List<Document>) d.get("idBetPool");
             JSONArray arr = new JSONArray();
-            for(int i = 0; i < pools.size();i++){
+            for (int i = 0; i < pools.size(); i++) {
                 Document tmp = pools.get(i);
                 arr.put(tmp);
             }
             json.put("subscribePools", arr);
-            //TODO ajouter les infos des paris fais
-        }catch(Exception e){
-            return null;
+            collection = getMongoCollection("Bet");
+            JSONArray arr_bet = new JSONArray();
+            FindIterable<Document> listdoc = collection
+                    .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
+            listdoc.forEach(new Block<Document>() {
+                @Override
+                public void apply(Document document) {
+                    Document gros_doc = new Document();
+                    gros_doc.append("idBetPool",document.get("idBetPool"));
+                    gros_doc.append("betAmount",document.get("betAmount"));
+                    gros_doc.append("betValue",document.get("betValue"));
+                    gros_doc.append("betDate",document.get("betDate"));
+                    arr_bet.put(gros_doc);
+                }
+            });
+
+            json.put("bets", arr_bet);
         }
+        data.close();
+
         return json;
-    }
-
-
-    private static boolean removeSessionUser(String login){
-        MongoCollection<Document> collection = getMongoCollection("Session");
-        DeleteResult d = collection.deleteOne(new BsonDocument().append("login", new BsonString(login)));
-        return d.getDeletedCount()  == 1;
-    }
-
-    /* Ajoute dans la base MongoDB, une nouvelle personne connectee avec un token unique */
-    public static String connect(String login, String mdp) throws URISyntaxException, SQLException {
-        MongoCollection<Document> collection = getMongoCollection("Session");
-        String token = generateToken();
-
-        Document firstConnection =
-                collection
-                        .find(new BsonDocument().append("login", new BsonString(login)))
-                        .first();
-
-        if(firstConnection == null){ //Premiere connection
-            Document d = new Document("login", login)
-                    .append("token", token)
-                    .append("lastConnection", new Timestamp(System.currentTimeMillis()));
-
-            collection.insertOne(d);
-        }else{
-            java.util.Date date = firstConnection.getDate("lastConnection");
-            Calendar cal = Calendar.getInstance();
-            int todayDay = cal.get(Calendar.DAY_OF_YEAR);
-            int todayYear = cal.get(Calendar.YEAR);
-
-            cal.setTime(date);
-            int lastCoDay = cal.get(Calendar.DAY_OF_YEAR);
-            int lastCoYear = cal.get(Calendar.YEAR);
-
-            if(lastCoDay < todayDay || lastCoYear<todayYear){
-                Connection co = Database.getConnection();
-
-                String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
-                PreparedStatement pstmt = co.prepareStatement(query);
-                pstmt.setInt(1, everydayConnectionReward);
-                pstmt.setString(2, login);
-                pstmt.executeUpdate();
-                pstmt.close();
-                co.close();
-
-            }
-
-            BsonDocument filter = new BsonDocument().append("login", new BsonString(login));
-            collection.updateOne(filter, new Document("$set", new Document("token", token)));
-            collection.updateOne(filter, new Document("$set", new Document("lastConnection", new Timestamp(System.currentTimeMillis()))));
-        }
-
-        return token;
     }
 
     /* Vérifie pour un login et un mdp donné qu'il s'agit d'un login valide et qu'il s'agit du bon mdp */
@@ -188,21 +135,20 @@ public class UserTools {
         return false;
     }
 
-    /* Renvoi true si l'utilisateur login est connecté */
-    public static boolean userConnected(String login) {
-        MongoCollection<Document> collection = getMongoCollection("Session");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("login", new BsonString(login)))
-                        .first();
+    /* Modifie les informations du compte utilisateur */
+    public static boolean accountModification(String login, String field_name, String new_value) throws URISyntaxException, SQLException {
+        String query = "UPDATE USERS SET " + field_name + "=? WHERE login=?";
 
-        if (d == null || d.getString("token") == null)
-            return false;
-
+        Connection c = Database.getConnection();
+        PreparedStatement pstmt = c.prepareStatement(query);
+        pstmt.setString(1, new_value);
+        pstmt.setString(2, login);
+        pstmt.executeUpdate();
         return true;
+
     }
 
-    /* Renvoi true si comtpe est ferme*/
+    /* Renvoi true si compte est ferme*/
     public static boolean accountClosed(String login) throws SQLException, URISyntaxException {
         Connection co = Database.getConnection();
         String query = "SELECT * FROM USERS WHERE login=?";
@@ -211,7 +157,7 @@ public class UserTools {
 
 
         ResultSet res = pstmt.executeQuery();
-        if (res.next() && res.getBoolean("islock")){
+        if (res.next() && res.getBoolean("islock")) {
             pstmt.close();
             co.close();
             return true;

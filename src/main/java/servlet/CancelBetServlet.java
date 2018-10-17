@@ -1,7 +1,6 @@
 package servlet;
 
-import services.CancelBetService;
-import services.LoginService;
+import services.BetService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import static services.ServiceTools.serviceKO;
 
 @WebServlet(
         name = "CancelBetServlet",
@@ -29,15 +30,18 @@ public class CancelBetServlet extends HttpServlet {
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
 
-        String login=req.getParameter("login");
-        String idPool=req.getParameter("idPool");
-        String token=req.getParameter("token");
 
-
-        out.print(
-                CancelBetService.cancelBet(login, idPool, token)
-        );
+            out.print(
+                    BetService.cancelBet(login, idPool, token)
+            );
+        }catch(Exception e){
+            out.print(serviceKO(e.getMessage()));
+        }
 
         out.close();
     }

@@ -14,13 +14,14 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.net.URISyntaxException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import static bd.Database.getMongoCollection;
+import static com.mongodb.client.model.Filters.and;
 
 public class BetTools {
 
+    /* renvois la liste des salons de pari encore actif */
     public static JSONArray getListPoolsActive(){
         JSONArray ar=new JSONArray();
         String query =
@@ -37,7 +38,7 @@ public class BetTools {
                 j.put("name", v.getString(2));
                 j.put("openingbet", v.getTimestamp(3));
                 j.put("closingbet", v.getTimestamp(4));
-                j.put("resultbet", v.getBigDecimal(5));
+                j.put("resultbet", v.getTimestamp(5));
                 j.put("cryptocurrency", v.getString(6));
                 j.put("pooltype", v.getBoolean(7));
                 ar.put(j);
@@ -49,51 +50,57 @@ public class BetTools {
         }
     }
 
-    public static boolean quitPool(String login, String idPool) throws URISyntaxException, SQLException {
-        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+
+    /* Permet aux utilisateurs d'ajouter un nouveau pari*/
+    public static boolean addBet(String idPool, String login, int betAmmount, double betValue){
+        MongoCollection<Document> collection = getMongoCollection("L_Bet");
         Document d =
                 collection
-                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                         .first();
-        if(d==null){
-            JOptionPane.showMessageDialog(null,"User has no subscription yet");
-            return false;
-        }else{
-            BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
-            List<Document> pools = (List<Document>) d.get("idBetPool");
-            for(int i = 0; i < pools.size();i++){
-                if(pools.get(i).get("idPool").equals(idPool)){
-                    pools.remove(i);
-                    collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
-                    return cancelBet(login, idPool);
-                }
-            }
+        if (d == null) {
             return false;
         }
-    }
 
-    public static boolean addBet(String idPool, String login, float betAmmount, float betValue){
-        MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document bet_obj = new Document();
+        bet_obj.append("gamblerLogin",login);
+        bet_obj.append("betAmount",betAmmount);
+        bet_obj.append("betValue",betValue);
+        Timestamp tsp = new Timestamp(System.currentTimeMillis());
+        bet_obj.append("betDate",tsp.toString());
 
+        d = collection.find(new BsonDocument().append("idBetPool", new BsonString(idPool))).first();
+        List<Document> list_bet = (List<Document>) d.get("bet");
+        list_bet.add(bet_obj);
+        BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
+        collection.updateOne(filter, new Document("$set", new Document("bet", list_bet)));
+
+        collection = getMongoCollection("Bet");
         Document obj = new Document();
         obj.append("gamblerLogin",login);
+        obj.append("idBetPool",idPool);
         obj.append("betAmount",betAmmount);
         obj.append("betValue",betValue);
-        Timestamp tsp = new Timestamp(System.currentTimeMillis());
         obj.append("betDate",tsp.toString());
         collection.insertOne(obj);
-
-        collection = getMongoCollection("L_Bet");
-        Document d = collection.find(new BsonDocument().append("idPool", new BsonString(idPool))).first();
-        d.append("bet",obj);
-        BsonDocument filter = new BsonDocument().append("idPool", new BsonString(idPool));
-        collection.updateOne(filter, new Document("$set", d));
 
         return true;
 
     }
+
+    public static boolean checkBetExist(String login, String idPool){
+        MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document d =
+                collection
+                        .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
+                                new BsonDocument().append("gamblerLogin", new BsonString(login))))
+                        .first();
+        if(d!=null) return true;
+        return false;
+    }
+
     /* Renvoi true si un pari est toujours annulable */
-    public static boolean canCancelBet(String idPool) throws URISyntaxException, SQLException {
+    public static boolean betPoolOpen(String idPool) throws URISyntaxException, SQLException {
 
         Connection c = Database.getConnection();
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
