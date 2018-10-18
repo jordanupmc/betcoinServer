@@ -4,6 +4,7 @@ import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.sql.Date;
 import java.sql.SQLException;
 
@@ -13,7 +14,6 @@ import static services.ServiceTools.serviceOK;
 public class UserService {
     /*Login*Mdp*ConfirmMdp*Email*Nom*Prenom*DateNaissance(dd/mm/aaaa)*Pays->void
      */
-    //TODO check ce mettre d'accord sur le type de date a utiliser
     /* service d'inscription d'un utilisateur */
     public static JSONObject subscribe(String login, String mdp, String cmdp ,String email, String nom, String prenom,  Date birthDate, String country){
         JSONObject j;
@@ -23,11 +23,8 @@ public class UserService {
             }
             else{
                j= serviceKO("Subscribe fail");
-                if(!cmdp.equals(mdp))
+               if(!cmdp.equals(mdp))
                     j= ServiceTools.serviceKO("Subscribe fail two different password");
-
-                else
-                    j= ServiceTools.serviceKO("Subscribe fail");
             }
         } catch (SQLException e) {
             j= serviceKO(e.getMessage());
@@ -36,12 +33,16 @@ public class UserService {
     }
 
     /* service de désinscription d'un utilisateur */
-    public static JSONObject unsubscribe(String login, String token){
+    public static JSONObject unsubscribe(String login, String token, String password){
         JSONObject j;
 
-        if(SessionTools.checkToken(token, login) && UserTools.unsubscribe(login)){
-            j = serviceOK();
-        }else{
+        try {
+            if(SessionTools.checkToken(token, login) && UserTools.checkPasswd(login, password) && UserTools.unsubscribe(login)){
+                j = serviceOK();
+            }else{
+                j = serviceKO( "Unsubscribe fail");
+            }
+        } catch (Exception e) {
             j = serviceKO( "Unsubscribe fail");
         }
 
