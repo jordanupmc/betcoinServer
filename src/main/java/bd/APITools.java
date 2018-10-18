@@ -20,25 +20,19 @@ public class APITools {
     private static String createURL(String cryptName, String devise, String fin, String debut){
         long tmsp_fin = Long.parseLong(fin)*1000;
         long tmsp_debut = Long.parseLong(debut)*1000;
-
         long diff = tmsp_fin - tmsp_debut;
         long diffInHours = Math.abs((diff / (60*60*1000))%24);
         long diffInDays = Math.round(diff / (60*60*1000)/24);
         long diffTot = 24*diffInDays + diffInHours;
-
-
-
-
 
         String retour = "https://min-api.cryptocompare.com/data/histohour?fsym=" +
                 cryptName +
                 "&tsym=" +
                 devise +
                 "&limit=" +
-                Math.abs(diffTot) +
+                diffTot +
                 "&toTs=" +
                 tmsp_fin;
-        System.out.println(diffTot);
         return retour;
     }
 
