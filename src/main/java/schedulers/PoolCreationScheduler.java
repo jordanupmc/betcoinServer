@@ -11,7 +11,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class PoolCreationScheduler {
 
     public static void main(String[] args) throws Exception {
-        System.out.println("BIBI");
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 
         scheduler.start();
