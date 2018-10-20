@@ -125,18 +125,20 @@ public class PoolTools {
 
     public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType){
         String query =
-                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, ?,  ?, ? )";
+                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, ?,  CAST ( ? AS crypto_currency), ? )";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
         ) {
+            System.out.println("que passe ?");
             pstmt.setString(1, name);
             pstmt.setTimestamp(2, new Timestamp(new java.util.Date().getTime()));
             pstmt.setString(3, cryptoEnum.readable());
             pstmt.setBoolean(4, poolType);
-
             pstmt.executeUpdate();
+            System.out.println("FIN CREATE");
             return true;
         } catch (Exception e) {
+            System.out.println(e);
             return false;
         }
     }
