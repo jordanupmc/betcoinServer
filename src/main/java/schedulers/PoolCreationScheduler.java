@@ -20,7 +20,7 @@ public class PoolCreationScheduler {
     final static ConnectionFactory factory = new ConnectionFactory();
 
     public static void main(String[] args) throws Exception {
-        factory.setUri(System.getenv("CLOUDAMQP"));
+        factory.setUri(System.getenv(" CLOUDAMQP_URL"));
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 
         scheduler.start();

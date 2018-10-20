@@ -13,7 +13,7 @@ public class PoolCreationWorker {
     public static void main(String[] args) throws Exception {
 
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setUri(System.getenv("CLOUDAMQP"));
+        factory.setUri(System.getenv(" CLOUDAMQP_URL"));
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
         String queueName = "work-queue-1";
