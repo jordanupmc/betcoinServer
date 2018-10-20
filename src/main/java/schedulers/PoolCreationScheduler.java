@@ -17,10 +17,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 public class PoolCreationScheduler {
 
-    final static ConnectionFactory factory = new ConnectionFactory();
-
     public static void main(String[] args) throws Exception {
-        factory.setUri(System.getenv(" CLOUDAMQP_URL"));
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 
         scheduler.start();
@@ -29,7 +26,7 @@ public class PoolCreationScheduler {
 
         Trigger trigger = newTrigger()
                 .startNow()
-                .withSchedule(repeatSecondlyForever(6))
+                .withSchedule(repeatSecondlyForever(10))
                 .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
@@ -39,24 +36,7 @@ public class PoolCreationScheduler {
 
         @Override
         public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-            try {
-                Connection connection = factory.newConnection();
-                Channel channel = connection.createChannel();
-                String queueName = "work-queue-1";
-                Map<String, Object> params = new HashMap<String, Object>();
-                params.put("x-ha-policy", "all");
-                channel.queueDeclare(queueName, true, false, false, params);
-
-                String msg = "Sent at:" + System.currentTimeMillis();
-                byte[] body = msg.getBytes(StandardCharsets.UTF_8);
-                channel.basicPublish("", queueName, MessageProperties.PERSISTENT_TEXT_PLAIN, body);
-                System.out.println("Message Sent: " + msg);
-                connection.close();
-            }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
-
+            bd.PoolTools.messagePool("mick", "1" , "LOG :"+ System.currentTimeMillis());
         }
     }
 }
