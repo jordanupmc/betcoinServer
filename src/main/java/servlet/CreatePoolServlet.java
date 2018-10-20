@@ -40,7 +40,6 @@ public class CreatePoolServlet extends HttpServlet {
                 out.print(
                         "CREATE POOL LOG OK: " + bd.PoolTools.createPool(name, CryptoEnum.valueOf(cryptoCurr), Boolean.getBoolean(poolType))
                 );
-                System.out.println("JE FINIS");
             }
             else
                 out.print(
