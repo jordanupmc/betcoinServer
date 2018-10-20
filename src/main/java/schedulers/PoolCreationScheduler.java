@@ -2,6 +2,7 @@ package schedulers;
 
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import services.BetPoolService;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.repeatSecondlyForever;
@@ -30,7 +31,8 @@ public class PoolCreationScheduler {
         @Override
         public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
             System.out.println("EXECUTE BEGIN  !");
-            bd.PoolTools.messagePool("mick", "1" , "LOG :"+ System.currentTimeMillis());
+            System.out.println(
+            BetPoolService.messagePool("mick", "1" , "1935024627", "LOG :"+ System.currentTimeMillis())   );
             System.out.println("EXECUTE END!");
 
         }
