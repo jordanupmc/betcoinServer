@@ -54,4 +54,12 @@ public class ValidatorHelper {
             throw new ValidationException(s+ " is not a valid date ( yyyy-MM-dd )");
         }
     }
+    public static boolean checkBoolean(String val) throws ValidationException {
+        if(val == null) throw new ValidationException(val+" is not a boolean value");
+
+        val = val.toLowerCase();
+        if(val.equals("true") || val.equals("false"))
+            return true;
+        throw new ValidationException(val+" is not a boolean value");
+    }
 }

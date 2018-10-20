@@ -21,4 +21,14 @@ public enum CryptoEnum {
     public String readable(){
         return readable;
     }
+
+    public static boolean contains(String test) {
+
+        for (CryptoEnum c : CryptoEnum.values()) {
+            if (c.name().equals(test)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

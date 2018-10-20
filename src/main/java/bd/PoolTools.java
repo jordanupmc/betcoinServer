@@ -8,6 +8,7 @@ import org.bson.Document;
 import javax.swing.*;
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,6 +119,24 @@ public class PoolTools {
                     return true;
                 }
             }
+            return false;
+        }
+    }
+
+    public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType){
+        String query =
+                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, ?,  ?, ? )";
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query)
+        ) {
+            pstmt.setString(1, name);
+            pstmt.setTimestamp(2, new Timestamp(new java.util.Date().getTime()));
+            pstmt.setString(3, cryptoEnum.readable());
+            pstmt.setBoolean(4, poolType);
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (Exception e) {
             return false;
         }
     }
