@@ -10,6 +10,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class PoolCreationScheduler {
 
     public static void main(String[] args) throws Exception {
+        System.out.println("BIBI");
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 
         scheduler.start();
@@ -28,7 +29,10 @@ public class PoolCreationScheduler {
 
         @Override
         public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+            System.out.println("EXECUTE BEGIN  !");
             bd.PoolTools.messagePool("mick", "1" , "LOG :"+ System.currentTimeMillis());
+            System.out.println("EXECUTE END!");
+
         }
     }
 }
