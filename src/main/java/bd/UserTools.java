@@ -166,4 +166,34 @@ public class UserTools {
         return false;
     }
 
+    /*Return un User*/
+    public static JSONObject getUserInfo(String login){
+        String query =
+                "SELECT login, email, last_name, first_name, solde, birthday, country FROM Users WHERE login=?";
+        JSONObject j = new JSONObject();
+        try (Connection c = Database.getConnection()) {
+            try (PreparedStatement pstmt = c.prepareStatement(query)) {
+                pstmt.setString(1, login);
+                try (ResultSet v = pstmt.executeQuery()) {
+
+
+                    if (v.next()) {
+                        j.put("login", v.getString(1));
+                        j.put("email", v.getString(2));
+                        j.put("last_name", v.getString(3));
+                        j.put("fist_name", v.getString(4));
+                        j.put("solde", v.getInt(5));
+                        j.put("birthday", v.getDate(6));
+                        j.put("country", v.getString(7));
+
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+        } finally {
+            return j;
+        }
+    }
+
 }
