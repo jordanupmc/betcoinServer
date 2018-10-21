@@ -20,12 +20,11 @@ import static bd.Database.getMongoCollection;
 
 public class UserTools {
 
-
     /* inscription d'un nouvel utilisateur */
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) throws SQLException {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?);";
+                        "VALUES (?, crypt(? , gen_salt('bf', 8)), ?, ?, ?, ?, ?);";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
         ) {
@@ -118,7 +117,7 @@ public class UserTools {
     public static boolean checkPasswd(String login, String mdp) throws URISyntaxException, SQLException {
         Connection co = Database.getConnection();
 
-        String query = "SELECT * FROM USERS WHERE login=? AND password=?";
+        String query = "SELECT * FROM USERS WHERE login=? AND password= crypt(?, password)";
         PreparedStatement pstmt = co.prepareStatement(query);
         pstmt.setString(1, login);
         pstmt.setString(2, mdp);
