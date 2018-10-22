@@ -16,7 +16,7 @@ import static services.ServiceTools.serviceKO;
 
 @WebServlet(
         name = "GainRetrievalServlet",
-        urlPatterns = {"/changeAccountInfo"}
+        urlPatterns = {"/dummy"}
 )
 public class GainRetrievalServlet extends HttpServlet {
 
@@ -33,20 +33,6 @@ public class GainRetrievalServlet extends HttpServlet {
         PrintWriter out = resp.getWriter();
 
         try {
-            String login = ValidatorHelper.getParam(req, "login", true);
-            String pwd = ValidatorHelper.getParam(req, "password", true);
-            String field_name = ValidatorHelper.getParam(req, "fieldname", true);
-            String new_value = ValidatorHelper.getParam(req, "newvalue", true);
-            String token = ValidatorHelper.getParam(req, "token", true);
-
-            JSONObject json = new JSONObject();
-
-            if ((login != null) && (token != null) && (pwd != null) && (field_name != null) && (new_value != null)) {
-                json = AccountService.changeFieldAccount(login, pwd, field_name, new_value, token);
-            } else {
-                json = serviceKO("Missing login");
-            }
-            out.print(json);
 
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
