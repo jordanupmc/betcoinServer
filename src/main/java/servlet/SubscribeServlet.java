@@ -63,7 +63,7 @@ public class SubscribeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType( "text / plain" );
+        /*resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
         
         try {
@@ -89,7 +89,7 @@ public class SubscribeServlet extends HttpServlet {
         }catch (ValidationException ve){
             out.print(serviceKO(ve.getMessage()));
         }
-        out.close();
+        out.close();*/
     }
 
 }

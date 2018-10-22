@@ -47,7 +47,7 @@ public class ConnectServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType("application/json");
+       /* resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
 
@@ -63,6 +63,6 @@ public class ConnectServlet extends HttpServlet {
             out.print(serviceKO(e.getMessage()));
         }
 
-        out.close();
+        out.close();*/
     }
 }
