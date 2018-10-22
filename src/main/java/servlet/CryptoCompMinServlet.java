@@ -13,7 +13,7 @@ import services.APIService;
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "CryptoCompServlet",
+        name = "CryptoCompMinServlet",
         urlPatterns = {"/getCryptoMin"}
 )
 public class CryptoCompMinServlet extends HttpServlet {
