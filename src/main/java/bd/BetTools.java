@@ -7,7 +7,6 @@ import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -102,23 +101,22 @@ public class BetTools {
     /* Renvoi true si un pari est toujours annulable */
     public static boolean betPoolOpen(String idPool) throws URISyntaxException, SQLException {
 
-        Connection c = Database.getConnection();
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
 
-        PreparedStatement pstmt = c.prepareStatement(query);
+        try(Connection c = Database.getConnection();
+        PreparedStatement pstmt = c.prepareStatement(query);) {
 
-        pstmt.setInt(1, Integer.parseInt(idPool));
+            pstmt.setInt(1, Integer.parseInt(idPool));
 
-        ResultSet res = pstmt.executeQuery();
-        if (res.next()) {
-            if(res.getTimestamp("closingbet").after(new Timestamp(System.currentTimeMillis()))){
-                pstmt.close();
-                c.close();
-                return true;
+            ResultSet res = pstmt.executeQuery();
+            if (res.next()) {
+                if (res.getTimestamp("closingbet").after(new Timestamp(System.currentTimeMillis()))) {
+                    pstmt.close();
+                    c.close();
+                    return true;
+                }
             }
         }
-        pstmt.close();
-        c.close();
         return false;
     }
 
@@ -156,5 +154,10 @@ public class BetTools {
 
             return false;
         }
+    }
+
+    public static boolean retrieveGain(){
+
+        return false;
     }
 }
