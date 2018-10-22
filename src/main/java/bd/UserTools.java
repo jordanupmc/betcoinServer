@@ -64,50 +64,52 @@ public class UserTools {
         String query = "SELECT * FROM USERS WHERE login=?";
         JSONObject json = new JSONObject();
 
-        Connection c = Database.getConnection();
-        PreparedStatement pstmt = c.prepareStatement(query);
-        pstmt.setString(1, login);
-        pstmt.execute();
-        ResultSet data = pstmt.getResultSet();
-        data.next();
-        json.put("login", data.getString("login"));
-        json.put("email", data.getString("email"));
-        json.put("last_name", data.getString("last_name"));
-        json.put("first_name", data.getString("first_name"));
-        json.put("birthday", data.getString("birthday"));
-        json.put("country", data.getString("country"));
-        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
-                        .first();
-        if (d != null) {
-            List<Document> pools = (List<Document>) d.get("idBetPool");
-            JSONArray arr = new JSONArray();
-            for (int i = 0; i < pools.size(); i++) {
-                Document tmp = pools.get(i);
-                arr.put(tmp);
-            }
-            json.put("subscribePools", arr);
-            collection = getMongoCollection("Bet");
-            JSONArray arr_bet = new JSONArray();
-            FindIterable<Document> listdoc = collection
-                    .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
-            listdoc.forEach(new Block<Document>() {
-                @Override
-                public void apply(Document document) {
-                    Document gros_doc = new Document();
-                    gros_doc.append("idBetPool",document.get("idBetPool"));
-                    gros_doc.append("betAmount",document.get("betAmount"));
-                    gros_doc.append("betValue",document.get("betValue"));
-                    gros_doc.append("betDate",document.get("betDate"));
-                    arr_bet.put(gros_doc);
-                }
-            });
+        try(Connection c = Database.getConnection();
+        PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setString(1, login);
+            pstmt.execute();
+            ResultSet data = pstmt.getResultSet();
+            data.next();
+            json.put("login", data.getString("login"));
+            json.put("email", data.getString("email"));
+            json.put("last_name", data.getString("last_name"));
+            json.put("first_name", data.getString("first_name"));
+            json.put("birthday", data.getString("birthday"));
+            json.put("country", data.getString("country"));
 
-            json.put("bets", arr_bet);
+            MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+            Document d =
+                    collection
+                            .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                            .first();
+            if (d != null) {
+                List<Document> pools = (List<Document>) d.get("idBetPool");
+                JSONArray arr = new JSONArray();
+                for (int i = 0; i < pools.size(); i++) {
+                    Document tmp = pools.get(i);
+                    arr.put(tmp);
+                }
+                json.put("subscribePools", arr);
+                collection = getMongoCollection("Bet");
+                JSONArray arr_bet = new JSONArray();
+                FindIterable<Document> listdoc = collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
+                listdoc.forEach(new Block<Document>() {
+                    @Override
+                    public void apply(Document document) {
+                        Document gros_doc = new Document();
+                        gros_doc.append("idBetPool", document.get("idBetPool"));
+                        gros_doc.append("betAmount", document.get("betAmount"));
+                        gros_doc.append("betValue", document.get("betValue"));
+                        gros_doc.append("betDate", document.get("betDate"));
+                        arr_bet.put(gros_doc);
+                    }
+                });
+
+                json.put("bets", arr_bet);
+            }
+            data.close();
         }
-        data.close();
 
         return json;
     }
@@ -120,8 +122,6 @@ public class UserTools {
         PreparedStatement pstmt = co.prepareStatement(query);
         pstmt.setString(1, login);
         pstmt.setString(2, mdp);
-
-
         ResultSet res = pstmt.executeQuery();
         if (res.next()) {
             pstmt.close();
@@ -137,11 +137,12 @@ public class UserTools {
     public static boolean accountModification(String login, String field_name, String new_value) throws URISyntaxException, SQLException {
         String query = "UPDATE USERS SET " + field_name + "=? WHERE login=?";
 
-        Connection c = Database.getConnection();
-        PreparedStatement pstmt = c.prepareStatement(query);
-        pstmt.setString(1, new_value);
-        pstmt.setString(2, login);
-        pstmt.executeUpdate();
+        try(Connection c = Database.getConnection();
+        PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setString(1, new_value);
+            pstmt.setString(2, login);
+            pstmt.executeUpdate();
+        }
         return true;
 
     }

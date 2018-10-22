@@ -19,19 +19,18 @@ public class PoolTools {
 
     /*check si la pool existe*/
     public static boolean poolExist(String idPool) throws URISyntaxException, SQLException {
-        Connection co = Database.getConnection();
 
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
-        PreparedStatement pstmt = co.prepareStatement(query);
-        pstmt.setInt(1, Integer.parseInt(idPool));
-
-
-        ResultSet res = pstmt.executeQuery();
-        if (res.next()) {
-            pstmt.close();
-            return true;
+        try(Connection co = Database.getConnection();
+        PreparedStatement pstmt = co.prepareStatement(query);) {
+            pstmt.setInt(1, Integer.parseInt(idPool));
+            ResultSet res = pstmt.executeQuery();
+            if (res.next()) {
+                pstmt.close();
+                co.close();
+                return true;
+            }
         }
-        pstmt.close();
         return false;
     }
 

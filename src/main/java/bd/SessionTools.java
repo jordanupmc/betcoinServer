@@ -93,15 +93,14 @@ public class SessionTools {
             int lastCoYear = cal.get(Calendar.YEAR);
 
             if (lastCoDay < todayDay || lastCoYear < todayYear) {
-                Connection co = Database.getConnection();
-
                 String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
-                PreparedStatement pstmt = co.prepareStatement(query);
-                pstmt.setInt(1, everydayConnectionReward);
-                pstmt.setString(2, login);
-                pstmt.executeUpdate();
-                pstmt.close();
-                co.close();
+
+                try(Connection co = Database.getConnection();
+                PreparedStatement pstmt = co.prepareStatement(query);) {
+                    pstmt.setInt(1, everydayConnectionReward);
+                    pstmt.setString(2, login);
+                    pstmt.executeUpdate();
+                }
 
             }
 
