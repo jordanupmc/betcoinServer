@@ -112,4 +112,8 @@ public class BetService {
 
         return serviceKO("CancelBet Fail : No such Pool or No bet done");
     }
+
+    public static JSONObject retrieveGain(){
+        return serviceKO("Retrieve Gain Failed : No Gain");
+    }
 }

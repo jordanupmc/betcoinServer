@@ -15,10 +15,10 @@ import java.io.PrintWriter;
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "AccountModificationServlet",
+        name = "GainRetrievalServlet",
         urlPatterns = {"/changeAccountInfo"}
 )
-public class AccountModificationServlet extends HttpServlet {
+public class GainRetrievalServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

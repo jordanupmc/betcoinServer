@@ -155,4 +155,9 @@ public class BetTools {
             return false;
         }
     }
+
+    public static boolean retrieveGain(){
+
+        return false;
+    }
 }
