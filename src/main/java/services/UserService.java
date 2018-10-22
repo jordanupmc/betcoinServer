@@ -4,7 +4,6 @@ import bd.SessionTools;
 import bd.UserTools;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.sql.Date;
 import java.sql.SQLException;
 

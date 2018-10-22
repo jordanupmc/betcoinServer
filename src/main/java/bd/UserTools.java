@@ -8,7 +8,6 @@ import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.json.JSONArray;
-import com.mongodb.client.result.DeleteResult;
 import org.json.JSONObject;
 
 

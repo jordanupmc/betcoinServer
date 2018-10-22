@@ -1,6 +1,5 @@
 package servlet;
 
-import bd.BetTools;
 import services.BetPoolService;
 
 import javax.servlet.ServletException;
