@@ -1,10 +1,8 @@
 package servlet;
 
-import org.json.JSONObject;
 import services.ServiceTools;
 import services.UserService;
 
-import javax.jws.soap.SOAPBinding;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Date;
 
 @WebServlet(
         name = "UnsubscribeServlet",

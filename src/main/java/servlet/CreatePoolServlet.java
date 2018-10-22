@@ -1,7 +1,6 @@
 package servlet;
 
 import bd.CryptoEnum;
-import services.LoginService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import static services.ServiceTools.serviceKO;
 
 @WebServlet(
         name = "CreatePoolServlet",
