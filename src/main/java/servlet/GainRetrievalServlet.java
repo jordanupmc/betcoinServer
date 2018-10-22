@@ -2,7 +2,7 @@ package servlet;
 
 
 import org.json.JSONObject;
-import services.AccountService;
+import services.BetService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,7 +16,7 @@ import static services.ServiceTools.serviceKO;
 
 @WebServlet(
         name = "GainRetrievalServlet",
-        urlPatterns = {"/changeAccountInfo"}
+        urlPatterns = {"/retrieve"}
 )
 public class GainRetrievalServlet extends HttpServlet {
 
@@ -34,17 +34,15 @@ public class GainRetrievalServlet extends HttpServlet {
 
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
-            String pwd = ValidatorHelper.getParam(req, "password", true);
-            String field_name = ValidatorHelper.getParam(req, "fieldname", true);
-            String new_value = ValidatorHelper.getParam(req, "newvalue", true);
-            String token = ValidatorHelper.getParam(req, "token", true);
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
 
-            JSONObject json = new JSONObject();
 
-            if ((login != null) && (token != null) && (pwd != null) && (field_name != null) && (new_value != null)) {
-                json = AccountService.changeFieldAccount(login, pwd, field_name, new_value, token);
+            JSONObject json ;
+
+            if ((login != null) && (idPool != null)) {
+                json = BetService.retrieveGain(login, idPool);
             } else {
-                json = serviceKO("Missing login");
+                json = serviceKO("Gain Retrieval Failed : Missing login or IdPool");
             }
             out.print(json);
 

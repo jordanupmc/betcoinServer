@@ -156,7 +156,7 @@ public class BetTools {
         }
     }
 
-    public static boolean retrieveGain(){
+    public static boolean retrieveGain(String login, String idPool){
 
         return false;
     }

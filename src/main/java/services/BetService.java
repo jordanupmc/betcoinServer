@@ -113,7 +113,8 @@ public class BetService {
         return serviceKO("CancelBet Fail : No such Pool or No bet done");
     }
 
-    public static JSONObject retrieveGain(){
+    public static JSONObject retrieveGain(String login, String idPool){
+        BetTools.retrieveGain(login,idPool);
         return serviceKO("Retrieve Gain Failed : No Gain");
     }
 }
