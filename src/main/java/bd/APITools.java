@@ -15,13 +15,13 @@ public class APITools {
         long diff = Math.abs(tmsp_fin - tmsp_debut);
         long diffInHours = (diff / (60*60*1000))%24;
         long diffInDays = Math.round(diff / (60*60*1000)/24);
-        long diffInMinute = Math.round(diff / (60*1000)/24);
+        long diffInMinute = Math.round(diff / (60*1000));
 
         long diffTot ;
         if(isHours==1) {
             diffTot = 24 * diffInDays + diffInHours;
         }else{
-            diffTot = (24 * diffInDays + diffInHours) * 60 + diffInMinute;
+            diffTot = diffInMinute;
         }
         System.out.println(diffTot);
         String retour = "https://min-api.cryptocompare.com/data/" +
