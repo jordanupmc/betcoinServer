@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import static bd.SessionTools.removeSessionUser;
 import static bd.Database.getMongoCollection;
@@ -134,14 +135,18 @@ public class UserTools {
     }
 
     /* Modifie les informations du compte utilisateur */
-    public static boolean accountModification(String login, String field_name, String new_value) throws URISyntaxException, SQLException {
-        String query = "UPDATE USERS SET " + field_name + "=? WHERE login=?";
+    public static boolean accountModification(String login, ArrayList<String> field_name, ArrayList<String> new_value)
+            throws URISyntaxException, SQLException {
+        for(int i= 0 ; i<field_name.size();i++) {
+            String query = "UPDATE USERS SET ?=? WHERE login=?";
 
-        try(Connection c = Database.getConnection();
-        PreparedStatement pstmt = c.prepareStatement(query);) {
-            pstmt.setString(1, new_value);
-            pstmt.setString(2, login);
-            pstmt.executeUpdate();
+            try (Connection c = Database.getConnection();
+                 PreparedStatement pstmt = c.prepareStatement(query);) {
+                pstmt.setString(1,field_name.get(i));
+                pstmt.setString(2, new_value.get(i));
+                pstmt.setString(3, login);
+                pstmt.executeUpdate();
+            }
         }
         return true;
 

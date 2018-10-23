@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import static bd.SessionTools.userConnected;
 import static bd.UserTools.checkPasswd;
@@ -39,7 +40,8 @@ public class AccountService {
     }
 
     /* service pour changer un des champs du compte utilisateur */
-    public static JSONObject changeFieldAccount(String login, String pwd, String field_name, String new_value,String token){
+    public static JSONObject changeFieldAccount(String login, String pwd, ArrayList<String> field_name,
+                                                ArrayList<String> new_value, String token){
         JSONObject json;
 
         if(!userConnected(login)) return serviceKO("ChangeFieldAccount Fail : User not connected");
