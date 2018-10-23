@@ -185,7 +185,11 @@ public class BetTools {
                 collection
                         .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                         .first();
-        double resultValue = d_tmp.getDouble("resultValue");
+        double resultValue ;
+        if(d_tmp.getDouble("resultValue")==null){
+            return false;
+        }
+        resultValue = d_tmp.getDouble("resultValue");
         if(betValue==resultValue){
             return true;
         }
