@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import static bd.BetTools.betPoolOpen;
 import static bd.BetTools.checkBetExist;
 import static bd.Database.getMongoCollection;
+import static bd.PoolTools.poolExist;
 import static bd.SessionTools.userConnected;
 import static com.mongodb.client.model.Filters.and;
 import static services.ServiceTools.serviceKO;
@@ -31,7 +32,9 @@ public class BetService {
         if ((login == null) || (idPool == null) || (ammount == null) || (value == null) || (token == null)) {
             return serviceKO("AddBet Fail : Wrong arguments, expecting: login idPool ammount value");
         }
-
+        if(!poolExist(idPool)){
+            return serviceKO("AddBet Failed : Pool doesn't exists");
+        }
         boolean connected = userConnected(login);
         if (!connected) return serviceKO("AddBet Fail : User not connected");
 

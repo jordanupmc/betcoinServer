@@ -1,6 +1,7 @@
 package bd;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
@@ -16,6 +17,7 @@ import java.sql.*;
 import java.util.List;
 
 import static bd.Database.getMongoCollection;
+import static bd.PoolTools.poolExist;
 import static com.mongodb.client.model.Filters.and;
 
 public class BetTools {
@@ -58,7 +60,16 @@ public class BetTools {
                         .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                         .first();
         if (d == null) {
-            return false;
+            Document newpool = new Document();
+            newpool.append("idBetPool", idPool);
+            newpool.append("resultValue","");
+            JSONArray bets = new JSONArray();
+            newpool.append("bet",bets);
+
+            collection.insertOne(newpool);
+            d = collection
+                    .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                    .first();
         }
         String query = "SELECT solde FROM USERS WHERE login=?";
         try(Connection c = Database.getConnection();
