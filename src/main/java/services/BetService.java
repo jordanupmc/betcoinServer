@@ -32,7 +32,7 @@ public class BetService {
         if ((login == null) || (idPool == null) || (ammount == null) || (value == null) || (token == null)) {
             return serviceKO("AddBet Fail : Wrong arguments, expecting: login idPool ammount value");
         }
-        if(!poolExist(idPool)){
+        if (!poolExist(idPool)) {
             return serviceKO("AddBet Failed : Pool doesn't exists");
         }
         boolean connected = userConnected(login);
@@ -56,18 +56,17 @@ public class BetService {
         }
 
 
-
-        if(checkBetExist(login,idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
-        if(isSuscribed(login,idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
+        if (checkBetExist(login, idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
+        if (isSuscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
         String query = "SELECT solde FROM USERS WHERE login=?";
-        try(Connection c = Database.getConnection();
-            PreparedStatement pstmt = c.prepareStatement(query);){
-            pstmt.setString(1,login);
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setString(1, login);
             ResultSet result = pstmt.executeQuery();
             result.next();
             int solde = result.getInt(1);
             solde = solde - Integer.parseInt(ammount);
-            if(solde<0){
+            if (solde < 0) {
                 return serviceKO("AddBet Failed : You don't have enough coin to place this bet");
             }
         }
@@ -77,35 +76,35 @@ public class BetService {
         return serviceKO("AddBet Fail : BetPool not found");
     }
 
-    public static boolean isSuscribed(String login, String idPool){
+    public static boolean isSuscribed(String login, String idPool) {
         MongoCollection<Document> collection = getMongoCollection("Bet");
         Document d =
                 collection
                         .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
                                 new BsonDocument().append("gamblerLogin", new BsonString(login))))
                         .first();
-        if(d!=null)
+        if (d != null)
             return true;
         return false;
     }
 
     /* service d'annulation d'un pari */
-    public static JSONObject cancelBet(String login, String idPool, String token){
+    public static JSONObject cancelBet(String login, String idPool, String token) {
 
-        if((login == null) || (idPool == null) || (token == null)) {
+        if ((login == null) || (idPool == null) || (token == null)) {
             return serviceKO("CancelBet Fail : Wrong arguments, expecting: login idPool token");
         }
 
         boolean connected = userConnected(login);
-        if(!connected) return serviceKO("CancelBet Fail : User not connected");
+        if (!connected) return serviceKO("CancelBet Fail : User not connected");
 
-        if(!SessionTools.checkToken(token, login)){
+        if (!SessionTools.checkToken(token, login)) {
             return serviceKO("CancelBet Fail : Wrong token");
         }
 
         try {
             boolean canCancel = betPoolOpen(idPool);
-            if(!canCancel){
+            if (!canCancel) {
                 return serviceKO("CancelBet Fail : Too late to cancel");
             }
         } catch (URISyntaxException e) {
@@ -116,7 +115,7 @@ public class BetService {
         }
 
         try {
-            if(BetTools.cancelBet(login, idPool)){
+            if (BetTools.cancelBet(login, idPool)) {
                 return serviceOK();
             }
         } catch (URISyntaxException e) {
@@ -132,65 +131,27 @@ public class BetService {
     }
 
     public static JSONObject retrieveGain(String login, String idPool) throws URISyntaxException, SQLException {
-        if(!checkBetExist(login,idPool)){
+        if (!checkBetExist(login, idPool)) {
             return serviceKO("Gain Retrieval Failed : No bet registered");
         }
-
-        if(BetTools.betWon(login,idPool)){
-            MongoCollection<Document> collection = getMongoCollection("Bet");
-            Document d =
-                    collection
-                            .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
-                                    new BsonDocument().append("gamblerLogin", new BsonString(login))))
-                            .first();
-            String amount_s = d.get("betAmount").toString();
-            int amount_i = Integer.parseInt(amount_s);
-            String query = "SELECT solde FROM USERS WHERE login=?";
-            collection = getMongoCollection("L_Bet");
-            Document d_tmp =
-                    collection
-                            .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
-                            .first();
-            if(d_tmp.getDouble("resultValue")==null){
-                return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
-            }
-            try(Connection c = Database.getConnection();
-                PreparedStatement pstmt = c.prepareStatement(query);) {
-                pstmt.setString(1, login);
-                ResultSet res = pstmt.executeQuery();
-                res.next();
-                int soldeAccount = res.getInt(1);
-                res.close();
-                int amountWon ;
-                boolean type;
-                query = "SELECT pooltype FROM BETPOOL WHERE idbetpool=?";
-                try(PreparedStatement pstmt3 = c.prepareStatement(query);){
-                    pstmt3.setString(1,idPool);
-                    ResultSet restype = pstmt3.executeQuery();
-                    type = restype.getBoolean(1);
-                    restype.close();
-                }
-                if(type){
-                    amountWon = amount_i *5;
-                }else{
-                    amountWon = (int) Math.round(amount_i *1.2);
-                }
-                soldeAccount = soldeAccount + amountWon;
-                query = "UPDATE USERS SET solde=? WHERE login=?";
-                try (PreparedStatement pstmt2 = c.prepareStatement(query);) {
-                    pstmt2.setInt(1, soldeAccount);
-                    pstmt2.setString(2, login);
-                    pstmt2.executeQuery();
-                }
-                JSONObject json = serviceOK();
-
-                json.append("Result","You won ! congratulation !");
-                json.append("Gain",""+amountWon);
-                return json;
-            }
-        }else{
+        MongoCollection<Document> collection = getMongoCollection("L_Bet");
+        Document d_tmp =
+                collection
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                        .first();
+        if (d_tmp.getDouble("resultValue") == null) {
+            return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
+        }
+        int amountWon;
+        if ((amountWon = BetTools.betWon(login, idPool)) != -1) {
             JSONObject json = serviceOK();
-            json.append("Result","You lost your bet, try again next time");
+            json.append("Result", "You won ! congratulation !");
+            json.append("Gain", "" + amountWon);
+            return json;
+
+        } else {
+            JSONObject json = serviceOK();
+            json.append("Result", "You lost your bet, try again next time");
             return json;
 
         }
