@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import static bd.SessionTools.removeSessionUser;
 import static bd.Database.getMongoCollection;
 
@@ -39,8 +40,8 @@ public class UserTools {
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {
-            if(e.getMessage().contains("users_login_key"))
-                throw new SQLException("login "+login + " already exists");
+            if (e.getMessage().contains("users_login_key"))
+                throw new SQLException("login " + login + " already exists");
             return false;
         }
     }
@@ -65,8 +66,8 @@ public class UserTools {
         String query = "SELECT * FROM USERS WHERE login=?";
         JSONObject json = new JSONObject();
 
-        try(Connection c = Database.getConnection();
-        PreparedStatement pstmt = c.prepareStatement(query);) {
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
             pstmt.setString(1, login);
             pstmt.execute();
             ResultSet data = pstmt.getResultSet();
@@ -137,19 +138,23 @@ public class UserTools {
     /* Modifie les informations du compte utilisateur */
     public static boolean accountModification(String login, ArrayList<String> field_name, ArrayList<String> new_value)
             throws URISyntaxException, SQLException {
-        for(int i= 0 ; i<field_name.size();i++) {
-            String query = "UPDATE USERS SET ?=? WHERE login=?";
-
+        for (int i = 0; i < field_name.size(); i++) {
+            String query;
+            if (!field_name.get(i).equals("password")) {
+                query = "UPDATE USERS SET ?=? WHERE login=?";
+            } else {
+                query = "UPDATE USERS SET ?=crypt(?,gen_salt('bf',8)) WHERE login=?";
+            }
             try (Connection c = Database.getConnection();
                  PreparedStatement pstmt = c.prepareStatement(query);) {
-                pstmt.setString(1,field_name.get(i));
+                pstmt.setString(1, field_name.get(i));
                 pstmt.setString(2, new_value.get(i));
                 pstmt.setString(3, login);
                 pstmt.executeUpdate();
             }
+
         }
         return true;
-
     }
 
     /* Renvoi true si compte est ferme*/
@@ -172,7 +177,7 @@ public class UserTools {
     }
 
     /*Return un User*/
-    public static JSONObject getUserInfo(String login){
+    public static JSONObject getUserInfo(String login) {
         String query =
                 "SELECT login, email, last_name, first_name, solde, birthday, country FROM Users WHERE login=?";
         JSONObject j = new JSONObject();
