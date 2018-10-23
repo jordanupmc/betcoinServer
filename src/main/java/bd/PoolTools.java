@@ -118,16 +118,15 @@ public class PoolTools {
         return false;
     }
 
-    public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType) {
+    public static boolean createPool(CryptoEnum cryptoEnum, boolean poolType) {
         String query =
-                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? )";
+                "INSERT INTO BetPool (openingBet, cryptoCurrency, poolType) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? )";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
         ) {
-            pstmt.setString(1, name);
-            //pstmt.setTimestamp(2, new Timestamp(new java.util.Date().getTime()));
-            pstmt.setString(2, cryptoEnum.readable());
-            pstmt.setBoolean(3, poolType);
+            //pstmt.setString(1, name);
+            pstmt.setString(1, cryptoEnum.readable());
+            pstmt.setBoolean(2, poolType);
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {
