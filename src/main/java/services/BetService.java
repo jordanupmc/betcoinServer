@@ -132,14 +132,12 @@ public class BetService {
                             .first();
             String amount_s = d.get("betAmount").toString();
             int amount_i = Integer.parseInt(amount_s);
-            int betvalue = Integer.parseInt(d.get("betValue").toString());
             String query = "SELECT solde FROM USERS WHERE login=?";
             collection = getMongoCollection("L_Bet");
             Document d_tmp =
                     collection
                             .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                             .first();
-            double resultValue ;
             if(d_tmp.getDouble("resultValue")==null){
                 return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
             }
@@ -150,7 +148,21 @@ public class BetService {
                 res.next();
                 int soldeAccount = res.getInt(1);
                 res.close();
-                soldeAccount = soldeAccount + 2 * amount_i;
+                int amountWon ;
+                boolean type;
+                query = "SELECT pooltype FROM BETPOOL WHERE idbetpool=?";
+                try(PreparedStatement pstmt3 = c.prepareStatement(query);){
+                    pstmt3.setString(1,idPool);
+                    ResultSet restype = pstmt3.executeQuery();
+                    type = restype.getBoolean(1);
+                    restype.close();
+                }
+                if(type){
+                    amountWon = amount_i *5;
+                }else{
+                    amountWon = (int) Math.round(amount_i *1.2);
+                }
+                soldeAccount = soldeAccount + amountWon;
                 query = "UPDATE USERS SET solde=? WHERE login=?";
                 try (PreparedStatement pstmt2 = c.prepareStatement(query);) {
                     pstmt2.setInt(1, soldeAccount);
@@ -158,10 +170,10 @@ public class BetService {
                     pstmt2.executeQuery();
                 }
                 JSONObject json = serviceOK();
-                json.append("Result","You won ! congratulation !");
-                json.append("Gain",""+2*amount_i);
-                return json;
 
+                json.append("Result","You won ! congratulation !");
+                json.append("Gain",""+amountWon);
+                return json;
             }
         }else{
             JSONObject json = serviceOK();

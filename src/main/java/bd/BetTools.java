@@ -171,7 +171,7 @@ public class BetTools {
         }
     }
 
-    public static boolean betWon(String login, String idPool) throws SQLException, URISyntaxException {
+    public static boolean betWon(String login, String idPool) {
         MongoCollection<Document> collection = getMongoCollection("Bet");
         Document d =
                 collection
