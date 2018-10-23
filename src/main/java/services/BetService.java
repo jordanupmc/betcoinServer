@@ -68,7 +68,7 @@ public class BetService {
             int solde = result.getInt(1);
             solde = solde - Integer.parseInt(ammount);
             if(solde<0){
-                serviceKO("AddBet Failed : You don't have enough coin to place this bet");
+                return serviceKO("AddBet Failed : You don't have enough coin to place this bet");
             }
         }
         if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value))) {
