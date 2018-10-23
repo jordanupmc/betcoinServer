@@ -172,4 +172,18 @@ public class BetService {
         json.append("result",true);
         return json;
     }
+
+    public static JSONObject getListBets(String login) {
+        JSONObject json ;
+        json = serviceOK();
+        json.put("bets",BetTools.getListBets(login));
+        return json;
+    }
+
+    public static JSONObject getBet(String login, String idPool){
+        JSONObject json ;
+        json = serviceOK();
+        json.append("bet",BetTools.getBet(login,idPool));
+        return json;
+    }
 }

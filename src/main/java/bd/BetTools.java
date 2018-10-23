@@ -1,6 +1,7 @@
 package bd;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
@@ -251,5 +252,31 @@ public class BetTools {
             }
         }
         return -1;
+    }
+
+    public static JSONArray getListBets(String login) {
+        MongoCollection<Document> collection = getMongoCollection("Bet");
+        JSONArray array = new JSONArray();
+        try(MongoCursor<Document> d_tmp =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login))).iterator();) {
+
+            while (d_tmp.hasNext()) {
+                Document tmp = d_tmp.next();
+                array.put(tmp);
+            }
+        }
+        return array;
+
+    }
+
+    public static Document getBet(String login, String idPool) {
+        MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document d_tmp =
+                collection
+                        .find(and(new BsonDocument().append("gamblerLogin", new BsonString(login)),
+                                new BsonDocument().append("idBetPool", new BsonString(idPool))))
+                        .first();
+        return d_tmp;
     }
 }
