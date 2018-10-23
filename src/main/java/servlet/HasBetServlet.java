@@ -1,8 +1,6 @@
 package servlet;
 
-import org.json.JSONObject;
-import services.AccountService;
-import services.BetPoolService;
+import services.BetService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,40 +13,34 @@ import java.io.PrintWriter;
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "VisualisePoolInfoServlet",
-        urlPatterns = {"/getPoolInfo"}
+        name = "HasServlet",
+        urlPatterns = {"/hasBet"}
 )
-public class VisualisePoolInfoServlet extends HttpServlet {
+public class HasBetServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
+        doGet(req,resp);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
+        resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
+
         try {
-            resp.setContentType("text / plain");
-
+            String login = ValidatorHelper.getParam(req, "login", true);
             String idPool = ValidatorHelper.getParam(req, "idPool", true);
-            JSONObject json;
-
-            if (idPool != null ) {
-                json = BetPoolService.visualisePool(idPool);
-            } else {
-
-                json = serviceKO("Missing idPool");
-
-            }
-            out.print(json);
-
+            String token = ValidatorHelper.getParam(req, "token", true);
+            out.print(
+                    BetService.hasBet(login, idPool, token)
+            );
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }
+
         out.close();
-
-
     }
 }

@@ -20,6 +20,7 @@ import static bd.BetTools.betPoolOpen;
 import static bd.BetTools.checkBetExist;
 import static bd.Database.getMongoCollection;
 import static bd.PoolTools.poolExist;
+import static bd.SessionTools.checkToken;
 import static bd.SessionTools.userConnected;
 import static com.mongodb.client.model.Filters.and;
 import static services.ServiceTools.serviceKO;
@@ -155,5 +156,20 @@ public class BetService {
             return json;
 
         }
+    }
+
+    public static JSONObject hasBet(String login, String idPool, String token){
+        JSONObject json ;
+        if(!checkToken(token,login)){
+            serviceKO("HasBet Failed : Wrong token");
+        }
+        if(!checkBetExist(login,idPool)){
+            json = serviceOK();
+            json.append("result",false);
+            return json;
+        }
+        json = serviceOK();
+        json.append("result",true);
+        return json;
     }
 }
