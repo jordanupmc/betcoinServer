@@ -17,6 +17,7 @@ import static services.ServiceTools.serviceKO;
 @WebServlet(
         name = "GainRetrievalServlet",
         urlPatterns = {"/retrieve"}
+
 )
 public class GainRetrievalServlet extends HttpServlet {
 
