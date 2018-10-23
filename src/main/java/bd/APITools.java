@@ -23,7 +23,6 @@ public class APITools {
         }else{
             diffTot = diffInMinute;
         }
-        System.out.println(diffTot);
         String retour = "https://min-api.cryptocompare.com/data/" +
                 (isHours==1 ? "histohour" : "histominute") +
                 "?fsym=" +
