@@ -132,11 +132,12 @@ public class PoolTools {
             pstmt.setString(2, cryptoEnum.readable());
             pstmt.setBoolean(3, poolType);
             long timestp = System.currentTimeMillis();
-            JSONObject json = getCryptoCurrency(cryptoEnum.readable(),"EUR",
+            JSONObject json = getCryptoCurrency(cryptoEnum.toString(),"EUR",
                     ""+timestp,""+timestp,1);
-            JSONArray result = (JSONArray) json.get("result");
-            JSONArray data = (JSONArray) ((JSONObject)result.get(0)).get("Data");
-            JSONObject objFinal = (JSONObject) data.get(0);
+            JSONArray result = (JSONArray) json.get("results");
+            Document data = (Document) result.get(0);
+            ArrayList<Document> data_arr = (ArrayList<Document>) data.get("Data");
+            Document objFinal = data_arr.get(0);
             double value = (double) objFinal.get("close");
             pstmt.setDouble(4,value);
             pstmt.executeUpdate();
