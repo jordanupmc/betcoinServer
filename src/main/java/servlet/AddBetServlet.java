@@ -36,11 +36,7 @@ public class AddBetServlet extends HttpServlet {
             String ammount = ValidatorHelper.getParam(req, "betAmmount", true);
             String value = ValidatorHelper.getParam(req, "betValue", true);
             String token = ValidatorHelper.getParam(req, "token", true);
-
-
-            out.print(
-                    BetService.addBet(token, login, idPool, ammount, value)
-            );
+            out.print(BetService.addBet(token, login, idPool, ammount, value));
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }

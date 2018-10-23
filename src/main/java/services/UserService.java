@@ -61,9 +61,9 @@ public class UserService {
                 return j;
             }
             else
-                return serviceKO("Erreur lors de la récupération des infos");
+                return serviceKO("Get Account Information : Erreur lors de la récupération des infos");
         }
-        return serviceKO("Permission denied for "+login + " account");
+        return serviceKO("Get Account Information : Permission denied for "+login + " account");
 
     }
 }
