@@ -121,16 +121,15 @@ public class PoolTools {
         return false;
     }
 
-    public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType) {
+    public static boolean createPool(CryptoEnum cryptoEnum, boolean poolType) {
         String query =
-                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType, openingprice) VALUES (?, NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
+                "INSERT INTO BetPool (openingBet, cryptoCurrency, poolType, openingprice) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
         ) {
-            pstmt.setString(1, name);
             //pstmt.setTimestamp(2, new Timestamp(new java.util.Date().getTime()));
-            pstmt.setString(2, cryptoEnum.readable());
-            pstmt.setBoolean(3, poolType);
+            pstmt.setString(1, cryptoEnum.readable());
+            pstmt.setBoolean(2, poolType);
             long timestp = System.currentTimeMillis();
             JSONObject json = getCryptoCurrency(cryptoEnum.toString(),"EUR",
                     ""+timestp,""+timestp,1);
@@ -139,7 +138,8 @@ public class PoolTools {
             ArrayList<Document> data_arr = (ArrayList<Document>) data.get("Data");
             Document objFinal = data_arr.get(0);
             double value = (double) objFinal.get("close");
-            pstmt.setDouble(4,value);
+            pstmt.setDouble(3, value);
+
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {
