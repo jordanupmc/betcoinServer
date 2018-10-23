@@ -43,7 +43,7 @@ public class BetPoolService {
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
         try(Connection c = Database.getConnection();
             PreparedStatement pstmt = c.prepareStatement(query)){
-            pstmt.setString(1,idPool);
+            pstmt.setInt(1,Integer.parseInt(idPool));
             ResultSet res = pstmt.executeQuery();
             if(!res.next()){
                 return serviceKO("QuitPool Failed : Pool doesn't exists");
