@@ -45,7 +45,17 @@ public class AccountModificationServlet extends HttpServlet {
             ArrayList<String> fieldTab= new ArrayList<>();
             ArrayList<String> valueTab = new ArrayList<>();
             for (Document d: fieldList) {
-                fieldTab.add(d.toString());
+                String tmp = d.toString();
+                if(tmp.equals("iduser")){
+                    out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
+                    out.close();
+                    return;
+                }else if(tmp.equals("login")){
+                    out.print(serviceKO("Account Modification Failed : no change in login allowed"));
+                    out.close();
+                    return;
+                }
+                fieldTab.add(tmp);
             }
             for (Document d: valueList) {
                 valueTab.add(d.toString());
