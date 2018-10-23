@@ -1,14 +1,19 @@
 package services;
 
 import bd.BetTools;
+import bd.Database;
 import bd.SessionTools;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static bd.BetTools.betPoolOpen;
@@ -22,7 +27,7 @@ import static services.ServiceTools.serviceOK;
 public class BetService {
 
     /* service pour l'ajout d'un pari par un utilisateur */
-    public static JSONObject addBet(String token, String login, String idPool, String ammount, String value) {
+    public static JSONObject addBet(String token, String login, String idPool, String ammount, String value) throws URISyntaxException, SQLException {
         if ((login == null) || (idPool == null) || (ammount == null) || (value == null) || (token == null)) {
             return serviceKO("AddBet Fail : Wrong arguments, expecting: login idPool ammount value");
         }
@@ -113,8 +118,43 @@ public class BetService {
         return serviceKO("CancelBet Fail : No such Pool or No bet done");
     }
 
-    public static JSONObject retrieveGain(String login, String idPool){
-        BetTools.retrieveGain(login,idPool);
-        return serviceKO("Retrieve Gain Failed : No Gain");
+    public static JSONObject retrieveGain(String login, String idPool) throws URISyntaxException, SQLException {
+        if(!checkBetExist(login,idPool)){
+            return serviceKO("Gain Retrieval Failed : No bet registered");
+        }
+
+        if(BetTools.betWon(login,idPool)){
+            MongoCollection<Document> collection = getMongoCollection("Bet");
+            Document d =
+                    collection
+                            .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
+                                    new BsonDocument().append("gamblerLogin", new BsonString(login))))
+                            .first();
+            String amount_s = d.get("betAmount").toString();
+            int amount_i = Integer.parseInt(amount_s);
+            int betvalue = Integer.parseInt(d.get("betValue").toString());
+            String query = "SELECT solde FROM USERS WHERE login=?";
+            try(Connection c = Database.getConnection();
+                PreparedStatement pstmt = c.prepareStatement(query);) {
+                pstmt.setString(1, login);
+                ResultSet res = pstmt.executeQuery();
+                res.next();
+                int soldeAccount = res.getInt(1);
+                res.close();
+                soldeAccount = soldeAccount + 2 * amount_i;
+                query = "UPDATE USERS SET solde=? WHERE login=?";
+                try (PreparedStatement pstmt2 = c.prepareStatement(query);) {
+                    pstmt2.setInt(1, soldeAccount);
+                    pstmt2.setString(2, login);
+                    pstmt2.executeQuery();
+                }
+                JSONObject json = serviceOK();
+                json.append("BetWon","You won twice your bet amount, congratulation");
+                return json;
+
+            }
+        }else{
+            return serviceKO("Gain Retrieval Failed : You lost the bet");
+        }
     }
 }

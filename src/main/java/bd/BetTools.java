@@ -51,7 +51,7 @@ public class BetTools {
 
 
     /* Permet aux utilisateurs d'ajouter un nouveau pari*/
-    public static boolean addBet(String idPool, String login, int betAmmount, double betValue){
+    public static boolean addBet(String idPool, String login, int betAmmount, double betValue) throws URISyntaxException, SQLException {
         MongoCollection<Document> collection = getMongoCollection("L_Bet");
         Document d =
                 collection
@@ -59,6 +59,21 @@ public class BetTools {
                         .first();
         if (d == null) {
             return false;
+        }
+        String query = "SELECT solde FROM USERS WHERE login=?";
+        try(Connection c = Database.getConnection();
+            PreparedStatement pstmt = c.prepareStatement(query);){
+            pstmt.setString(1,login);
+            ResultSet result = pstmt.executeQuery();
+            result.next();
+            int solde = result.getInt(1);
+            solde = solde - betAmmount;
+            query="UPDATE USERS SET solde=? WHERE login=?";
+            try(PreparedStatement pstmt2 = c.prepareStatement(query)){
+                pstmt2.setInt(1,solde);
+                pstmt2.setString(2,login);
+                pstmt2.executeQuery();
+            }
         }
 
         Document bet_obj = new Document();
@@ -156,8 +171,24 @@ public class BetTools {
         }
     }
 
-    public static boolean retrieveGain(String login, String idPool){
+    public static boolean betWon(String login, String idPool) throws SQLException, URISyntaxException {
+        MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document d =
+                collection
+                        .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
+                                new BsonDocument().append("gamblerLogin", new BsonString(login))))
+                        .first();
 
+        double betValue = d.getDouble("betValue");
+        collection = getMongoCollection("L_Bet");
+        Document d_tmp =
+                collection
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                        .first();
+        double resultValue = d_tmp.getDouble("resultValue");
+        if(betValue==resultValue){
+            return true;
+        }
         return false;
     }
 }
