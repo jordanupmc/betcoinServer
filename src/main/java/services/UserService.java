@@ -47,4 +47,23 @@ public class UserService {
 
         return j;
     }
+
+
+    public static JSONObject getUserInfo(String login, String token){
+        JSONObject j;
+
+        if(SessionTools.checkToken(token, login)) {
+
+            JSONObject tmp = UserTools.getUserInfo(login);
+            if(!tmp.isEmpty()) {
+                j = serviceOK();
+                j.put("user", tmp);
+                return j;
+            }
+            else
+                return serviceKO("Erreur lors de la récupération des infos");
+        }
+        return serviceKO("Permission denied for "+login + " account");
+
+    }
 }

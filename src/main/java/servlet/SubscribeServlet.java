@@ -1,5 +1,6 @@
 package servlet;
 
+import org.json.JSONObject;
 import services.UserService;
 
 import java.io.IOException;
@@ -23,19 +24,48 @@ public class SubscribeServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req,resp);
+        PrintWriter out = resp.getWriter();
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+
+        if(j!=null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String mdp = ValidatorHelper.getParam(j, "password", true);
+                String cmdp = ValidatorHelper.getParam(j, "confirmPassword", true);
+                String email = ValidatorHelper.getParam(j, "email", true);
+                String nom = ValidatorHelper.getParam(j, "lastName", true);
+                String prenom = ValidatorHelper.getParam(j, "firstName", true);
+                String dateNaiss = ValidatorHelper.getParam(j, "dateNaiss", true);
+                String pays = ValidatorHelper.getParam(j, "country", true);
+
+                if(ValidatorHelper.isEmail(email) && ValidatorHelper.isDateSQL(dateNaiss) && !ValidatorHelper.containsWhiteSpace(login)
+                        && !ValidatorHelper.containsWhiteSpace(mdp) && !ValidatorHelper.containsWhiteSpace(nom) && !ValidatorHelper.containsWhiteSpace(prenom)
+                ) {
+                    out.print(
+                            UserService.subscribe(login, mdp, cmdp,email, nom, prenom, Date.valueOf(dateNaiss), pays)
+                    );
+                }
+                else {
+                    out.print(serviceKO("Subscribe fail error param"));
+                }
+            }catch (ValidationException ve){
+                out.print(serviceKO(ve.getMessage()));
+            }
+        }
+        else{
+            out.print(serviceKO("Aucune parametre recu"));
+        }
+        out.close();
+
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType( "text / plain" );
+        /*resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
-
-
-        //Login*Mdp*ConfirmMdp*Email*Nom*Prenom*DateNaissance(dd/mm/aaaa)*Pays->void
-
+        
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
             String mdp = ValidatorHelper.getParam(req, "password", true);
@@ -59,7 +89,7 @@ public class SubscribeServlet extends HttpServlet {
         }catch (ValidationException ve){
             out.print(serviceKO(ve.getMessage()));
         }
-        out.close();
+        out.close();*/
     }
 
 }
