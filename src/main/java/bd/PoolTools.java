@@ -123,7 +123,7 @@ public class PoolTools {
 
     public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType) {
         String query =
-                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
+                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType, openingprice) VALUES (?, NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
         ) {
@@ -138,6 +138,7 @@ public class PoolTools {
             JSONArray data = (JSONArray) ((JSONObject)result.get(0)).get("Data");
             JSONObject objFinal = (JSONObject) data.get(0);
             double value = (double) objFinal.get("close");
+            pstmt.setDouble(4,value);
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {
