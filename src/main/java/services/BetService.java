@@ -134,6 +134,15 @@ public class BetService {
             int amount_i = Integer.parseInt(amount_s);
             int betvalue = Integer.parseInt(d.get("betValue").toString());
             String query = "SELECT solde FROM USERS WHERE login=?";
+            collection = getMongoCollection("L_Bet");
+            Document d_tmp =
+                    collection
+                            .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                            .first();
+            double resultValue ;
+            if(d_tmp.getDouble("resultValue")==null){
+                return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
+            }
             try(Connection c = Database.getConnection();
                 PreparedStatement pstmt = c.prepareStatement(query);) {
                 pstmt.setString(1, login);
@@ -149,12 +158,16 @@ public class BetService {
                     pstmt2.executeQuery();
                 }
                 JSONObject json = serviceOK();
-                json.append("BetWon","You won twice your bet amount, congratulation");
+                json.append("Result","You won ! congratulation !");
+                json.append("Gain",""+2*amount_i);
                 return json;
 
             }
         }else{
-            return serviceKO("Gain Retrieval Failed : You lost the bet");
+            JSONObject json = serviceOK();
+            json.append("Result","You lost your bet, try again next time");
+            return json;
+
         }
     }
 }
