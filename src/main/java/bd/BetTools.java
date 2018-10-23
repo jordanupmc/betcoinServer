@@ -85,10 +85,16 @@ public class BetTools {
 
         d = collection.find(new BsonDocument().append("idBetPool", new BsonString(idPool))).first();
         List<Document> list_bet = (List<Document>) d.get("bet");
-        list_bet.add(bet_obj);
-        BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
-        collection.updateOne(filter, new Document("$set", new Document("bet", list_bet)));
-
+        if(list_bet.size()==0){
+            JSONArray array = new JSONArray();
+            array.put(bet_obj);
+            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
+            collection.updateOne(filter, new Document("$set", new Document("bet", array)));
+        }else {
+            list_bet.add(bet_obj);
+            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
+            collection.updateOne(filter, new Document("$set", new Document("bet", list_bet)));
+        }
         collection = getMongoCollection("Bet");
         Document obj = new Document();
         obj.append("gamblerLogin",login);

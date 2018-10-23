@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static services.ServiceTools.serviceKO;
+
 @WebServlet(
         name = "QuitPoolServlet",
         urlPatterns = {"/quitPool"}
@@ -37,13 +39,11 @@ public class QuitPoolServlet extends HttpServlet {
             if (login != null && idPool != null) {
                 json = BetPoolService.quitPool(login, idPool, token);
             } else {
-
-                json.put("status", "KO");
-                json.put("errMsg", "Missing login or idPool");
+                json = serviceKO("QuitPool Failed : Missing login or idPool");
             }
             out.print(json);
         }catch(Exception e){
-            out.print(e.getMessage());
+            out.print(serviceKO("QuitPool Failed : "+e.toString()));
         }
         out.close();
 
