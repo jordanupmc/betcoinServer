@@ -21,8 +21,8 @@ public class PoolTools {
     public static boolean poolExist(String idPool) throws URISyntaxException, SQLException {
 
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
-        try(Connection co = Database.getConnection();
-        PreparedStatement pstmt = co.prepareStatement(query);) {
+        try (Connection co = Database.getConnection();
+             PreparedStatement pstmt = co.prepareStatement(query);) {
             pstmt.setInt(1, Integer.parseInt(idPool));
             ResultSet res = pstmt.executeQuery();
             if (res.next()) {
@@ -104,24 +104,21 @@ public class PoolTools {
                 collection
                         .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
                         .first();
-        if(d==null){
-            return false;
-        }else{
-            BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
-            List<Document> pools = (List<Document>) d.get("idBetPool");
-            for(int i = 0; i < pools.size();i++){
-                if(pools.get(i).get("idPool").equals(idPool)){
-                    pools.remove(i);
-                    collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
-                    cancelBet(login, idPool);
-                    return true;
-                }
+
+        BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
+        List<Document> pools = (List<Document>) d.get("idBetPool");
+        for (int i = 0; i < pools.size(); i++) {
+            if (pools.get(i).get("idPool").equals(idPool)) {
+                pools.remove(i);
+                collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
+                cancelBet(login, idPool);
+                return true;
             }
-            return false;
         }
+        return false;
     }
 
-    public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType){
+    public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType) {
         String query =
                 "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? )";
         try (Connection c = Database.getConnection();
@@ -139,4 +136,5 @@ public class PoolTools {
             return false;
         }
     }
+
 }
