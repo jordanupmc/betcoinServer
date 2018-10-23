@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static bd.Database.getMongoCollection;
@@ -59,53 +60,57 @@ public class BetTools {
                 collection
                         .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                         .first();
+        Timestamp tsp = new Timestamp(System.currentTimeMillis());
         if (d == null) {
             Document newpool = new Document();
             newpool.append("idBetPool", idPool);
             newpool.append("resultValue","");
-            JSONArray bets = new JSONArray();
+            ArrayList<Document> bets = new ArrayList<>();
+            Document bet_obj = new Document();
+            bet_obj.append("gamblerLogin",login);
+            bet_obj.append("betAmount",betAmmount);
+            bet_obj.append("betValue",betValue);
+            bet_obj.append("betDate",tsp.toString());
+            bets.add(bet_obj);
             newpool.append("bet",bets);
-
             collection.insertOne(newpool);
+
             d = collection
                     .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                     .first();
+        }else{
+            d = collection.find(new BsonDocument().append("idBetPool", new BsonString(idPool))).first();
+            List<Document> list_bet = (List<Document>) d.get("bet");
+            Document bet_obj = new Document();
+            bet_obj.append("gamblerLogin",login);
+            bet_obj.append("betAmount",betAmmount);
+            bet_obj.append("betValue",betValue);
+            bet_obj.append("betDate",tsp.toString());
+            list_bet.add(bet_obj);
+            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
+            collection.updateOne(filter, new Document("$set", new Document("bet", list_bet)));
         }
+
         String query = "SELECT solde FROM USERS WHERE login=?";
         try(Connection c = Database.getConnection();
             PreparedStatement pstmt = c.prepareStatement(query);){
             pstmt.setString(1,login);
             ResultSet result = pstmt.executeQuery();
             result.next();
+
             int solde = result.getInt(1);
             solde = solde - betAmmount;
             query="UPDATE USERS SET solde=? WHERE login=?";
             try(PreparedStatement pstmt2 = c.prepareStatement(query)){
                 pstmt2.setInt(1,solde);
                 pstmt2.setString(2,login);
-                pstmt2.executeQuery();
+                pstmt2.executeUpdate();
             }
         }
 
-        Document bet_obj = new Document();
-        bet_obj.append("gamblerLogin",login);
-        bet_obj.append("betAmount",betAmmount);
-        bet_obj.append("betValue",betValue);
-        Timestamp tsp = new Timestamp(System.currentTimeMillis());
-        bet_obj.append("betDate",tsp.toString());
 
-        d = collection.find(new BsonDocument().append("idBetPool", new BsonString(idPool))).first();
-        List<Document> list_bet = (List<Document>) d.get("bet");
-        if(list_bet.size()==0){
-            JSONArray array = new JSONArray();
-            array.put(bet_obj);
-            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
-            collection.updateOne(filter, new Document("$set", new Document("bet", array)));
-        }else {
-            list_bet.add(bet_obj);
-            BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
-            collection.updateOne(filter, new Document("$set", new Document("bet", list_bet)));
-        }
+
+
         collection = getMongoCollection("Bet");
         Document obj = new Document();
         obj.append("gamblerLogin",login);
@@ -176,7 +181,7 @@ public class BetTools {
                     Connection co = Database.getConnection();
                     String query = "UPDATE USERS SET solde=solde+? WHERE login=?";
                     PreparedStatement pstmt = co.prepareStatement(query);
-                    pstmt.setDouble(1, toRefound);
+                    pstmt.setInt(1, toRefound);
                     pstmt.setString(2, login);
                     pstmt.executeUpdate();
                     pstmt.close();

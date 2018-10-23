@@ -47,7 +47,6 @@ public class BetService {
             if (!betPoolOpen(idPool)) {
                 return serviceKO("AddBet Fail : Too late to add a new bet");
             }
-
         } catch (SQLException e) {
             return serviceKO("AddBet Fail : SQLException");
 
@@ -59,11 +58,22 @@ public class BetService {
 
 
         if(checkBetExist(login,idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
-
         if(isSuscribed(login,idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
-        if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value)))
+        String query = "SELECT solde FROM USERS WHERE login=?";
+        try(Connection c = Database.getConnection();
+            PreparedStatement pstmt = c.prepareStatement(query);){
+            pstmt.setString(1,login);
+            ResultSet result = pstmt.executeQuery();
+            result.next();
+            int solde = result.getInt(1);
+            solde = solde - Integer.parseInt(ammount);
+            if(solde<0){
+                serviceKO("AddBet Failed : You don't have enough coin to place this bet");
+            }
+        }
+        if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value))) {
             return serviceOK();
-
+        }
         return serviceKO("AddBet Fail : BetPool not found");
     }
 
