@@ -4,6 +4,8 @@ import com.mongodb.client.MongoCollection;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 import java.net.URISyntaxException;
@@ -13,6 +15,7 @@ import java.util.List;
 
 import static bd.BetTools.cancelBet;
 import static bd.Database.getMongoCollection;
+import static services.APIService.getCryptoCurrency;
 
 
 public class PoolTools {
@@ -120,7 +123,7 @@ public class PoolTools {
 
     public static boolean createPool(String name, CryptoEnum cryptoEnum, boolean poolType) {
         String query =
-                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? )";
+                "INSERT INTO BetPool (name, openingBet, cryptoCurrency, poolType) VALUES (?, NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
         ) {
@@ -128,6 +131,13 @@ public class PoolTools {
             //pstmt.setTimestamp(2, new Timestamp(new java.util.Date().getTime()));
             pstmt.setString(2, cryptoEnum.readable());
             pstmt.setBoolean(3, poolType);
+            long timestp = System.currentTimeMillis();
+            JSONObject json = getCryptoCurrency(cryptoEnum.readable(),"EUR",
+                    ""+timestp,""+timestp,1);
+            JSONArray result = (JSONArray) json.get("result");
+            JSONArray data = (JSONArray) ((JSONObject)result.get(0)).get("Data");
+            JSONObject objFinal = (JSONObject) data.get(0);
+            double value = (double) objFinal.get("close");
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {

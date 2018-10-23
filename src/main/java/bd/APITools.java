@@ -35,7 +35,7 @@ public class APITools {
                 tmsp_fin;
         return retour;
     }
-
+    /*recupere les données de la cryptomonaie. isHours =1 signifie la valeur toute les heure, minute sinon*/
     public static String getCrypto(String cryptName, String devise, String fin, String debut, int isHours) throws IOException {
         String source ="";
         String url = createURL(cryptName,devise,fin,debut,isHours);
