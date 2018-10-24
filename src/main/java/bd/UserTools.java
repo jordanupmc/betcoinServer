@@ -141,15 +141,14 @@ public class UserTools {
         for (int i = 0; i < field_name.size(); i++) {
             String query;
             if (!field_name.get(i).equals("password")) {
-                query = "UPDATE USERS SET ?=? WHERE login=?";
+                query = "UPDATE USERS SET password=? WHERE login=?";
             } else {
-                query = "UPDATE USERS SET ?=crypt(?,gen_salt('bf',8)) WHERE login=?";
+                query = "UPDATE USERS SET "+field_name.get(i)+"=crypt(?,gen_salt('bf',8)) WHERE login=?";
             }
             try (Connection c = Database.getConnection();
                  PreparedStatement pstmt = c.prepareStatement(query);) {
-                pstmt.setString(1, field_name.get(i));
-                pstmt.setString(2, new_value.get(i));
-                pstmt.setString(3, login);
+                pstmt.setString(1, new_value.get(i));
+                pstmt.setString(2, login);
                 pstmt.executeUpdate();
             }
 
