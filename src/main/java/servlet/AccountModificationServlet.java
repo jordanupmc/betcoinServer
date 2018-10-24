@@ -40,25 +40,27 @@ public class AccountModificationServlet extends HttpServlet {
             JSONObject tab = new JSONObject();
             tab.append("field",field_name);
             tab.append("value",new_value);
-            List<Document> fieldList = (List<Document>) tab.get("field");
-            List<Document> valueList = (List<Document>) tab.get("value");
+            JSONArray fieldList = (JSONArray) tab.get("field");
+            JSONArray valueList = (JSONArray) tab.get("value");
             ArrayList<String> fieldTab= new ArrayList<>();
             ArrayList<String> valueTab = new ArrayList<>();
-            for (Document d: fieldList) {
-                String tmp = d.toString();
-                if(tmp.equals("iduser")){
+
+            for (int i = 0 ; i < fieldList.length();i++) {
+                String tmp = fieldList.get(1).toString();
+                if(tmp.contains("iduser")){
                     out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
                     out.close();
                     return;
-                }else if(tmp.equals("login")){
+                }else if(tmp.contains("login")){
                     out.print(serviceKO("Account Modification Failed : no change in login allowed"));
                     out.close();
                     return;
                 }
                 fieldTab.add(tmp);
             }
-            for (Document d: valueList) {
-                valueTab.add(d.toString());
+            for (int i = 0 ; i < valueList.length();i++) {
+                System.out.println(valueList.get(i).toString());
+                valueTab.add(valueList.get(i).toString());
             }
             JSONObject json = new JSONObject();
 
