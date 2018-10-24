@@ -24,7 +24,6 @@ import static com.mongodb.client.model.Filters.and;
 
 public class BetTools {
 
-
     public static boolean checkPoolResult(String idPool){
         MongoCollection<Document> collection = getMongoCollection("L_Bet");
         Document d_tmp =

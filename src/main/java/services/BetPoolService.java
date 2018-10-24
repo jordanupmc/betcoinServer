@@ -1,20 +1,16 @@
 package services;
 
 import bd.BetTools;
-import bd.Database;
+
 import bd.PoolTools;
 import bd.SessionTools;
-import com.mongodb.client.MongoCollection;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
-import org.bson.Document;
+
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
+
 
 import static bd.PoolTools.isSubscribed;
 import static bd.PoolTools.poolExist;

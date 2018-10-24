@@ -20,6 +20,8 @@ import static services.APIService.getCryptoCurrency;
 
 public class PoolTools {
 
+
+
     /*check si la pool existe*/
     public static boolean poolExist(String idPool) throws URISyntaxException, SQLException {
 
