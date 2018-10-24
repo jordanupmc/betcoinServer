@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import static bd.BetTools.*;
 import static bd.Database.getMongoCollection;
+import static bd.PoolTools.isSubscribed;
 import static bd.PoolTools.poolExist;
 import static bd.SessionTools.checkToken;
 import static bd.SessionTools.userConnected;
