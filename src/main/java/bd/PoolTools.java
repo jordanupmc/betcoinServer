@@ -154,4 +154,24 @@ public class PoolTools {
         }
     }
 
+    public static JSONObject poolInfo(String idPool) throws URISyntaxException, SQLException {
+        JSONObject json = new JSONObject();
+        String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query)
+        ) {
+            pstmt.setInt(1, Integer.parseInt(idPool));
+            ResultSet result = pstmt.executeQuery();
+            result.next();
+            json.put("idbetpool", result.getInt(1));
+            json.put("name", result.getString(2));
+            json.put("openingbet", result.getTimestamp(3));
+            json.put("closingbet", result.getTimestamp(4));
+            json.put("resultbet", result.getTimestamp(5));
+            json.put("cryptocurrency", result.getString(6));
+            json.put("pooltype", result.getBoolean(7));
+        }
+        return json;
+    }
+
 }

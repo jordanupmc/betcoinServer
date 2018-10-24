@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import static bd.Database.getMongoCollection;
 import static bd.PoolTools.poolExist;
 import static bd.SessionTools.userConnected;
+import static services.BetService.isSubscribed;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
@@ -33,7 +34,7 @@ public class BetPoolService {
     }
 
     /* service permettant de quitter un salon de pari */
-    public static JSONObject quitPool(String login, String idPool, String token) throws URISyntaxException, SQLException {
+    public static JSONObject quitPool(String login, String idPool, String token) {
         JSONObject obj;
 
         if ((login == null) || (idPool == null) || (token == null)) return serviceKO("QuitPool Failed : Null argument");
@@ -42,21 +43,14 @@ public class BetPoolService {
         if (!SessionTools.checkToken(token, login)) {
             return serviceKO("QuitPool Fail : Wrong token");
         }
-
-        if (!poolExist(idPool)) {
-            return serviceKO("QuitPool Failed : Pool doesn't exists");
-        }
-
-        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
-                        .first();
-        if (d == null) {
-            return serviceKO("QuitPool Failed : You are not subscribed to this pool");
-        }
-
         try {
+            if (!poolExist(idPool)) {
+                return serviceKO("QuitPool Failed : Pool doesn't exists");
+            }
+
+            if(!isSubscribed(login,idPool)){
+                return serviceKO("QuitPool Failed : You are not subscribed to this pool");
+            }
             if (PoolTools.quitPool(login, idPool)) {
                 obj = ServiceTools.serviceOK();
                 obj.put("login", login);
@@ -138,25 +132,18 @@ public class BetPoolService {
     }
 
     /*permet de visualiser les informations relatives à une pool*/
-    public static JSONObject visualisePool(String idPool) throws SQLException, URISyntaxException {
+    public static JSONObject visualisePool(String idPool) {
         JSONObject json = new JSONObject();
-        if (!poolExist(idPool)) {
-            return serviceKO("Visualise Pool Failed : Pool doesn't exists");
-        }
-        String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
-        try (Connection c = Database.getConnection();
-             PreparedStatement pstmt = c.prepareStatement(query)
-        ) {
-            pstmt.setInt(1, Integer.parseInt(idPool));
-            ResultSet result = pstmt.executeQuery();
-            result.next();
-            json.put("idbetpool", result.getInt(1));
-            json.put("name", result.getString(2));
-            json.put("openingbet", result.getTimestamp(3));
-            json.put("closingbet", result.getTimestamp(4));
-            json.put("resultbet", result.getTimestamp(5));
-            json.put("cryptocurrency", result.getString(6));
-            json.put("pooltype", result.getBoolean(7));
+        try {
+            if (!poolExist(idPool)) {
+                return serviceKO("Visualise Pool Failed : Pool doesn't exists");
+            }
+
+            json = PoolTools.poolInfo(idPool);
+        }catch(URISyntaxException e){
+            json = serviceKO("Visualise Pool Failed : URISyntaxException");
+        }catch(SQLException e){
+            json = serviceKO("Visualise Pool Failed : SQLException");
         }
         return json;
     }

@@ -8,6 +8,7 @@ import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -15,6 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import static bd.BetTools.*;
 import static bd.Database.getMongoCollection;
@@ -57,7 +59,7 @@ public class BetService {
 
 
         if (checkBetExist(login, idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
-        if (isSuscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
+        if (isSubscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
         if(hasEnoughCoin(login,ammount)){
             return serviceKO("AddBet Failed : You don't have enough coin to place this bet");
         }
@@ -67,15 +69,18 @@ public class BetService {
         return serviceKO("AddBet Fail : BetPool not found");
     }
 
-    public static boolean isSuscribed(String login, String idPool) {
-        MongoCollection<Document> collection = getMongoCollection("Bet");
+    public static boolean isSubscribed(String login, String idPool) {
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
         Document d =
                 collection
-                        .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
-                                new BsonDocument().append("gamblerLogin", new BsonString(login))))
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
                         .first();
-        if (d != null)
-            return true;
+        ArrayList<Document> array = (ArrayList<Document>) d.get("idBetPool");
+        for(Document tmp : array){
+            if(Integer.parseInt((String)tmp.get("idPool"))==Integer.parseInt(idPool)){
+                return true;
+            }
+        }
         return false;
     }
 
