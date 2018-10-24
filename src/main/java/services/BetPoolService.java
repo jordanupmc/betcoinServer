@@ -9,6 +9,7 @@ import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.json.JSONObject;
+
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static bd.Database.getMongoCollection;
+import static bd.PoolTools.poolExist;
 import static bd.SessionTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
@@ -24,30 +26,25 @@ import static services.ServiceTools.serviceOK;
 public class BetPoolService {
 
     /*service de récupération de la liste des salons de pari actif */
-    public static JSONObject getListPoolsActive(){
-        JSONObject j=ServiceTools.serviceOK();
+    public static JSONObject getListPoolsActive() {
+        JSONObject j = ServiceTools.serviceOK();
         j.put("betpools", BetTools.getListPoolsActive());
         return j;
     }
 
     /* service permettant de quitter un salon de pari */
-    public static JSONObject quitPool(String login, String idPool,String token) throws URISyntaxException, SQLException {
+    public static JSONObject quitPool(String login, String idPool, String token) throws URISyntaxException, SQLException {
         JSONObject obj;
 
-        if((login==null)||(idPool==null)||(token==null)) return serviceKO("QuitPool Failed : Null argument");
-        if(!userConnected(login)) return serviceKO("QuitPool Failed : User not connected");
+        if ((login == null) || (idPool == null) || (token == null)) return serviceKO("QuitPool Failed : Null argument");
+        if (!userConnected(login)) return serviceKO("QuitPool Failed : User not connected");
 
-        if(!SessionTools.checkToken(token, login)){
+        if (!SessionTools.checkToken(token, login)) {
             return serviceKO("QuitPool Fail : Wrong token");
         }
-        String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
-        try(Connection c = Database.getConnection();
-            PreparedStatement pstmt = c.prepareStatement(query)){
-            pstmt.setInt(1,Integer.parseInt(idPool));
-            ResultSet res = pstmt.executeQuery();
-            if(!res.next()){
-                return serviceKO("QuitPool Failed : Pool doesn't exists");
-            }
+
+        if (!poolExist(idPool)) {
+            return serviceKO("QuitPool Failed : Pool doesn't exists");
         }
 
         MongoCollection<Document> collection = getMongoCollection("SubscribePool");
@@ -55,17 +52,17 @@ public class BetPoolService {
                 collection
                         .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
                         .first();
-        if(d==null){
+        if (d == null) {
             return serviceKO("QuitPool Failed : You are not subscribed to this pool");
         }
 
         try {
-            if(PoolTools.quitPool(login,idPool)) {
+            if (PoolTools.quitPool(login, idPool)) {
                 obj = ServiceTools.serviceOK();
-                obj.put("login",login);
+                obj.put("login", login);
                 obj.put("quittedPool", idPool);
-            }else{
-                obj = ServiceTools.serviceKO("QuitPool Failed : Couldn't quit pool "+idPool);
+            } else {
+                obj = ServiceTools.serviceKO("QuitPool Failed : Couldn't quit pool " + idPool);
             }
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -78,21 +75,21 @@ public class BetPoolService {
     }
 
     /* service permettant l'entrée dans un salon de pari */
-    public static JSONObject enterPool(String login, String idPool, String token){
+    public static JSONObject enterPool(String login, String idPool, String token) {
 
-        if((login == null) || (idPool == null) || (token == null)) {
+        if ((login == null) || (idPool == null) || (token == null)) {
             return serviceKO("EnterPool Fail : Wrong arguments, expecting: login idPool token");
         }
 
         boolean connected = userConnected(login);
-        if(!connected) return serviceKO("EnterPool Fail : User not connected");
+        if (!connected) return serviceKO("EnterPool Fail : User not connected");
 
-        if(!SessionTools.checkToken(token, login)){
+        if (!SessionTools.checkToken(token, login)) {
             return serviceKO("EnterPool Fail : Wrong token");
         }
 
         try {
-            if(!PoolTools.poolExist(idPool)){
+            if (!poolExist(idPool)) {
                 return serviceKO("EnterPool Fail : This pool does not exist");
             }
         } catch (URISyntaxException e) {
@@ -107,25 +104,25 @@ public class BetPoolService {
     }
 
     /* service permettant de laisser un message sur un salon de pari */
-    public static JSONObject messagePool(String login, String idPool, String token, String message){
+    public static JSONObject messagePool(String login, String idPool, String token, String message) {
 
-        if((login == null) || (idPool == null) || (token == null) || (message == null)) {
+        if ((login == null) || (idPool == null) || (token == null) || (message == null)) {
             return serviceKO("MessagePool Fail : Wrong arguments, expecting: login idPool token message");
         }
 
-        if(message.isEmpty()){
+        if (message.isEmpty()) {
             return serviceKO("MessagePool Fail : Can't post a empty message");
         }
 
         boolean connected = userConnected(login);
-        if(!connected) return serviceKO("MessagePool Fail : User not connected");
+        if (!connected) return serviceKO("MessagePool Fail : User not connected");
 
-        if(!SessionTools.checkToken(token, login)){
+        if (!SessionTools.checkToken(token, login)) {
             return serviceKO("MessagePool Fail : Wrong token");
         }
 
         try {
-            if(!PoolTools.poolExist(idPool)){
+            if (!poolExist(idPool)) {
                 return serviceKO("MessagePool Fail : This pool does not exist");
             }
         } catch (URISyntaxException e) {
@@ -143,14 +140,14 @@ public class BetPoolService {
     /*permet de visualiser les informations relatives à une pool*/
     public static JSONObject visualisePool(String idPool) throws SQLException, URISyntaxException {
         JSONObject json = new JSONObject();
-        if(!PoolTools.poolExist(idPool)){
+        if (!poolExist(idPool)) {
             return serviceKO("Visualise Pool Failed : Pool doesn't exists");
         }
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
-        ){
-            pstmt.setInt(1,Integer.parseInt(idPool));
+        ) {
+            pstmt.setInt(1, Integer.parseInt(idPool));
             ResultSet result = pstmt.executeQuery();
             result.next();
             json.put("idbetpool", result.getInt(1));
