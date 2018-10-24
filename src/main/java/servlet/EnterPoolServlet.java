@@ -1,5 +1,6 @@
 package servlet;
 
+import org.json.JSONObject;
 import services.BetPoolService;
 
 import javax.servlet.ServletException;
@@ -20,18 +21,33 @@ public class EnterPoolServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req,resp);
+        PrintWriter out = resp.getWriter();
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+
+
+        try {
+            String login = ValidatorHelper.getParam(j, "login", true);
+            String idPool = ValidatorHelper.getParam(j, "idPool", true);
+            String token = ValidatorHelper.getParam(j, "token", true);
+
+            out.print(
+                    BetPoolService.enterPool(login, idPool, token)
+            );
+        }catch (Exception e){
+            out.print(serviceKO(e.getMessage()));
+        }
+
+        out.close();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType( "text / plain" );
+       /* resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
 
-        //Login*Mdp -> token
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
             String idPool = ValidatorHelper.getParam(req, "idPool", true);
@@ -45,6 +61,6 @@ public class EnterPoolServlet extends HttpServlet {
             out.print(serviceKO(e.getMessage()));
         }
 
-        out.close();
+        out.close();*/
     }
 }

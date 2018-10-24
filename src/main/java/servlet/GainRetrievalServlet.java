@@ -23,14 +23,28 @@ public class GainRetrievalServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
+        resp.setContentType("text / plain");
+        PrintWriter out = resp.getWriter();
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+
+
+        try {
+            String login = ValidatorHelper.getParam(j, "login", true);
+            String idPool = ValidatorHelper.getParam(j, "idPool", true);
+
+            out.print(BetService.retrieveGain(login, idPool));
+
+        }catch(Exception e){
+            out.print(serviceKO(e.getMessage()));
+        }
+        out.close();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType("text / plain");
+        /*resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
 
         try {
@@ -50,9 +64,7 @@ public class GainRetrievalServlet extends HttpServlet {
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }
-        out.close();
-
-
+        out.close();*/
 
     }
 }

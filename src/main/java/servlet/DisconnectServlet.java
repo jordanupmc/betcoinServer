@@ -21,14 +21,31 @@ public class DisconnectServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
+        PrintWriter out = resp.getWriter();
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+
+        if(j!=null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String token = ValidatorHelper.getParam(j, "token", true);
+                out.print(
+                        LoginService.disconnect(login, token)
+                );
+            }catch(Exception e){
+                out.print(serviceKO(e.getMessage()));
+            }
+        }
+        else {
+            out.print(serviceKO("Aucune parametre recu"));
+        }
+        out.close();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType("text / plain");
+        /*resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
@@ -46,7 +63,7 @@ public class DisconnectServlet extends HttpServlet {
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }
-        out.close();
+        out.close();*/
 
 
 

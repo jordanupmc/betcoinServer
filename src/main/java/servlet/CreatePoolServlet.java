@@ -1,6 +1,7 @@
 package servlet;
 
 import bd.CryptoEnum;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,14 +20,40 @@ public class CreatePoolServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req,resp);
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+        resp.setContentType( "text / plain" );
+        PrintWriter out = resp.getWriter();
+
+        try {
+            String poolType = ValidatorHelper.getParam(j, "poolType", true);
+            String cryptoCurr = ValidatorHelper.getParam(j, "cryptoCurrency", true);
+            boolean tmp = poolType.equals("true");
+
+            if(CryptoEnum.contains(cryptoCurr) && ValidatorHelper.checkBoolean(poolType) ) {
+                out.print(
+                        "CREATE POOL LOG OK: " + bd.PoolTools.createPool(CryptoEnum.valueOf(cryptoCurr),tmp)
+                );
+
+            }
+            else
+                out.print(
+                        "CREATE POOL LOG KO: monnaie inconnus"
+                );
+        }catch(Exception e){
+            out.print(
+                    "CREATE POOL LOG KO: "+ e
+            );
+        }
+
+        out.close();
+
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType( "text / plain" );
+        /*resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
         try {
@@ -53,6 +80,6 @@ public class CreatePoolServlet extends HttpServlet {
             );
         }
 
-        out.close();
+        out.close();*/
     }
 }

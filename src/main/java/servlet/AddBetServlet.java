@@ -1,5 +1,6 @@
 package servlet;
 
+import org.json.JSONObject;
 import services.BetService;
 
 import javax.servlet.ServletException;
@@ -20,14 +21,28 @@ public class AddBetServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req,resp);
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+        resp.setContentType( "text / plain" );
+        PrintWriter out = resp.getWriter();
+
+        try {
+            String login = ValidatorHelper.getParam(j, "login", true);
+            String idPool = ValidatorHelper.getParam(j, "idPool", true);
+            String ammount = ValidatorHelper.getParam(j, "betAmmount", true);
+            String value = ValidatorHelper.getParam(j, "betValue", true);
+            String token = ValidatorHelper.getParam(j, "token", true);
+            out.print(BetService.addBet(token, login, idPool, ammount, value));
+        }catch(Exception e){
+            out.print(serviceKO(e.toString()));
+        }
+        out.close();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType( "text / plain" );
+        /*resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
         try {
@@ -40,6 +55,6 @@ public class AddBetServlet extends HttpServlet {
         }catch(Exception e){
             out.print(serviceKO(e.toString()));
         }
-        out.close();
+        out.close();*/
     }
 }

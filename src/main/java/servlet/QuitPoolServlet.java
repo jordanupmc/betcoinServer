@@ -21,14 +21,27 @@ public class QuitPoolServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+        resp.setContentType("text / plain");
+        PrintWriter out = resp.getWriter();
+        try {
+            String login = ValidatorHelper.getParam(j, "login", true);
+            String idPool = ValidatorHelper.getParam(j, "idPool", true);
+            String token = ValidatorHelper.getParam(j, "token", true);
+
+            out.print(BetPoolService.quitPool(login, idPool, token));
+        }catch(Exception e){
+            out.print(serviceKO("QuitPool Failed : "+e.toString()));
+        }
+        out.close();
+
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType("text / plain");
+        /*resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
@@ -45,7 +58,7 @@ public class QuitPoolServlet extends HttpServlet {
         }catch(Exception e){
             out.print(serviceKO("QuitPool Failed : "+e.toString()));
         }
-        out.close();
+        out.close();*/
 
 
 

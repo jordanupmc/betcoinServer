@@ -1,5 +1,6 @@
 package servlet;
 
+import org.json.JSONObject;
 import services.ServiceTools;
 import services.UserService;
 
@@ -20,14 +21,30 @@ public class UnsubscribeServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req,resp);
+        JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+        resp.setContentType( "text / plain" );
+        PrintWriter out = resp.getWriter();
+
+        try {
+            String login = ValidatorHelper.getParam(j, "login", true);
+            String token = ValidatorHelper.getParam(j, "token", true);
+            String password = ValidatorHelper.getParam(j, "password", true);
+
+
+            out.println(UserService.unsubscribe(login, token, password));
+
+        }catch (ValidationException ve){
+            out.println(ServiceTools.serviceKO( "Unsubscribe fail "+ve.getMessage()));
+        }
+        out.close();
+
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.setContentType( "text / plain" );
+        /*resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
         try {
@@ -41,6 +58,6 @@ public class UnsubscribeServlet extends HttpServlet {
         }catch (ValidationException ve){
             out.println(ServiceTools.serviceKO( "Unsubscribe fail "+ve.getMessage()));
         }
-        out.close();
+        out.close();*/
     }
 }
