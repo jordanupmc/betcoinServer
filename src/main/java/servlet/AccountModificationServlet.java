@@ -55,10 +55,15 @@ public class AccountModificationServlet extends HttpServlet {
                     out.close();
                     return;
                 }
-                fieldTab.add(tmp);
+                if(!arrayValue.get(arrayfield.indexOf(o)).toString().equals("")){
+                    fieldTab.add(tmp);
+                }
+
             }
             for (Object o : arrayValue) {
-                valueTab.add(o.toString());
+                if(!o.toString().equals("")) {
+                    valueTab.add(o.toString());
+                }
             }
             JSONObject json = new JSONObject();
 
