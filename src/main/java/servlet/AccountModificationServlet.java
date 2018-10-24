@@ -45,7 +45,7 @@ public class AccountModificationServlet extends HttpServlet {
             ArrayList<String> fieldTab = new ArrayList<>();
             ArrayList<String> valueTab = new ArrayList<>();
             for (Object o : arrayfield) {
-                String tmp = (String)o;
+                String tmp = o.toString();
                 if(tmp.contains("iduser")){
                     out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
                     out.close();
@@ -58,7 +58,7 @@ public class AccountModificationServlet extends HttpServlet {
                 fieldTab.add(tmp);
             }
             for (Object o : arrayValue) {
-                valueTab.add((String)o);
+                valueTab.add(o.toString());
             }
             JSONObject json = new JSONObject();
 
