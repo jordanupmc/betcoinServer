@@ -24,6 +24,21 @@ import static com.mongodb.client.model.Filters.and;
 
 public class BetTools {
 
+    public static boolean isSubscribed(String login, String idPool) {
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .first();
+        ArrayList<Document> array = (ArrayList<Document>) d.get("idBetPool");
+        for(Document tmp : array){
+            if(Integer.parseInt((String)tmp.get("idPool"))==Integer.parseInt(idPool)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean checkPoolResult(String idPool){
         MongoCollection<Document> collection = getMongoCollection("L_Bet");
         Document d_tmp =

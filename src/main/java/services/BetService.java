@@ -59,7 +59,7 @@ public class BetService {
 
 
         if (checkBetExist(login, idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
-        if (isSubscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
+        if (!isSubscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
         if(!hasEnoughCoin(login,ammount)){
             return serviceKO("AddBet Failed : You don't have enough coin to place this bet");
         }
@@ -69,20 +69,6 @@ public class BetService {
         return serviceKO("AddBet Fail : BetPool not found");
     }
 
-    public static boolean isSubscribed(String login, String idPool) {
-        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
-                        .first();
-        ArrayList<Document> array = (ArrayList<Document>) d.get("idBetPool");
-        for(Document tmp : array){
-            if(Integer.parseInt((String)tmp.get("idPool"))==Integer.parseInt(idPool)){
-                return true;
-            }
-        }
-        return false;
-    }
 
     /* service d'annulation d'un pari */
     public static JSONObject cancelBet(String login, String idPool, String token) {
