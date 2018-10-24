@@ -174,4 +174,20 @@ public class PoolTools {
         return json;
     }
 
+    public static boolean isSubscribed(String login, String idPool) {
+        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                        .first();
+        ArrayList<Document> array = (ArrayList<Document>) d.get("idBetPool");
+        for(Document tmp : array){
+            if(Integer.parseInt((String)tmp.get("idPool"))==Integer.parseInt(idPool)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

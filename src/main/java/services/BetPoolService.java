@@ -16,10 +16,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static bd.Database.getMongoCollection;
+import static bd.PoolTools.isSubscribed;
 import static bd.PoolTools.poolExist;
 import static bd.SessionTools.userConnected;
-import static services.BetService.isSubscribed;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
 
