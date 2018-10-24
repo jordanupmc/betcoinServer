@@ -33,8 +33,8 @@ public class AccountModificationServlet extends HttpServlet {
         try {
             String login = ValidatorHelper.getParam(j, "login", true);
             String pwd = ValidatorHelper.getParam(j, "password", true);
-            String field_name = ValidatorHelper.getParam(j, "fieldName", true);
-            String new_value = ValidatorHelper.getParam(j, "newValue", true);
+            String field_name = req.getParameter("fieldName");
+            String new_value = req.getParameter("newValue");
             String token = ValidatorHelper.getParam(j, "token", true);
 
             JSONObject tab = new JSONObject();
