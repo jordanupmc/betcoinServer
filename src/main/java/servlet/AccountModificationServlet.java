@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class AccountModificationServlet extends HttpServlet {
                 fieldTab.add(tmp);
             }
             for (int i = 0 ; i < valueList.length();i++) {
-                System.out.println(valueList.get(i).toString());
+                JOptionPane.showMessageDialog(null,valueList.get(i).toString());
                 valueTab.add(valueList.get(i).toString());
             }
             JSONObject json = new JSONObject();
