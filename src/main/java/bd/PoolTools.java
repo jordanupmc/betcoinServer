@@ -137,7 +137,7 @@ public class PoolTools {
             if(!poolType) {
                 long timestp = System.currentTimeMillis();
                 JSONObject json = getCryptoCurrency(cryptoEnum.toString(), "EUR",
-                        "" + timestp, "" + timestp, 1);
+                        "" + timestp, "" + timestp, 0);
                 JSONArray result = (JSONArray) json.get("results");
                 Document data = (Document) result.get(0);
                 ArrayList<Document> data_arr = (ArrayList<Document>) data.get("Data");
