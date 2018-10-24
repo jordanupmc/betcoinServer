@@ -1,6 +1,7 @@
 package servlet;
 
 
+import com.mongodb.util.JSON;
 import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,20 +35,16 @@ public class AccountModificationServlet extends HttpServlet {
         try {
             String login = ValidatorHelper.getParam(j, "login", true);
             String pwd = ValidatorHelper.getParam(j, "password", true);
-            String field_name = req.getParameter("fieldName");
-            String new_value = req.getParameter("newValue");
+            String field_name = ValidatorHelper.getParam(j, "fieldName", true);
+            String new_value = ValidatorHelper.getParam(j, "newValue", true);
             String token = ValidatorHelper.getParam(j, "token", true);
 
-            JSONObject tab = new JSONObject();
-            tab.append("field",field_name);
-            tab.append("value",new_value);
-            JSONArray fieldList = (JSONArray) tab.get("field");
-            JSONArray valueList = (JSONArray) tab.get("value");
-            ArrayList<String> fieldTab= new ArrayList<>();
+            JSONArray arrayfield = (JSONArray) JSON.parse(field_name);
+            JSONArray arrayValue = (JSONArray) JSON.parse(new_value);
+            ArrayList<String> fieldTab = new ArrayList<>();
             ArrayList<String> valueTab = new ArrayList<>();
-
-            for (int i = 0 ; i < fieldList.length();i++) {
-                String tmp = fieldList.get(1).toString();
+            for (int i = 0 ; i < arrayfield.length();i++) {
+                String tmp = arrayfield.get(i).toString();
                 if(tmp.contains("iduser")){
                     out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
                     out.close();
@@ -59,8 +56,8 @@ public class AccountModificationServlet extends HttpServlet {
                 }
                 fieldTab.add(tmp);
             }
-            for (int i = 0 ; i < valueList.length();i++) {
-                valueTab.add(valueList.get(i).toString());
+            for (int i = 0 ; i < arrayValue.length();i++) {
+                valueTab.add(arrayValue.get(i).toString());
             }
             JSONObject json = new JSONObject();
 
