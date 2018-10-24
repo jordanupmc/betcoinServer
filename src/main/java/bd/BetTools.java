@@ -24,6 +24,34 @@ import static com.mongodb.client.model.Filters.and;
 
 public class BetTools {
 
+    public static boolean checkPoolResult(String idPool){
+        MongoCollection<Document> collection = getMongoCollection("L_Bet");
+        Document d_tmp =
+                collection
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
+                        .first();
+        if (d_tmp.getDouble("resultValue") == null) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean hasEnoughCoin(String login,String ammount) throws SQLException, URISyntaxException {
+        String query = "SELECT solde FROM USERS WHERE login=?";
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setString(1, login);
+            ResultSet result = pstmt.executeQuery();
+            result.next();
+            int solde = result.getInt(1);
+            solde = solde - Integer.parseInt(ammount);
+            if (solde < 0) {
+                return false;
+            }
+
+        }
+        return true;
+    }
     /* renvois la liste des salons de pari encore actif */
     public static JSONArray getListPoolsActive() {
         JSONArray ar = new JSONArray();

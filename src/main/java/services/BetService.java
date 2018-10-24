@@ -16,8 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static bd.BetTools.betPoolOpen;
-import static bd.BetTools.checkBetExist;
+import static bd.BetTools.*;
 import static bd.Database.getMongoCollection;
 import static bd.PoolTools.poolExist;
 import static bd.SessionTools.checkToken;
@@ -59,17 +58,8 @@ public class BetService {
 
         if (checkBetExist(login, idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
         if (isSuscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
-        String query = "SELECT solde FROM USERS WHERE login=?";
-        try (Connection c = Database.getConnection();
-             PreparedStatement pstmt = c.prepareStatement(query);) {
-            pstmt.setString(1, login);
-            ResultSet result = pstmt.executeQuery();
-            result.next();
-            int solde = result.getInt(1);
-            solde = solde - Integer.parseInt(ammount);
-            if (solde < 0) {
-                return serviceKO("AddBet Failed : You don't have enough coin to place this bet");
-            }
+        if(hasEnoughCoin(login,ammount)){
+            return serviceKO("AddBet Failed : You don't have enough coin to place this bet");
         }
         if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value))) {
             return serviceOK();
@@ -135,12 +125,7 @@ public class BetService {
         if (!checkBetExist(login, idPool)) {
             return serviceKO("Gain Retrieval Failed : No bet registered");
         }
-        MongoCollection<Document> collection = getMongoCollection("L_Bet");
-        Document d_tmp =
-                collection
-                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
-                        .first();
-        if (d_tmp.getDouble("resultValue") == null) {
+        if(!checkPoolResult(idPool)){
             return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
         }
         int amountWon;
