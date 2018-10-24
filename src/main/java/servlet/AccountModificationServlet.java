@@ -1,6 +1,7 @@
 package servlet;
 
 
+import com.mongodb.BasicDBList;
 import com.mongodb.util.JSON;
 import org.bson.Document;
 import org.json.JSONArray;
@@ -39,12 +40,12 @@ public class AccountModificationServlet extends HttpServlet {
             String new_value = ValidatorHelper.getParam(j, "newValue", true);
             String token = ValidatorHelper.getParam(j, "token", true);
 
-            JSONArray arrayfield = (JSONArray) JSON.parse(field_name);
-            JSONArray arrayValue = (JSONArray) JSON.parse(new_value);
+            BasicDBList arrayfield = (BasicDBList) JSON.parse(field_name);
+            BasicDBList arrayValue = (BasicDBList) JSON.parse(new_value);
             ArrayList<String> fieldTab = new ArrayList<>();
             ArrayList<String> valueTab = new ArrayList<>();
-            for (int i = 0 ; i < arrayfield.length();i++) {
-                String tmp = arrayfield.get(i).toString();
+            for (Object o : arrayfield) {
+                String tmp = (String)o;
                 if(tmp.contains("iduser")){
                     out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
                     out.close();
@@ -56,15 +57,15 @@ public class AccountModificationServlet extends HttpServlet {
                 }
                 fieldTab.add(tmp);
             }
-            for (int i = 0 ; i < arrayValue.length();i++) {
-                valueTab.add(arrayValue.get(i).toString());
+            for (Object o : arrayValue) {
+                valueTab.add((String)o);
             }
             JSONObject json = new JSONObject();
 
             if ((login != null) && (token != null) && (pwd != null) && (field_name != null) && (new_value != null)) {
                 json = AccountService.changeFieldAccount(login, pwd, fieldTab, valueTab, token);
             } else {
-                json = serviceKO("Missing login");
+                json = serviceKO("Missing arguments");
             }
             out.print(json);
 
