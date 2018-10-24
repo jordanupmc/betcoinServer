@@ -4,8 +4,10 @@ import com.mongodb.client.MongoCollection;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javax.swing.*;
+
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,25 +15,25 @@ import java.util.List;
 
 import static bd.BetTools.cancelBet;
 import static bd.Database.getMongoCollection;
-import static bd.SessionTools.generateToken;
+import static services.APIService.getCryptoCurrency;
+
 
 public class PoolTools {
 
     /*check si la pool existe*/
     public static boolean poolExist(String idPool) throws URISyntaxException, SQLException {
-        Connection co = Database.getConnection();
 
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
-        PreparedStatement pstmt = co.prepareStatement(query);
-        pstmt.setInt(1, Integer.parseInt(idPool));
-
-
-        ResultSet res = pstmt.executeQuery();
-        if (res.next()) {
-            pstmt.close();
-            return true;
+        try (Connection co = Database.getConnection();
+             PreparedStatement pstmt = co.prepareStatement(query);) {
+            pstmt.setInt(1, Integer.parseInt(idPool));
+            ResultSet res = pstmt.executeQuery();
+            if (res.next()) {
+                pstmt.close();
+                co.close();
+                return true;
+            }
         }
-        pstmt.close();
         return false;
     }
 
@@ -105,20 +107,51 @@ public class PoolTools {
                 collection
                         .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
                         .first();
-        if(d==null){
-            return false;
-        }else{
-            BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
-            List<Document> pools = (List<Document>) d.get("idBetPool");
-            for(int i = 0; i < pools.size();i++){
-                if(pools.get(i).get("idPool").equals(idPool)){
-                    pools.remove(i);
-                    collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
-                    cancelBet(login, idPool);
-                    return true;
-                }
+
+        BsonDocument filter = new BsonDocument().append("gamblerLogin", new BsonString(login));
+        List<Document> pools = (List<Document>) d.get("idBetPool");
+        for (int i = 0; i < pools.size(); i++) {
+            if (pools.get(i).get("idPool").equals(idPool)) {
+                pools.remove(i);
+                collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
+                cancelBet(login, idPool);
+                return true;
             }
+        }
+        return false;
+    }
+
+    public static boolean createPool(CryptoEnum cryptoEnum, boolean poolType) {
+        String query ="";
+        if(!poolType)
+                query="INSERT INTO BetPool (openingBet, cryptoCurrency, poolType, openingprice) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
+        else
+                query="INSERT INTO BetPool (openingBet, cryptoCurrency, poolType) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ?)";
+
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query)
+        ) {
+            //pstmt.setTimestamp(2, new Timestamp(new java.util.Date().getTime()));
+            pstmt.setString(1, cryptoEnum.readable());
+            pstmt.setBoolean(2, poolType);
+            if(!poolType) {
+                long timestp = System.currentTimeMillis();
+                JSONObject json = getCryptoCurrency(cryptoEnum.toString(), "EUR",
+                        "" + timestp, "" + timestp, 0);
+                JSONArray result = (JSONArray) json.get("results");
+                Document data = (Document) result.get(0);
+                ArrayList<Document> data_arr = (ArrayList<Document>) data.get("Data");
+                Document objFinal = data_arr.get(0);
+                double value = (double) objFinal.get("close");
+                pstmt.setDouble(3, value);
+            }
+            pstmt.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            //TODO remove le sout
+            System.out.println(e);
             return false;
         }
     }
+
 }

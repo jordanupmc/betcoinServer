@@ -1,5 +1,7 @@
 package servlet;
 
+import services.BetPoolService;
+import services.BetService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,19 +10,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import org.json.JSONObject;
-import services.APIService;
+
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "CryptoCompServlet",
-        urlPatterns = {"/getCrypto"}
+        name = "GetBetServlet",
+        urlPatterns = {"/getBet"}
 )
-public class CryptoCompServlet extends HttpServlet {
+public class GetBetServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
     }
 
     @Override
@@ -29,19 +29,18 @@ public class CryptoCompServlet extends HttpServlet {
 
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
-        try{
-            String cryptname = ValidatorHelper.getParam(req,"cryptName",true);
-            String devise = ValidatorHelper.getParam(req, "devise",true);
-            String fin = ValidatorHelper.getParam(req, "fin",true);
-            String debut = ValidatorHelper.getParam(req, "debut", true);
-            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,1);
-            out.print(result);
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            out.print(
+                    BetService.getBet(login,idPool)
+            );
         }catch(Exception e){
-            out.print(serviceKO(e.getMessage()));
+            out.print(serviceKO(e.toString()));
+            out.close();
         }
+
+
         out.close();
-
-
-
     }
 }

@@ -1,7 +1,12 @@
 package servlet;
 
+import org.json.JSONObject;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
@@ -17,6 +22,15 @@ public class ValidatorHelper {
     /*Return null si le champs est null ou vide ET qu'il n'est pas requis sinon return le field*/
     public static String getParam(HttpServletRequest req, String paramName, boolean required) throws ValidationException {
         String field = req.getParameter(paramName);
+        if(field == null || field.trim().isEmpty()){
+            if(required)
+                throw new ValidationException(paramName+ " is required");
+            return null;
+        }
+        return field;
+    }
+    public static String getParam(JSONObject jo, String paramName, boolean required) throws ValidationException {
+        String field = jo.getString(paramName);
         if(field == null || field.trim().isEmpty()){
             if(required)
                 throw new ValidationException(paramName+ " is required");
@@ -53,5 +67,24 @@ public class ValidatorHelper {
         } catch (ParseException e) {
             throw new ValidationException(s+ " is not a valid date ( yyyy-MM-dd )");
         }
+    }
+    public static boolean checkBoolean(String val) throws ValidationException {
+        if(val == null) throw new ValidationException(val+" is not a boolean value");
+
+        val = val.toLowerCase();
+        if(val.equals("true") || val.equals("false"))
+            return true;
+        throw new ValidationException(val+" is not a boolean value");
+    }
+
+    public static JSONObject getJSONParameter(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        String s;
+        while ((s = req.getReader().readLine()) != null) {
+            sb.append(s);
+        }
+        PrintWriter out = resp.getWriter();
+        if(sb.length()<=1)return null;
+        return new JSONObject(sb.toString());
     }
 }

@@ -13,10 +13,10 @@ import services.APIService;
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "CryptoCompServlet",
-        urlPatterns = {"/getCrypto"}
+        name = "CryptoCompMinServlet",
+        urlPatterns = {"/getCryptoMin"}
 )
-public class CryptoCompServlet extends HttpServlet {
+public class CryptoCompMinServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,7 +34,7 @@ public class CryptoCompServlet extends HttpServlet {
             String devise = ValidatorHelper.getParam(req, "devise",true);
             String fin = ValidatorHelper.getParam(req, "fin",true);
             String debut = ValidatorHelper.getParam(req, "debut", true);
-            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,1);
+            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,0);
             out.print(result);
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));

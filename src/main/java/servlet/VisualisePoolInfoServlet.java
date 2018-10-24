@@ -1,5 +1,8 @@
 package servlet;
 
+import org.json.JSONObject;
+import services.AccountService;
+import services.BetPoolService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,15 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import org.json.JSONObject;
-import services.APIService;
+
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "CryptoCompServlet",
-        urlPatterns = {"/getCrypto"}
+        name = "VisualisePoolInfoServlet",
+        urlPatterns = {"/getPoolInfo"}
 )
-public class CryptoCompServlet extends HttpServlet {
+public class VisualisePoolInfoServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -26,21 +28,26 @@ public class CryptoCompServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
-        resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
-        try{
-            String cryptname = ValidatorHelper.getParam(req,"cryptName",true);
-            String devise = ValidatorHelper.getParam(req, "devise",true);
-            String fin = ValidatorHelper.getParam(req, "fin",true);
-            String debut = ValidatorHelper.getParam(req, "debut", true);
-            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,1);
-            out.print(result);
+        try {
+            resp.setContentType("text / plain");
+
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            JSONObject json;
+
+            if (idPool != null ) {
+                json = BetPoolService.visualisePool(idPool);
+            } else {
+
+                json = serviceKO("Missing idPool");
+
+            }
+            out.print(json);
+
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }
         out.close();
-
 
 
     }

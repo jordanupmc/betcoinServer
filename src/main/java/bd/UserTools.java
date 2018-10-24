@@ -8,24 +8,24 @@ import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.json.JSONArray;
-import com.mongodb.client.result.DeleteResult;
 import org.json.JSONObject;
 
 
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
+
 import static bd.SessionTools.removeSessionUser;
 import static bd.Database.getMongoCollection;
 
 public class UserTools {
 
-
     /* inscription d'un nouvel utilisateur */
     public static boolean subscribe(String login, String mdp, String email, String nom, String prenom, Date birthDate, String country) throws SQLException {
         String query =
                 "INSERT INTO USERS(login,password, last_name, first_name, email, birthday, country)" +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?);";
+                        "VALUES (?, crypt(? , gen_salt('bf', 8)), ?, ?, ?, ?, ?);";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
         ) {
@@ -40,8 +40,8 @@ public class UserTools {
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {
-            if(e.getMessage().contains("users_login_key"))
-                throw new SQLException("login "+login + " already exists");
+            if (e.getMessage().contains("users_login_key"))
+                throw new SQLException("login " + login + " already exists");
             return false;
         }
     }
@@ -66,50 +66,52 @@ public class UserTools {
         String query = "SELECT * FROM USERS WHERE login=?";
         JSONObject json = new JSONObject();
 
-        Connection c = Database.getConnection();
-        PreparedStatement pstmt = c.prepareStatement(query);
-        pstmt.setString(1, login);
-        pstmt.execute();
-        ResultSet data = pstmt.getResultSet();
-        data.next();
-        json.put("login", data.getString("login"));
-        json.put("email", data.getString("email"));
-        json.put("last_name", data.getString("last_name"));
-        json.put("first_name", data.getString("first_name"));
-        json.put("birthday", data.getString("birthday"));
-        json.put("country", data.getString("country"));
-        MongoCollection<Document> collection = getMongoCollection("SubscribePool");
-        Document d =
-                collection
-                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
-                        .first();
-        if (d != null) {
-            List<Document> pools = (List<Document>) d.get("idBetPool");
-            JSONArray arr = new JSONArray();
-            for (int i = 0; i < pools.size(); i++) {
-                Document tmp = pools.get(i);
-                arr.put(tmp);
-            }
-            json.put("subscribePools", arr);
-            collection = getMongoCollection("Bet");
-            JSONArray arr_bet = new JSONArray();
-            FindIterable<Document> listdoc = collection
-                    .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
-            listdoc.forEach(new Block<Document>() {
-                @Override
-                public void apply(Document document) {
-                    Document gros_doc = new Document();
-                    gros_doc.append("idBetPool",document.get("idBetPool"));
-                    gros_doc.append("betAmount",document.get("betAmount"));
-                    gros_doc.append("betValue",document.get("betValue"));
-                    gros_doc.append("betDate",document.get("betDate"));
-                    arr_bet.put(gros_doc);
-                }
-            });
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setString(1, login);
+            pstmt.execute();
+            ResultSet data = pstmt.getResultSet();
+            data.next();
+            json.put("login", data.getString("login"));
+            json.put("email", data.getString("email"));
+            json.put("last_name", data.getString("last_name"));
+            json.put("first_name", data.getString("first_name"));
+            json.put("birthday", data.getString("birthday"));
+            json.put("country", data.getString("country"));
 
-            json.put("bets", arr_bet);
+            MongoCollection<Document> collection = getMongoCollection("SubscribePool");
+            Document d =
+                    collection
+                            .find(new BsonDocument().append("gamblerLogin", new BsonString(login)))
+                            .first();
+            if (d != null) {
+                List<Document> pools = (List<Document>) d.get("idBetPool");
+                JSONArray arr = new JSONArray();
+                for (int i = 0; i < pools.size(); i++) {
+                    Document tmp = pools.get(i);
+                    arr.put(tmp);
+                }
+                json.put("subscribePools", arr);
+                collection = getMongoCollection("Bet");
+                JSONArray arr_bet = new JSONArray();
+                FindIterable<Document> listdoc = collection
+                        .find(new BsonDocument().append("gamblerLogin", new BsonString(login)));
+                listdoc.forEach(new Block<Document>() {
+                    @Override
+                    public void apply(Document document) {
+                        Document gros_doc = new Document();
+                        gros_doc.append("idBetPool", document.get("idBetPool"));
+                        gros_doc.append("betAmount", document.get("betAmount"));
+                        gros_doc.append("betValue", document.get("betValue"));
+                        gros_doc.append("betDate", document.get("betDate"));
+                        arr_bet.put(gros_doc);
+                    }
+                });
+
+                json.put("bets", arr_bet);
+            }
+            data.close();
         }
-        data.close();
 
         return json;
     }
@@ -118,12 +120,10 @@ public class UserTools {
     public static boolean checkPasswd(String login, String mdp) throws URISyntaxException, SQLException {
         Connection co = Database.getConnection();
 
-        String query = "SELECT * FROM USERS WHERE login=? AND password=?";
+        String query = "SELECT * FROM USERS WHERE login=? AND password= crypt(?, password)";
         PreparedStatement pstmt = co.prepareStatement(query);
         pstmt.setString(1, login);
         pstmt.setString(2, mdp);
-
-
         ResultSet res = pstmt.executeQuery();
         if (res.next()) {
             pstmt.close();
@@ -136,16 +136,25 @@ public class UserTools {
     }
 
     /* Modifie les informations du compte utilisateur */
-    public static boolean accountModification(String login, String field_name, String new_value) throws URISyntaxException, SQLException {
-        String query = "UPDATE USERS SET " + field_name + "=? WHERE login=?";
+    public static boolean accountModification(String login, ArrayList<String> field_name, ArrayList<String> new_value)
+            throws URISyntaxException, SQLException {
+        for (int i = 0; i < field_name.size(); i++) {
+            String query;
+            if (!field_name.get(i).equals("password")) {
+                query = "UPDATE USERS SET ?=? WHERE login=?";
+            } else {
+                query = "UPDATE USERS SET ?=crypt(?,gen_salt('bf',8)) WHERE login=?";
+            }
+            try (Connection c = Database.getConnection();
+                 PreparedStatement pstmt = c.prepareStatement(query);) {
+                pstmt.setString(1, field_name.get(i));
+                pstmt.setString(2, new_value.get(i));
+                pstmt.setString(3, login);
+                pstmt.executeUpdate();
+            }
 
-        Connection c = Database.getConnection();
-        PreparedStatement pstmt = c.prepareStatement(query);
-        pstmt.setString(1, new_value);
-        pstmt.setString(2, login);
-        pstmt.executeUpdate();
+        }
         return true;
-
     }
 
     /* Renvoi true si compte est ferme*/
@@ -165,6 +174,36 @@ public class UserTools {
         pstmt.close();
         co.close();
         return false;
+    }
+
+    /*Return un User*/
+    public static JSONObject getUserInfo(String login) {
+        String query =
+                "SELECT login, email, last_name, first_name, solde, birthday, country FROM Users WHERE login=?";
+        JSONObject j = new JSONObject();
+        try (Connection c = Database.getConnection()) {
+            try (PreparedStatement pstmt = c.prepareStatement(query)) {
+                pstmt.setString(1, login);
+                try (ResultSet v = pstmt.executeQuery()) {
+
+
+                    if (v.next()) {
+                        j.put("login", v.getString(1));
+                        j.put("email", v.getString(2));
+                        j.put("last_name", v.getString(3));
+                        j.put("fist_name", v.getString(4));
+                        j.put("solde", v.getInt(5));
+                        j.put("birthday", v.getDate(6));
+                        j.put("country", v.getString(7));
+
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+        } finally {
+            return j;
+        }
     }
 
 }

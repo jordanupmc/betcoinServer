@@ -8,10 +8,10 @@ import static services.ServiceTools.serviceOK;
 
 public class APIService {
 
-    public static JSONObject getCryptoCurrency(String cryptName, String devise, String fin, String debut){
+    public static JSONObject getCryptoCurrency(String cryptName, String devise, String fin, String debut,int isHours){
         try {
             JSONObject json = serviceOK();
-            String tmp = APITools.getCrypto(cryptName, devise, fin, debut);
+            String tmp = APITools.getCrypto(cryptName, devise, fin, debut, isHours);
             Document doc = new Document(Document.parse(tmp));
             json.append("results",doc);
             return json;

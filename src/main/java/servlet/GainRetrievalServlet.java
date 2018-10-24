@@ -1,6 +1,9 @@
 package servlet;
 
 
+import org.json.JSONObject;
+import services.BetService;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -8,15 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import org.json.JSONObject;
-import services.APIService;
+
 import static services.ServiceTools.serviceKO;
 
 @WebServlet(
-        name = "CryptoCompServlet",
-        urlPatterns = {"/getCrypto"}
+        name = "GainRetrievalServlet",
+        urlPatterns = {"/retrieve"}
+
 )
-public class CryptoCompServlet extends HttpServlet {
+public class GainRetrievalServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -29,13 +32,21 @@ public class CryptoCompServlet extends HttpServlet {
 
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
-        try{
-            String cryptname = ValidatorHelper.getParam(req,"cryptName",true);
-            String devise = ValidatorHelper.getParam(req, "devise",true);
-            String fin = ValidatorHelper.getParam(req, "fin",true);
-            String debut = ValidatorHelper.getParam(req, "debut", true);
-            JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,1);
-            out.print(result);
+
+        try {
+            String login = ValidatorHelper.getParam(req, "login", true);
+            String idPool = ValidatorHelper.getParam(req, "idPool", true);
+
+
+            JSONObject json ;
+
+            if ((login != null) && (idPool != null)) {
+                json = BetService.retrieveGain(login, idPool);
+            } else {
+                json = serviceKO("Gain Retrieval Failed : Missing login or IdPool");
+            }
+            out.print(json);
+
         }catch(Exception e){
             out.print(serviceKO(e.getMessage()));
         }

@@ -1,6 +1,5 @@
 package servlet;
 
-import bd.BetTools;
 import services.BetPoolService;
 
 import javax.servlet.ServletException;
@@ -19,7 +18,6 @@ public class GetListPoolsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
     }
 
     @Override

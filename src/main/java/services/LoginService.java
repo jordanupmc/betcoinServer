@@ -1,7 +1,6 @@
 package services;
 
 import bd.SessionTools;
-import bd.UserTools;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -36,8 +35,9 @@ public class LoginService {
         if(accountClosed) return serviceKO("Connect Fail : Account closed");
         if(!passwd_OK) return serviceKO("Connect Fail : Invalid login and/or wrong password");
 
-        boolean connected = userConnected(login);
-        if(connected) return serviceKO("Connect Fail : User already connected");
+        // Si l'on se connecte alors que l'on est deja connecté, la nouvelle connexion est prioritaire
+       /* boolean connected = userConnected(login);
+        if(connected) return serviceKO("Connect Fail : User already connected");*/
 
         String token = null;
         try {

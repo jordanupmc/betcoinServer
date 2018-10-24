@@ -1,14 +1,7 @@
 package servlet;
 
-import bd.Database;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
 import org.json.JSONObject;
 import services.BetPoolService;
-import services.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,9 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.SQLException;
+
+import static services.ServiceTools.serviceKO;
 
 @WebServlet(
         name = "QuitPoolServlet",
@@ -47,13 +39,11 @@ public class QuitPoolServlet extends HttpServlet {
             if (login != null && idPool != null) {
                 json = BetPoolService.quitPool(login, idPool, token);
             } else {
-
-                json.put("status", "KO");
-                json.put("errMsg", "Missing login or idPool");
+                json = serviceKO("QuitPool Failed : Missing login or idPool");
             }
             out.print(json);
         }catch(Exception e){
-            out.print(e.getMessage());
+            out.print(serviceKO("QuitPool Failed : "+e.toString()));
         }
         out.close();
 
