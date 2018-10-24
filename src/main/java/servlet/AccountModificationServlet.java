@@ -60,7 +60,6 @@ public class AccountModificationServlet extends HttpServlet {
                 fieldTab.add(tmp);
             }
             for (int i = 0 ; i < valueList.length();i++) {
-                JOptionPane.showMessageDialog(null,valueList.get(i).toString());
                 valueTab.add(valueList.get(i).toString());
             }
             JSONObject json = new JSONObject();
