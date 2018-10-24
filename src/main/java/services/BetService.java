@@ -60,7 +60,7 @@ public class BetService {
 
         if (checkBetExist(login, idPool)) return serviceKO("AddBet Fail : Only one bet allowed by Pool and User");
         if (isSubscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
-        if(hasEnoughCoin(login,ammount)){
+        if(!hasEnoughCoin(login,ammount)){
             return serviceKO("AddBet Failed : You don't have enough coin to place this bet");
         }
         if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value))) {
