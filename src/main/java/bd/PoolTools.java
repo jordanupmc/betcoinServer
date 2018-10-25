@@ -1,6 +1,7 @@
 package bd;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
@@ -191,5 +192,21 @@ public class PoolTools {
         return false;
     }
 
+
+    public static JSONArray getListMessagePool(int idPool){
+        MongoCollection<Document> collection = getMongoCollection("L_Message");
+        Document d =
+                collection
+                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool+"")))
+                        .first();
+        if(d == null)
+            return null;
+
+        JSONArray tmp = new JSONObject(d.toJson()).getJSONArray("messages");
+
+        if(tmp ==null)
+            return new JSONArray();
+        return tmp;
+    }
 
 }
