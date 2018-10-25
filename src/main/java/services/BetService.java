@@ -142,11 +142,11 @@ public class BetService {
         }
         if(!checkBetExist(login,idPool)){
             json = serviceOK();
-            json.append("result","false");
+            json.put("result","false");
             return json;
         }
         json = serviceOK();
-        json.append("result","true");
+        json.put("result","true");
         return json;
     }
 
