@@ -24,15 +24,21 @@ public class QuitPoolServlet extends HttpServlet {
         JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
-        try {
-            String login = ValidatorHelper.getParam(j, "login", true);
-            String idPool = ValidatorHelper.getParam(j, "idPool", true);
-            String token = ValidatorHelper.getParam(j, "token", true);
 
-            out.print(BetPoolService.quitPool(login, idPool, token));
-        }catch(Exception e){
-            out.print(serviceKO("QuitPool Failed : "+e.toString()));
+        if(j != null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String idPool = ValidatorHelper.getParam(j, "idPool", true);
+                String token = ValidatorHelper.getParam(j, "token", true);
+
+                out.print(BetPoolService.quitPool(login, idPool, token));
+            } catch (Exception e) {
+                out.print(serviceKO("QuitPool Failed : " + e.toString()));
+            }
+        }else{
+            out.print(serviceKO("QuitPool Failed : Aucun parametre recu"));
         }
+
         out.close();
 
     }

@@ -34,11 +34,11 @@ public class ConnectServlet extends HttpServlet {
                         LoginService.connect(login, mdp)
                 );
             }catch(Exception e){
-                out.print(serviceKO(e.getMessage()));
+                out.print(serviceKO("Connect Fail: "+e.getMessage()));
             }
         }
         else {
-            out.print(serviceKO("Aucune parametre recu"));
+            out.print(serviceKO("ConnectFail : Aucun parametre recu"));
         }
         out.close();
     }

@@ -33,19 +33,11 @@ public class VisualiseAccountServlet extends HttpServlet {
 
             String login = ValidatorHelper.getParam(req, "login", true);
             String token = ValidatorHelper.getParam(req, "token", true);
-            JSONObject json;
 
-            if (login != null && token != null) {
-                json = AccountService.visualiseAcc(login, token);
-            } else {
-
-                json = serviceKO("Missing login or token");
-
-            }
-            out.print(json);
+            out.print(AccountService.visualiseAcc(login, token));
 
         }catch(Exception e){
-            out.print(serviceKO(e.getMessage()));
+            out.print("VisualiseAccount Fail :"+serviceKO(e.getMessage()));
         }
         out.close();
 

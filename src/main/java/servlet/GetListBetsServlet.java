@@ -31,12 +31,13 @@ public class GetListBetsServlet extends HttpServlet {
         PrintWriter out = resp.getWriter();
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
+
             out.print(
-                    BetService.getListBets(login)
+                    BetService.getListBets(login, token)
             );
         }catch(Exception e){
-            out.print(serviceKO(e.toString()));
-            out.close();
+            out.print(serviceKO("GetListBets Fail : "+e.toString()));
         }
 
 

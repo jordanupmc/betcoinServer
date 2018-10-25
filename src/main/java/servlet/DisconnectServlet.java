@@ -32,11 +32,11 @@ public class DisconnectServlet extends HttpServlet {
                         LoginService.disconnect(login, token)
                 );
             }catch(Exception e){
-                out.print(serviceKO(e.getMessage()));
+                out.print(serviceKO("Disconnect Fail : "+e.getMessage()));
             }
         }
         else {
-            out.print(serviceKO("Aucune parametre recu"));
+            out.print(serviceKO("Disconnect Fail : Aucun parametre recu"));
         }
         out.close();
     }

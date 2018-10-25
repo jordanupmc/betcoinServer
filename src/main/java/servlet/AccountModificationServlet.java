@@ -33,50 +33,47 @@ public class AccountModificationServlet extends HttpServlet {
         PrintWriter out = resp.getWriter();
         JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
 
-        try {
-            String login = ValidatorHelper.getParam(j, "login", true);
-            String pwd = ValidatorHelper.getParam(j, "password", true);
-            String field_name = ValidatorHelper.getParam(j, "fieldName", true);
-            String new_value = ValidatorHelper.getParam(j, "newValue", true);
-            String token = ValidatorHelper.getParam(j, "token", true);
+        if(j != null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String pwd = ValidatorHelper.getParam(j, "password", true);
+                String field_name = ValidatorHelper.getParam(j, "fieldName", true);
+                String new_value = ValidatorHelper.getParam(j, "newValue", true);
+                String token = ValidatorHelper.getParam(j, "token", true);
 
-            BasicDBList arrayfield = (BasicDBList) JSON.parse(field_name);
-            BasicDBList arrayValue = (BasicDBList) JSON.parse(new_value);
-            ArrayList<String> fieldTab = new ArrayList<>();
-            ArrayList<String> valueTab = new ArrayList<>();
-            for (Object o : arrayfield) {
-                String tmp = o.toString();
-                if(tmp.contains("iduser")){
-                    out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
-                    out.close();
-                    return;
-                }else if(tmp.contains("login")){
-                    out.print(serviceKO("Account Modification Failed : no change in login allowed"));
-                    out.close();
-                    return;
+                BasicDBList arrayfield = (BasicDBList) JSON.parse(field_name);
+                BasicDBList arrayValue = (BasicDBList) JSON.parse(new_value);
+                ArrayList<String> fieldTab = new ArrayList<>();
+                ArrayList<String> valueTab = new ArrayList<>();
+                for (Object o : arrayfield) {
+                    String tmp = o.toString();
+                    if (tmp.contains("iduser")) {
+                        out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
+                        return;
+                    } else if (tmp.contains("login")) {
+                        out.print(serviceKO("Account Modification Failed : no change in login allowed"));
+                        return;
+                    }
+                    if (!arrayValue.get(arrayfield.indexOf(o)).toString().equals("")) {
+                        fieldTab.add(tmp);
+                    }
+
                 }
-                if(!arrayValue.get(arrayfield.indexOf(o)).toString().equals("")){
-                    fieldTab.add(tmp);
+                for (Object o : arrayValue) {
+                    if (!o.toString().equals("")) {
+                        valueTab.add(o.toString());
+                    }
                 }
 
-            }
-            for (Object o : arrayValue) {
-                if(!o.toString().equals("")) {
-                    valueTab.add(o.toString());
-                }
-            }
-            JSONObject json = new JSONObject();
+                out.print(AccountService.changeFieldAccount(login, pwd, fieldTab, valueTab, token));
 
-            if ((login != null) && (token != null) && (pwd != null) && (field_name != null) && (new_value != null)) {
-                json = AccountService.changeFieldAccount(login, pwd, fieldTab, valueTab, token);
-            } else {
-                json = serviceKO("Missing arguments");
+            } catch (Exception e) {
+                out.print(serviceKO("Account Modification Fail :"+e.getMessage()));
             }
-            out.print(json);
-
-        }catch(Exception e){
-            out.print(serviceKO(e.getMessage()));
+        }else {
+            out.print(serviceKO("Account Modification Fail : Aucun Parametre recu"));
         }
+
         out.close();
     }
 

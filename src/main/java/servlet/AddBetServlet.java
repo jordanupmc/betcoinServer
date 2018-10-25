@@ -25,15 +25,19 @@ public class AddBetServlet extends HttpServlet {
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
-        try {
-            String login = ValidatorHelper.getParam(j, "login", true);
-            String idPool = ValidatorHelper.getParam(j, "idPool", true);
-            String ammount = ValidatorHelper.getParam(j, "betAmmount", true);
-            String value = ValidatorHelper.getParam(j, "betValue", true);
-            String token = ValidatorHelper.getParam(j, "token", true);
-            out.print(BetService.addBet(token, login, idPool, ammount, value));
-        }catch(Exception e){
-            out.print(serviceKO(e.toString()));
+        if( j != null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String idPool = ValidatorHelper.getParam(j, "idPool", true);
+                String ammount = ValidatorHelper.getParam(j, "betAmmount", true);
+                String value = ValidatorHelper.getParam(j, "betValue", true);
+                String token = ValidatorHelper.getParam(j, "token", true);
+                out.print(BetService.addBet(token, login, idPool, ammount, value));
+            } catch (Exception e) {
+                out.print(serviceKO("AddBet Fail: " + e.toString()));
+            }
+        }else{
+            out.print(serviceKO("AddBet Fail: Aucun parametre recu"));
         }
         out.close();
     }

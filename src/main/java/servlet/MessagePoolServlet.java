@@ -24,18 +24,24 @@ public class MessagePoolServlet extends HttpServlet {
         JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
-        try {
 
-            String login = ValidatorHelper.getParam(j, "login", true);
-            String idPool = ValidatorHelper.getParam(j, "idPool", true);
-            String token = ValidatorHelper.getParam(j, "token", true);
-            String msg = ValidatorHelper.getParam(j, "msg", true);
+        if(j != null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String idPool = ValidatorHelper.getParam(j, "idPool", true);
+                String token = ValidatorHelper.getParam(j, "token", true);
+                String msg = ValidatorHelper.getParam(j, "msg", true);
 
-            out.print(
-                    BetPoolService.messagePool(login, idPool, token, msg)
-            );
-        }catch (Exception e){
-            out.print(serviceKO(e.getMessage()));
+
+                out.print(
+                        BetPoolService.messagePool(login, idPool, token, msg)
+                );
+            } catch (Exception e) {
+                out.print(serviceKO("MessagePool Fail : " + e.getMessage()));
+            }
+        }else{
+            out.print(serviceKO("MessagePool Fail : Aucun parametre recu"));
+
         }
 
         out.close();

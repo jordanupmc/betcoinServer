@@ -25,19 +25,22 @@ public class UnsubscribeServlet extends HttpServlet {
         resp.setContentType( "text / plain" );
         PrintWriter out = resp.getWriter();
 
-        try {
-            String login = ValidatorHelper.getParam(j, "login", true);
-            String token = ValidatorHelper.getParam(j, "token", true);
-            String password = ValidatorHelper.getParam(j, "password", true);
+        if (j != null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String token = ValidatorHelper.getParam(j, "token", true);
+                String password = ValidatorHelper.getParam(j, "password", true);
 
 
-            out.println(UserService.unsubscribe(login, token, password));
+                out.println(UserService.unsubscribe(login, token, password));
 
-        }catch (ValidationException ve){
-            out.println(ServiceTools.serviceKO( "Unsubscribe fail "+ve.getMessage()));
+            } catch (ValidationException ve) {
+                out.println(ServiceTools.serviceKO("Unsubscribe fail :" + ve.getMessage()));
+            }
+        }else{
+            out.println(ServiceTools.serviceKO("Unsubscribe fail : Aucun Parametre recu" ));
         }
         out.close();
-
     }
 
     @Override
