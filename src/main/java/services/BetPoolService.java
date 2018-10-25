@@ -162,4 +162,20 @@ public class BetPoolService {
         else
             return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
     }
+
+    public static JSONObject getListMessagePool(String login, String token, int idPool, String fromId){
+        JSONObject json;
+        JSONArray arr;
+        if(checkToken(token, login)){
+            if((arr = PoolTools.getListMessagePool(idPool, fromId)) !=null){
+                json = serviceOK();
+                json.put("messages", arr);
+                return json;
+            }
+            else
+                return serviceKO("getListMessagePool : La pool n'existe pas");
+        }
+        else
+            return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
+    }
 }
