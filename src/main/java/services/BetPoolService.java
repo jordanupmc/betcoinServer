@@ -5,6 +5,7 @@ import bd.BetTools;
 import bd.PoolTools;
 import bd.SessionTools;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -14,6 +15,8 @@ import java.sql.SQLException;
 
 import static bd.PoolTools.isSubscribed;
 import static bd.PoolTools.poolExist;
+import static bd.PoolTools.poolInfo;
+import static bd.SessionTools.checkToken;
 import static bd.SessionTools.userConnected;
 import static services.ServiceTools.serviceKO;
 import static services.ServiceTools.serviceOK;
@@ -128,7 +131,7 @@ public class BetPoolService {
 
     /*permet de visualiser les informations relatives à une pool*/
     public static JSONObject visualisePool(String idPool) {
-        JSONObject json = new JSONObject();
+        JSONObject json;
         try {
             if (!poolExist(idPool)) {
                 return serviceKO("Visualise Pool Failed : Pool doesn't exists");
@@ -141,5 +144,22 @@ public class BetPoolService {
             json = serviceKO("Visualise Pool Failed : SQLException");
         }
         return json;
+    }
+
+
+    public static JSONObject getListMessagePool(String login, String token, int idPool){
+        JSONObject json;
+        JSONArray arr;
+        if(checkToken(token, login)){
+            if((arr = PoolTools.getListMessagePool(idPool)) !=null){
+                json = serviceOK();
+                json.put("messages", arr);
+                return json;
+            }
+            else
+                return serviceKO("getListMessagePool : La pool n'existe pas");
+        }
+        else
+            return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
     }
 }
