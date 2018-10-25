@@ -90,7 +90,7 @@ public class PoolTools {
             List<Document> messages = new ArrayList<>();
             messages.add(msgToInsert);
 
-            Document allToInsert = new Document("ibBetPool", idPool)
+            Document allToInsert = new Document("idBetPool", idPool)
                     .append("messages", messages);
             collection.insertOne(allToInsert);
 
