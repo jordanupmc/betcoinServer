@@ -17,10 +17,6 @@ public class LoginService {
     /* service permettant la connexion d'un utilisateur */
     public static JSONObject connect(String login, String mdp){
 
-        if((login == null) || (mdp == null)){
-            return serviceKO("Connect Fail : Wrong arguments, expecting: login password");
-        }
-
         boolean accountClosed = false;
         boolean passwd_OK = false;
         try {

@@ -18,7 +18,6 @@ public class AccountService {
     /* service pour la visualisation des informations d'un compte utilisateur*/
     public static JSONObject visualiseAcc(String login, String token){
         JSONObject json;
-        if((login == null)||(token == null)) return serviceKO("VisualiseAccount Fail : Null Parameter");
 
         boolean connected = userConnected(login);
         if(!connected) return serviceKO("VisualiseAccount Fail : User not connected");
@@ -47,7 +46,7 @@ public class AccountService {
         if(!userConnected(login)) return serviceKO("ChangeFieldAccount Fail : User not connected");
 
         if(!SessionTools.checkToken(token, login)){
-            return serviceKO("ChangeFieldAccount Fail : Wrong token");
+            return serviceKO("ChangeFieldAccount Fail : Invalid token");
         }
         try {
             if (!checkPasswd(login, pwd)) {

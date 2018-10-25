@@ -35,7 +35,6 @@ public class BetPoolService {
     public static JSONObject quitPool(String login, String idPool, String token) {
         JSONObject obj;
 
-        if ((login == null) || (idPool == null) || (token == null)) return serviceKO("QuitPool Failed : Null argument");
         if (!userConnected(login)) return serviceKO("QuitPool Failed : User not connected");
 
         if (!SessionTools.checkToken(token, login)) {
@@ -61,17 +60,13 @@ public class BetPoolService {
             return ServiceTools.serviceKO("QuitPool Failed : URISyntaxException");
 
         } catch (SQLException e) {
-            return ServiceTools.serviceKO("QuitPool : SQLException");
+            return ServiceTools.serviceKO("QuitPool Failed: SQLException");
         }
         return obj;
     }
 
     /* service permettant l'entrée dans un salon de pari */
     public static JSONObject enterPool(String login, String idPool, String token) {
-
-        if ((login == null) || (idPool == null) || (token == null)) {
-            return serviceKO("EnterPool Fail : Wrong arguments, expecting: login idPool token");
-        }
 
         boolean connected = userConnected(login);
         if (!connected) return serviceKO("EnterPool Fail : User not connected");
@@ -97,10 +92,6 @@ public class BetPoolService {
 
     /* service permettant de laisser un message sur un salon de pari */
     public static JSONObject messagePool(String login, String idPool, String token, String message) {
-
-        if ((login == null) || (idPool == null) || (token == null) || (message == null)) {
-            return serviceKO("MessagePool Fail : Wrong arguments, expecting: login idPool token message");
-        }
 
         if (message.isEmpty()) {
             return serviceKO("MessagePool Fail : Can't post a empty message");

@@ -23,10 +23,10 @@ public class UserService {
             else{
                j= serviceKO("Subscribe fail");
                if(!cmdp.equals(mdp))
-                    j= ServiceTools.serviceKO("Subscribe fail two different password");
+                    j= ServiceTools.serviceKO("Subscribe fail : two different password");
             }
         } catch (SQLException e) {
-            j= serviceKO(e.getMessage());
+            j= serviceKO("Subscribe Fail:"+e.getMessage());
         }
         return j;
     }
@@ -36,7 +36,13 @@ public class UserService {
         JSONObject j;
 
         try {
-            if(SessionTools.checkToken(token, login) && UserTools.checkPasswd(login, password) && UserTools.unsubscribe(login)){
+            if(! SessionTools.checkToken(token, login))
+                return serviceKO("Subscribe Fail: Invalid Token");
+
+            if(!UserTools.checkPasswd(login, password))
+                return serviceKO("Subscribe Fail: Wrong Password");
+
+            if(UserTools.unsubscribe(login)){
                 j = serviceOK();
             }else{
                 j = serviceKO( "Unsubscribe fail");

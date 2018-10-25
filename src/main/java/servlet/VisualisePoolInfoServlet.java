@@ -33,19 +33,11 @@ public class VisualisePoolInfoServlet extends HttpServlet {
             resp.setContentType("text / plain");
 
             String idPool = ValidatorHelper.getParam(req, "idPool", true);
-            JSONObject json;
 
-            if (idPool != null ) {
-                json = BetPoolService.visualisePool(idPool);
-            } else {
-
-                json = serviceKO("Missing idPool");
-
-            }
-            out.print(json);
+            out.print(BetPoolService.visualisePool(idPool));
 
         }catch(Exception e){
-            out.print(serviceKO(e.getMessage()));
+            out.print(serviceKO("VisualisePoolIngo Fail :"+e.getMessage()));
         }
         out.close();
 

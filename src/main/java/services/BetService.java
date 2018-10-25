@@ -32,9 +32,7 @@ public class BetService {
 
     /* service pour l'ajout d'un pari par un utilisateur */
     public static JSONObject addBet(String token, String login, String idPool, String ammount, String value) throws URISyntaxException, SQLException {
-        if ((login == null) || (idPool == null) || (ammount == null) || (value == null) || (token == null)) {
-            return serviceKO("AddBet Fail : Wrong arguments, expecting: login idPool ammount value");
-        }
+
         if (!poolExist(idPool)) {
             return serviceKO("AddBet Failed : Pool doesn't exists");
         }
@@ -74,10 +72,6 @@ public class BetService {
     /* service d'annulation d'un pari */
     public static JSONObject cancelBet(String login, String idPool, String token) {
 
-        if ((login == null) || (idPool == null) || (token == null)) {
-            return serviceKO("CancelBet Fail : Wrong arguments, expecting: login idPool token");
-        }
-
         boolean connected = userConnected(login);
         if (!connected) return serviceKO("CancelBet Fail : User not connected");
 
@@ -100,7 +94,10 @@ public class BetService {
         try {
             if (BetTools.cancelBet(login, idPool)) {
                 return serviceOK();
+            }else{
+                return serviceKO("CancelBet Fail : No such Pool or No bet done");
             }
+
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return serviceKO("CancelBet Fail : URISyntaxException");
@@ -110,10 +107,17 @@ public class BetService {
 
         }
 
-        return serviceKO("CancelBet Fail : No such Pool or No bet done");
     }
 
-    public static JSONObject retrieveGain(String login, String idPool) throws URISyntaxException, SQLException {
+    public static JSONObject retrieveGain(String login, String token, String idPool) throws URISyntaxException, SQLException {
+
+        boolean connected = userConnected(login);
+        if (!connected) return serviceKO("CancelBet Fail : User not connected");
+
+        if (!SessionTools.checkToken(token, login)) {
+            return serviceKO("CancelBet Fail : Wrong token");
+        }
+
         if (!checkBetExist(login, idPool)) {
             return serviceKO("Gain Retrieval Failed : No bet registered");
         }
@@ -138,26 +142,34 @@ public class BetService {
     public static JSONObject hasBet(String login, String idPool, String token){
         JSONObject json ;
         if(!checkToken(token,login)){
-            serviceKO("HasBet Failed : Wrong token");
+            return serviceKO("HasBet Failed : Wrong token");
         }
         if(!checkBetExist(login,idPool)){
             json = serviceOK();
-            json.put("result","false");
+            json.put("result",false);
             return json;
         }
         json = serviceOK();
-        json.put("result","true");
+        json.put("result",true);
         return json;
     }
 
-    public static JSONObject getListBets(String login) {
+    public static JSONObject getListBets(String login, String token) {
+        if(!checkToken(token,login)){
+            return serviceKO("GetListBets Failed : Wrong token");
+        }
         JSONObject json ;
         json = serviceOK();
         json.put("bets",BetTools.getListBets(login));
         return json;
     }
 
-    public static JSONObject getBet(String login, String idPool){
+    public static JSONObject getBet(String login, String token,String idPool){
+
+        if(!checkToken(token,login)){
+            return serviceKO("GetBet Failed : Wrong token");
+        }
+
         JSONObject json ;
         json = serviceOK();
         json.append("bet",BetTools.getBet(login,idPool));

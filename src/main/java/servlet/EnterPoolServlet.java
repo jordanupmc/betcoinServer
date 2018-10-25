@@ -24,17 +24,20 @@ public class EnterPoolServlet extends HttpServlet {
         PrintWriter out = resp.getWriter();
         JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
 
+        if(j != null) {
+            try {
+                String login = ValidatorHelper.getParam(j, "login", true);
+                String idPool = ValidatorHelper.getParam(j, "idPool", true);
+                String token = ValidatorHelper.getParam(j, "token", true);
 
-        try {
-            String login = ValidatorHelper.getParam(j, "login", true);
-            String idPool = ValidatorHelper.getParam(j, "idPool", true);
-            String token = ValidatorHelper.getParam(j, "token", true);
-
-            out.print(
-                    BetPoolService.enterPool(login, idPool, token)
-            );
-        }catch (Exception e){
-            out.print(serviceKO(e.getMessage()));
+                out.print(
+                        BetPoolService.enterPool(login, idPool, token)
+                );
+            } catch (Exception e) {
+                out.print(serviceKO("EnterPool Fail :" + e.getMessage()));
+            }
+        }else{
+            out.print(serviceKO("EnterPool Fail : Aucun parametre recu"));
         }
 
         out.close();

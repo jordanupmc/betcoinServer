@@ -32,15 +32,16 @@ public class GetBetServlet extends HttpServlet {
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
             String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
+
             out.print(
-                    BetService.getBet(login,idPool)
+                    BetService.getBet(login,token,idPool)
             );
         }catch(Exception e){
-            out.print(serviceKO(e.toString()));
+            out.print(serviceKO("GetBet Fail: "+e.toString()));
+        }finally{
             out.close();
         }
 
-
-        out.close();
     }
 }
