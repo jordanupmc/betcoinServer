@@ -5,6 +5,7 @@ import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -82,6 +83,7 @@ public class PoolTools {
 
         Document msgToInsert = new Document("gamblerLogin", login)
                 .append("text", message)
+                .append("_msgId", new ObjectId())
                 .append("messageDate", new Timestamp(System.currentTimeMillis()));
 
         if (d == null) {
