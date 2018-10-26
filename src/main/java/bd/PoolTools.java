@@ -2,6 +2,7 @@ package bd;
 
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import org.bson.*;
 import org.bson.types.ObjectId;
@@ -200,11 +201,14 @@ public class PoolTools {
     public static JSONArray getListMessagePool(int idPool, String fromId){
         MongoCollection<Document> collection = getMongoCollection("L_Message");
 
-        /*db.L_Message.aggregate([ { $match : { idBetPool : "1"} },
+        /*En Mongo console
+        db.L_Message.aggregate([ { $match : { idBetPool : "1"} },
            {       $project: {
                 messages: {$filter: {input: "$messages", as: "message",
-                 cond: { $gte: [ "$$message._msgId", ObjectId("5bd1eb4f22515c000496ab98") ] }             }*/
-
+                 cond: { $gt: [ "$$message._msgId", ObjectId("5bd1eb4f22515c000496ab98") ] }             }*/
+        /*On recupere le tableau de messages de la pool qui a l'id idPool
+        * Puis dans ce tableau on recupere les messages qui verifie _msgId > fromId ce qui permet d'avoir les messages posté apres fromId
+        * */
         BsonArray array = new BsonArray();
         array.add(new BsonString("$$message._msgId"));
         array.add(new BsonObjectId(new ObjectId(fromId)));
@@ -250,4 +254,19 @@ public class PoolTools {
         return tmp;
     }
 
+    public static boolean deleteMessage(String idPool, String msgId) {
+
+        MongoCollection<Document> collection = getMongoCollection("L_Message");
+        /*
+        Mongo console
+        db.L_Message.update( { idBetPool : "1" }, {$pull : { messages : { _msgId : ObjectId("5bd227df9eb986000492b290")  } } },  { multi: true } )
+*/
+
+        UpdateResult d = collection.updateOne(new BsonDocument().append("idBetPool", new BsonString(idPool))
+                , new BsonDocument()
+                        .append("$pull", new BsonDocument()
+                                .append("messages", new BsonDocument()
+                                        .append("_msgId", new BsonObjectId(new ObjectId(msgId))))));
+        return d.isModifiedCountAvailable();
+    }
 }

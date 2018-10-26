@@ -169,4 +169,20 @@ public class BetPoolService {
         else
             return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
     }
+
+    public static JSONObject deleteMessage(String login, String idPool, String token, String msgId) {
+        if(!checkToken(token, login)) return serviceKO("deleteMessage  Failed : Pool doesn't exists");
+        try {
+            if (!poolExist(idPool)) return serviceKO("deleteMessage  Failed : Pool doesn't exists");
+
+            if(PoolTools.deleteMessage(idPool, msgId)) {
+                return serviceOK();
+            }
+            return serviceKO("Echec de la suppression du message");
+        }catch (Exception sq){
+            return serviceKO("deleteMessage  Failed : Erreur interne");
+        }
+
+
+    }
 }
