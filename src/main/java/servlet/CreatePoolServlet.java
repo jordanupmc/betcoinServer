@@ -26,18 +26,17 @@ public class CreatePoolServlet extends HttpServlet {
 
         try {
             String poolType = ValidatorHelper.getParam(j, "poolType", true);
-            String cryptoCurr = ValidatorHelper.getParam(j, "cryptoCurrency", true);
             boolean tmp = poolType.equals("true");
 
-            if(CryptoEnum.contains(cryptoCurr) && ValidatorHelper.checkBoolean(poolType) ) {
+            if(ValidatorHelper.checkBoolean(poolType) ) {
                 out.print(
-                        "CREATE POOL LOG OK: " + bd.PoolTools.createPool(CryptoEnum.valueOf(cryptoCurr),tmp)
+                        "CREATE POOL LOG OK: " + bd.PoolTools.createAllPool(tmp)
                 );
 
             }
             else
                 out.print(
-                        "CREATE POOL LOG KO: monnaie inconnus"
+                        "CREATE POOL LOG KO: poolType: "+ poolType+" inconnus"
                 );
         }catch(Exception e){
             out.print(

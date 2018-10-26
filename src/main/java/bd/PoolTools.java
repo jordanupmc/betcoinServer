@@ -162,6 +162,18 @@ public class PoolTools {
         }
     }
 
+    /*Cree une pool par crypto monnaie*/
+    public static boolean createAllPool(boolean poolType){
+        boolean tmp = true;
+
+        for(int i =0; i< CryptoEnum.values().length; i++){
+            CryptoEnum curr = CryptoEnum.values()[i];
+            tmp = createPool(curr, poolType);
+            if(!tmp)return tmp;
+        }
+        return tmp;
+    }
+
     public static JSONObject poolInfo(String idPool) throws URISyntaxException, SQLException {
         JSONObject json = new JSONObject();
         String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
