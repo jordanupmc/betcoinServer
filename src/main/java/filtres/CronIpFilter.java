@@ -12,7 +12,7 @@ import java.io.IOException;
         )
 public class CronIpFilter implements Filter {
 
-    private static final String IP_CRON = "195.201.26.157";
+    private static final String IP_CRON = "81.223.238.248";
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 
@@ -41,10 +41,9 @@ public class CronIpFilter implements Filter {
         }
     }
 
+    /*Permet de recuperer l'ip du client, en recuperant le header X-FORWARDED-FOR on peut avoir la veritable addr ip meme si le client utilise un proxy */
     private static String getClientIp(HttpServletRequest request) {
-
         String remoteAddr = "";
-
         if (request != null) {
             remoteAddr = request.getHeader("X-FORWARDED-FOR");
             if (remoteAddr == null || "".equals(remoteAddr)) {
