@@ -132,9 +132,9 @@ public class PoolTools {
     public static boolean createPool(CryptoEnum cryptoEnum, boolean poolType) {
         String query ="";
         if(!poolType)
-            query="INSERT INTO BetPool (openingBet, cryptoCurrency, poolType, openingprice) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
+            query="INSERT INTO BetPool (cryptoCurrency, poolType, openingprice) VALUES (CAST ( ? AS crypto_currency), ? , ?)";
         else
-            query="INSERT INTO BetPool (openingBet, cryptoCurrency, poolType) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ?)";
+            query="INSERT INTO BetPool (cryptoCurrency, poolType) VALUES (CAST ( ? AS crypto_currency), ?)";
 
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
@@ -250,6 +250,7 @@ public class PoolTools {
     }
 
 
+    /*Return la liste des messages d'une pool*/
     public static JSONArray getListMessagePool(int idPool){
         MongoCollection<Document> collection = getMongoCollection("L_Message");
         Document d =
@@ -266,6 +267,7 @@ public class PoolTools {
         return tmp;
     }
 
+    /*Supprime un message d'une pool donne*/
     public static boolean deleteMessage(String idPool, String msgId) {
 
         MongoCollection<Document> collection = getMongoCollection("L_Message");

@@ -57,7 +57,7 @@ public class BetTools {
     public static JSONArray getListPoolsActive() {
         JSONArray ar = new JSONArray();
         String query =
-                "SELECT idbetpool, name, openingbet, closingbet, resultbet, cryptocurrency, pooltype FROM BetPool WHERE closingBet > NOW() AT TIME ZONE  'Europe/Paris'";
+                "SELECT idbetpool, name, openingbet, closingbet, resultbet, cryptocurrency, pooltype FROM BetPool WHERE closingBet > NOW() AT TIME ZONE  'Europe/Paris' AND openingBet <=  NOW() AT TIME ZONE 'Europe/Paris'";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
              ResultSet v = pstmt.executeQuery();
