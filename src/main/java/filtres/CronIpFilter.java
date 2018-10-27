@@ -2,6 +2,7 @@ package filtres;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -21,7 +22,9 @@ public class CronIpFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
-        String ip = request.getRemoteAddr();
+        HttpServletRequest httprequest = (HttpServletRequest) request;
+
+        String ip = getClientIp(httprequest);
 
         HttpServletResponse httpResp = null;
 
@@ -36,6 +39,20 @@ public class CronIpFilter implements Filter {
 
             filterChain.doFilter(request, response);
         }
+    }
+
+    private static String getClientIp(HttpServletRequest request) {
+
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
     }
 
     @Override
