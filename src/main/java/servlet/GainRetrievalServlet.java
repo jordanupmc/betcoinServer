@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -55,19 +56,17 @@ public class GainRetrievalServlet extends HttpServlet {
         try {
             String login = ValidatorHelper.getParam(req, "login", true);
             String idPool = ValidatorHelper.getParam(req, "idPool", true);
+            String token = ValidatorHelper.getParam(req, "token", true);
 
 
             JSONObject json ;
 
-            if ((login != null) && (idPool != null)) {
-                json = BetService.retrieveGain(login, idPool);
-            } else {
-                json = serviceKO("Gain Retrieval Failed : Missing login or IdPool");
-            }
+            json = BetService.retrieveGain(login,token, idPool);
+
             out.print(json);
 
-        }catch(Exception e){
-            out.print(serviceKO(e.getMessage()));
+        }catch(ValidationException e){
+            out.print(serviceKO("Gain Retrieval Failed : "+e.getMessage()));
         }
         out.close();*/
 
