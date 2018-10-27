@@ -28,6 +28,8 @@ public class CronIpFilter implements Filter {
         if (response instanceof HttpServletResponse)
             httpResp = (HttpServletResponse) response;
 
+        System.out.println(ip);
+
         if (!IP_CRON.equals(ip)) {
             httpResp.sendError(HttpServletResponse.SC_FORBIDDEN,"Access Forbidden");
         } else {
