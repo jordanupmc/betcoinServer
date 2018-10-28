@@ -50,7 +50,7 @@ public class GainRetrievalServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-       /* resp.setContentType("text / plain");
+        /*resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
 
         try {
