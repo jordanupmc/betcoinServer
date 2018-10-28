@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 
+import static bd.BetTools.checkBetExist;
 import static bd.PoolTools.isSubscribed;
 import static bd.PoolTools.poolExist;
 import static bd.PoolTools.poolInfo;
@@ -48,6 +49,11 @@ public class BetPoolService {
             if(!isSubscribed(login,idPool)){
                 return serviceKO("QuitPool Failed : You are not subscribed to this pool");
             }
+
+            if (checkBetExist(login, idPool)) return serviceKO("QuitPool Fail : Please cancel your bet before leaving the pool");
+
+
+
             if (PoolTools.quitPool(login, idPool)) {
                 obj = ServiceTools.serviceOK();
                 obj.put("login", login);

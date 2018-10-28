@@ -132,13 +132,13 @@ public class BetService {
             int amountWon;
             if ((amountWon = BetTools.betWon(login, idPool)) > 0) {
                 JSONObject json = serviceOK();
-                json.append("Result", "You won ! congratulation !");
-                json.append("Gain", "" + amountWon);
+                json.append("result", "You won ! congratulation !");
+                json.append("gain", "" + amountWon);
                 return json;
 
             } else if(amountWon == 0){
                 JSONObject json = serviceOK();
-                json.append("Result", "You lost your bet, try again next time");
+                json.append("result", "You lost your bet, try again next time");
                 return json;
             }else{
                 return serviceKO("Gain Retrieval Failed : -1");
