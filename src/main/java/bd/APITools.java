@@ -14,12 +14,12 @@ import java.util.ArrayList;
 
 public class APITools {
     private static String createURL(String cryptName, String devise, String fin, String debut,int isHours){
-        long tmsp_fin = Long.parseLong(fin)/1000;
-        long tmsp_debut = Long.parseLong(debut)/1000;
+        long tmsp_fin = Long.parseLong(fin);
+        long tmsp_debut = Long.parseLong(debut);
         long diff = Math.abs(tmsp_fin - tmsp_debut);
-        long diffInHours = (diff / (60*60*1000))%24;
-        long diffInDays = Math.round(diff / (60*60*1000)/24);
-        long diffInMinute = Math.round(diff / (60*1000));
+        long diffInHours = (diff / (60*60))%24;
+        long diffInDays = Math.round(diff / (60*60)/24);
+        long diffInMinute = Math.round(diff / (60));
 
         long diffTot ;
         if(isHours==1) {

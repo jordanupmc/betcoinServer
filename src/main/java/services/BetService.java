@@ -126,13 +126,10 @@ public class BetService {
             if(!betResultIsAvailable(idPool)){
                 return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
             }
-        } catch (URISyntaxException e) {
-            return serviceKO("Gain Retrieval Failed : URISyntaxException");
-        } catch (SQLException e) {
-            return serviceKO("Gain Retrieval Failed : SQLException");
-        }
-        int amountWon;
-        try {
+            if(haveCheckResultAlready(login, idPool)){
+                return serviceKO("Gain Retrieval Failed : You have already check this bet");
+            }
+            int amountWon;
             if ((amountWon = BetTools.betWon(login, idPool)) > 0) {
                 JSONObject json = serviceOK();
                 json.append("Result", "You won ! congratulation !");
@@ -146,13 +143,12 @@ public class BetService {
             }else{
                 return serviceKO("Gain Retrieval Failed : -1");
             }
-        } catch (IOException e) {
-            return serviceKO("Gain Retrieval Failed : IOException");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return serviceKO("Gain Retrieval Failed : SQLException ");
         } catch (URISyntaxException e) {
             return serviceKO("Gain Retrieval Failed : URISyntaxException");
+        } catch (SQLException e) {
+            return serviceKO("Gain Retrieval Failed : SQLException");
+        }catch (IOException e) {
+            return serviceKO("Gain Retrieval Failed : IOException");
         }
     }
 
@@ -198,7 +194,7 @@ public class BetService {
             return serviceKO("BetResultAvailable Failed : Wrong token");
         }
         try {
-            if(betResultIsAvailable(idPool)){
+            if(betResultIsAvailable(idPool) && !haveCheckResultAlready(login, idPool)){
                 JSONObject json = serviceOK();
                 json.put("result",true);
                 return json;
