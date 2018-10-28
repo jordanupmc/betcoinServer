@@ -246,13 +246,12 @@ public class BetTools {
                                 new BsonDocument().append("gamblerLogin", new BsonString(login))))
                         .first();
         double betValue = d.getDouble("betValue");
+        if(!setHaveCheckResultTrue(login, idPool)){
+            return -1;
+        }
         if (betValue == resultValue) {
             String amount_s = d.get("betAmount").toString();
             int amount_i = Integer.parseInt(amount_s);
-
-            if(!setHaveCheckResultTrue(login, idPool)){
-                return -1;
-            }
 
             return updateAccountGoldWin(amount_i, idPool, login);
 
