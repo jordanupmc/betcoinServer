@@ -78,7 +78,7 @@ public class APITools {
         JSONObject obj = new JSONObject(source);
         JSONArray array = obj.getJSONArray("Data");
         for(int i =0; i<array.length(); i++){
-            if(array.getJSONObject(i).get("time").toString().equals(time.substring(0, time.length()-3))) {
+            if(array.getJSONObject(i).get("time").toString().equals(time)) {
                 return array.getJSONObject(i).getDouble("close");
             }
         }

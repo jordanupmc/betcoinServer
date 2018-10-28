@@ -339,7 +339,7 @@ public class BetTools {
                 res.close();
 
 
-                double resultValue = APITools.getPriceSpecificTime(getCryptNickname(crypt),"EUR",time.getTime()+"");
+                double resultValue = APITools.getPriceSpecificTime(getCryptNickname(crypt),"EUR",(time.getTime()/1000)+"");
 
 
                 MongoCollection<Document> collection = getMongoCollection("L_Bet");
