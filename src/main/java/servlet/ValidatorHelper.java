@@ -77,10 +77,17 @@ public class ValidatorHelper {
     }
 
     public static boolean isAfterToday(String date)throws ValidationException{
-        Date d= new Date(date);
-        Date currentDate = new Date();
-        if(d.before(currentDate) || d.equals(currentDate))throw new ValidationException("Vous ne pouvez pas parrié à votre age");
-        return d.after(currentDate);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date d= null;
+        try {
+            d = sdf.parse(date);
+            Date currentDate = new Date();
+            if(d.before(currentDate) || d.equals(currentDate))throw new ValidationException("Vous ne pouvez pas parrié à votre age");
+            return d.after(currentDate);
+        } catch (ParseException e) {
+            throw new ValidationException("Vous ne pouvez pas parrié à votre age");
+        }
+
     }
 
     public static boolean checkBoolean(String val) throws ValidationException {
