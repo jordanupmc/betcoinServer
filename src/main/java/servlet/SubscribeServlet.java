@@ -38,7 +38,7 @@ public class SubscribeServlet extends HttpServlet {
                 String dateNaiss = ValidatorHelper.getParam(j, "dateNaiss", true);
                 String pays = ValidatorHelper.getParam(j, "country", true);
 
-                if(ValidatorHelper.isEmail(email) && ValidatorHelper.isDateSQL(dateNaiss) && !ValidatorHelper.isAfterToday(dateNaiss) && !ValidatorHelper.containsWhiteSpace(login)
+                if(ValidatorHelper.isEmail(email) && ValidatorHelper.isDateSQL(dateNaiss) && ValidatorHelper.isBeforeToday(dateNaiss) && !ValidatorHelper.containsWhiteSpace(login)
                         && !ValidatorHelper.containsWhiteSpace(mdp) && !ValidatorHelper.containsWhiteSpace(nom) && !ValidatorHelper.containsWhiteSpace(prenom)
                 ) {
                     out.print(

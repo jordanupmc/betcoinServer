@@ -76,14 +76,15 @@ public class ValidatorHelper {
         }
     }
 
-    public static boolean isAfterToday(String date)throws ValidationException{
+    /*Return si date < today*/
+    public static boolean isBeforeToday(String date)throws ValidationException{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date d= null;
         try {
             d = sdf.parse(date);
             Date currentDate = new Date();
-            if(d.before(currentDate) || d.equals(currentDate))throw new ValidationException("Vous ne pouvez pas parrié à votre age");
-            return d.after(currentDate);
+            if(sdf.format(d).compareTo(sdf.format(currentDate)) == 0||d.after(currentDate))throw new ValidationException("Vous ne pouvez pas parrié à votre age");
+            return d.before(currentDate);
         } catch (ParseException e) {
             throw new ValidationException("Vous ne pouvez pas parrié à votre age");
         }
