@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,6 +74,13 @@ public class ValidatorHelper {
         } catch (ParseException e) {
             throw new ValidationException(s+ " is not a valid date ( yyyy-MM-dd )");
         }
+    }
+
+    public static boolean isAfterToday(String date)throws ValidationException{
+        Date d= new Date(date);
+        Date currentDate = new Date();
+        if(d.before(currentDate) || d.equals(currentDate))throw new ValidationException("Vous ne pouvez pas parrié à votre age");
+        return d.after(currentDate);
     }
 
     public static boolean checkBoolean(String val) throws ValidationException {
