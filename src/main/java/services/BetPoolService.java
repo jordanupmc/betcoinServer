@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 
+import static bd.BetTools.checkBetExist;
 import static bd.PoolTools.isSubscribed;
 import static bd.PoolTools.poolExist;
 import static bd.PoolTools.poolInfo;
@@ -48,6 +49,11 @@ public class BetPoolService {
             if(!isSubscribed(login,idPool)){
                 return serviceKO("QuitPool Failed : You are not subscribed to this pool");
             }
+
+            if (checkBetExist(login, idPool)) return serviceKO("QuitPool Fail : Please cancel your bet before leaving the pool");
+
+
+
             if (PoolTools.quitPool(login, idPool)) {
                 obj = ServiceTools.serviceOK();
                 obj.put("login", login);
@@ -152,5 +158,37 @@ public class BetPoolService {
         }
         else
             return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
+    }
+
+    public static JSONObject getListMessagePool(String login, String token, int idPool, String fromId){
+        JSONObject json;
+        JSONArray arr;
+        if(checkToken(token, login)){
+            if((arr = PoolTools.getListMessagePool(idPool, fromId)) !=null){
+                json = serviceOK();
+                json.put("messages", arr);
+                return json;
+            }
+            else
+                return serviceKO("getListMessagePool : La pool n'existe pas");
+        }
+        else
+            return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
+    }
+
+    public static JSONObject deleteMessage(String login, String idPool, String token, String msgId) {
+        if(!checkToken(token, login)) return serviceKO("deleteMessage  Failed : Pool doesn't exists");
+        try {
+            if (!poolExist(idPool)) return serviceKO("deleteMessage  Failed : Pool doesn't exists");
+
+            if(PoolTools.deleteMessage(idPool, msgId)) {
+                return serviceOK();
+            }
+            return serviceKO("Echec de la suppression du message");
+        }catch (Exception sq){
+            return serviceKO("deleteMessage  Failed : Erreur interne");
+        }
+
+
     }
 }

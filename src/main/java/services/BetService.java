@@ -11,6 +11,7 @@ import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -109,7 +110,7 @@ public class BetService {
 
     }
 
-    public static JSONObject retrieveGain(String login, String token, String idPool) throws URISyntaxException, SQLException {
+    public static JSONObject retrieveGain(String login, String token, String idPool) {
 
         boolean connected = userConnected(login);
         if (!connected) return serviceKO("CancelBet Fail : User not connected");
@@ -121,21 +122,33 @@ public class BetService {
         if (!checkBetExist(login, idPool)) {
             return serviceKO("Gain Retrieval Failed : No bet registered");
         }
-        if(!checkPoolResult(idPool)){
-            return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
-        }
-        int amountWon;
-        if ((amountWon = BetTools.betWon(login, idPool)) != -1) {
-            JSONObject json = serviceOK();
-            json.append("Result", "You won ! congratulation !");
-            json.append("Gain", "" + amountWon);
-            return json;
+        try {
+            if(!betResultIsAvailable(idPool)){
+                return serviceKO("Gain Retrieval Failed : the pool isn't closed yet.");
+            }
+            if(haveCheckResultAlready(login, idPool)){
+                return serviceKO("Gain Retrieval Failed : You have already check this bet");
+            }
+            int amountWon;
+            if ((amountWon = BetTools.betWon(login, idPool)) > 0) {
+                JSONObject json = serviceOK();
+                json.append("result", "You won ! congratulation !");
+                json.append("gain", "" + amountWon);
+                return json;
 
-        } else {
-            JSONObject json = serviceOK();
-            json.append("Result", "You lost your bet, try again next time");
-            return json;
-
+            } else if(amountWon == 0){
+                JSONObject json = serviceOK();
+                json.append("result", "You lost your bet, try again next time");
+                return json;
+            }else{
+                return serviceKO("Gain Retrieval Failed : -1");
+            }
+        } catch (URISyntaxException e) {
+            return serviceKO("Gain Retrieval Failed : URISyntaxException");
+        } catch (SQLException e) {
+            return serviceKO("Gain Retrieval Failed : SQLException");
+        }catch (IOException e) {
+            return serviceKO("Gain Retrieval Failed : IOException");
         }
     }
 
@@ -173,6 +186,26 @@ public class BetService {
         JSONObject json ;
         json = serviceOK();
         json.append("bet",BetTools.getBet(login,idPool));
+        return json;
+    }
+
+    public static JSONObject betResultAvailable(String login, String idPool, String token) {
+        if(!checkToken(token,login)){
+            return serviceKO("BetResultAvailable Failed : Wrong token");
+        }
+        try {
+            if(betResultIsAvailable(idPool) && !haveCheckResultAlready(login, idPool)){
+                JSONObject json = serviceOK();
+                json.put("result",true);
+                return json;
+            }
+        } catch (URISyntaxException e) {
+            return serviceKO("BetResultAvailable Fail : URISyntaxException");
+        } catch (SQLException e) {
+            return serviceKO("BetResultAvailable Fail : SQLException");
+        }
+        JSONObject json = serviceOK();
+        json.put("result",false);
         return json;
     }
 }

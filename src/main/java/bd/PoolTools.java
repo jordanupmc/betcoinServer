@@ -1,18 +1,21 @@
 package bd;
 
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
-import org.bson.Document;
+import org.bson.*;
 import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 
+import javax.print.Doc;
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static bd.BetTools.cancelBet;
@@ -90,7 +93,7 @@ public class PoolTools {
             List<Document> messages = new ArrayList<>();
             messages.add(msgToInsert);
 
-            Document allToInsert = new Document("ibBetPool", idPool)
+            Document allToInsert = new Document("idBetPool", idPool)
                     .append("messages", messages);
             collection.insertOne(allToInsert);
 
@@ -119,7 +122,6 @@ public class PoolTools {
             if (pools.get(i).get("idPool").equals(idPool)) {
                 pools.remove(i);
                 collection.updateOne(filter, new Document("$set", new Document("idBetPool", pools)));
-                cancelBet(login, idPool);
                 return true;
             }
         }
@@ -129,9 +131,9 @@ public class PoolTools {
     public static boolean createPool(CryptoEnum cryptoEnum, boolean poolType) {
         String query ="";
         if(!poolType)
-                query="INSERT INTO BetPool (openingBet, cryptoCurrency, poolType, openingprice) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ? , ?)";
+            query="INSERT INTO BetPool (cryptoCurrency, poolType, openingprice) VALUES (CAST ( ? AS crypto_currency), ? , ?)";
         else
-                query="INSERT INTO BetPool (openingBet, cryptoCurrency, poolType) VALUES (NOW() AT TIME ZONE  'Europe/Paris',  CAST ( ? AS crypto_currency), ?)";
+            query="INSERT INTO BetPool (cryptoCurrency, poolType) VALUES (CAST ( ? AS crypto_currency), ?)";
 
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query)
@@ -157,6 +159,18 @@ public class PoolTools {
             System.out.println(e);
             return false;
         }
+    }
+
+    /*Cree une pool par crypto monnaie*/
+    public static boolean createAllPool(boolean poolType){
+        boolean tmp = true;
+
+        for(int i =0; i< CryptoEnum.values().length; i++){
+            CryptoEnum curr = CryptoEnum.values()[i];
+            tmp = createPool(curr, poolType);
+            if(!tmp)return tmp;
+        }
+        return tmp;
     }
 
     public static JSONObject poolInfo(String idPool) throws URISyntaxException, SQLException {
@@ -194,7 +208,48 @@ public class PoolTools {
         return false;
     }
 
+    /*Return la liste des messages d'une pool qui ont été post après fromId*/
+    public static JSONArray getListMessagePool(int idPool, String fromId){
+        MongoCollection<Document> collection = getMongoCollection("L_Message");
 
+        /*En Mongo console
+        db.L_Message.aggregate([ { $match : { idBetPool : "1"} },
+           {       $project: {
+                messages: {$filter: {input: "$messages", as: "message",
+                 cond: { $gt: [ "$$message._msgId", ObjectId("5bd1eb4f22515c000496ab98") ] }             }*/
+        /*On recupere le tableau de messages de la pool qui a l'id idPool
+        * Puis dans ce tableau on recupere les messages qui verifie _msgId > fromId ce qui permet d'avoir les messages posté apres fromId
+        * */
+        BsonArray array = new BsonArray();
+        array.add(new BsonString("$$message._msgId"));
+        array.add(new BsonObjectId(new ObjectId(fromId)));
+
+        BsonDocument match  = new BsonDocument().append("$match", new BsonDocument().append("idBetPool",new BsonString(idPool+"")));
+        BsonDocument project = new BsonDocument()
+                .append("$project", new BsonDocument()
+                        .append("messages", new BsonDocument()
+                                .append("$filter", new BsonDocument()
+                                        .append("input", new BsonString("$messages"))
+                                        .append("as", new BsonString("message"))
+                                        .append("cond", new BsonDocument()
+                                                .append("$gt", array)))));
+
+        Document d =
+                collection
+                        . aggregate(Arrays.asList(match, project)).first();
+
+        if(d == null)
+            return null;
+
+        JSONArray tmp = new JSONObject(d.toJson()).getJSONArray("messages");
+
+        if(tmp ==null)
+            return new JSONArray();
+        return tmp;
+    }
+
+
+    /*Return la liste des messages d'une pool*/
     public static JSONArray getListMessagePool(int idPool){
         MongoCollection<Document> collection = getMongoCollection("L_Message");
         Document d =
@@ -211,4 +266,20 @@ public class PoolTools {
         return tmp;
     }
 
+    /*Supprime un message d'une pool donne*/
+    public static boolean deleteMessage(String idPool, String msgId) {
+
+        MongoCollection<Document> collection = getMongoCollection("L_Message");
+        /*
+        Mongo console
+        db.L_Message.update( { idBetPool : "1" }, {$pull : { messages : { _msgId : ObjectId("5bd227df9eb986000492b290")  } } },  { multi: true } )
+*/
+
+        UpdateResult d = collection.updateOne(new BsonDocument().append("idBetPool", new BsonString(idPool))
+                , new BsonDocument()
+                        .append("$pull", new BsonDocument()
+                                .append("messages", new BsonDocument()
+                                        .append("_msgId", new BsonObjectId(new ObjectId(msgId))))));
+        return d.isModifiedCountAvailable();
+    }
 }

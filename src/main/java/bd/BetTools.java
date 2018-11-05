@@ -6,9 +6,11 @@ import com.mongodb.util.JSON;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,18 +26,7 @@ import static com.mongodb.client.model.Filters.and;
 
 public class BetTools {
 
-    public static boolean checkPoolResult(String idPool){
-        MongoCollection<Document> collection = getMongoCollection("L_Bet");
-        Document d_tmp =
-                collection
-                        .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
-                        .first();
-        if (d_tmp.getDouble("resultValue") == null) {
-            return false;
-        }
-        return true;
-    }
-
+    // renvoi true si un joueur a un sodle suffisant pour parier un certain montant
     public static boolean hasEnoughCoin(String login,String ammount) throws SQLException, URISyntaxException {
         String query = "SELECT solde FROM USERS WHERE login=?";
         try (Connection c = Database.getConnection();
@@ -56,7 +47,7 @@ public class BetTools {
     public static JSONArray getListPoolsActive() {
         JSONArray ar = new JSONArray();
         String query =
-                "SELECT idbetpool, name, openingbet, closingbet, resultbet, cryptocurrency, pooltype FROM BetPool WHERE closingBet > NOW() AT TIME ZONE  'Europe/Paris'";
+                "SELECT idbetpool, name, openingbet, closingbet, resultbet, cryptocurrency, pooltype FROM BetPool WHERE closingBet > NOW() AT TIME ZONE  'Europe/Paris' AND openingBet <=  NOW() AT TIME ZONE 'Europe/Paris'";
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);
              ResultSet v = pstmt.executeQuery();
@@ -92,7 +83,7 @@ public class BetTools {
         if (d == null) {
             Document newpool = new Document();
             newpool.append("idBetPool", idPool);
-            newpool.append("resultValue", "");
+            newpool.append("resultValue", 0.0);
             ArrayList<Document> bets = new ArrayList<>();
             Document bet_obj = new Document();
             bet_obj.append("gamblerLogin", login);
@@ -144,12 +135,14 @@ public class BetTools {
         obj.append("betAmount", betAmmount);
         obj.append("betValue", betValue);
         obj.append("betDate", tsp.toString());
+        obj.append("haveCheckResult", false);
         collection.insertOne(obj);
 
         return true;
 
     }
 
+    // Vérifie l'existance d'un pari
     public static boolean checkBetExist(String login, String idPool) {
         MongoCollection<Document> collection = getMongoCollection("Bet");
         Document d =
@@ -229,13 +222,23 @@ public class BetTools {
         }
     }
 
-    public static int betWon(String login, String idPool) throws URISyntaxException, SQLException {
+    // Renvoi le montant gagné par un pari (ou 0 si le pari est perdu)
+    public static int betWon(String login, String idPool) throws URISyntaxException, SQLException, IOException {
         MongoCollection<Document> collection = getMongoCollection("L_Bet");
         Document d_tmp =
                 collection
                         .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                         .first();
         double resultValue = d_tmp.getDouble("resultValue");
+
+        // On est la premiere personne a vérifier son pari, dans ce cas on va chercher la valeur du resultat dans l'API et on rempli notre BD avec ce resultat
+        if(resultValue == 0){
+            resultValue = updateDBResultValue(idPool, login);
+            if(resultValue == 0){
+                return -1;
+            }
+        }
+
         collection = getMongoCollection("Bet");
         Document d =
                 collection
@@ -243,45 +246,116 @@ public class BetTools {
                                 new BsonDocument().append("gamblerLogin", new BsonString(login))))
                         .first();
         double betValue = d.getDouble("betValue");
+        if(!setHaveCheckResultTrue(login, idPool)){
+            return -1;
+        }
         if (betValue == resultValue) {
             String amount_s = d.get("betAmount").toString();
             int amount_i = Integer.parseInt(amount_s);
-            String query = "SELECT solde FROM USERS WHERE login=?";
 
-            try (Connection c = Database.getConnection();
-                 PreparedStatement pstmt = c.prepareStatement(query);) {
-                pstmt.setString(1, login);
-                ResultSet res = pstmt.executeQuery();
-                res.next();
+            return updateAccountGoldWin(amount_i, idPool, login);
+
+        }
+        return 0;
+    }
+
+    // Marque un pari dans la BD afin de signaler que l'on a deja vérifié le résultat d'un pari
+    private static boolean setHaveCheckResultTrue(String login, String idPool) {
+        MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document d = collection
+                .find(and(new BsonDocument().append("idBetPool", new BsonString(idPool)),
+                        new BsonDocument().append("gamblerLogin", new BsonString(login))))
+                .first();
+        if (d == null) {
+            return false;
+        }
+
+        Bson filter = and(new BsonDocument().append("idBetPool", new BsonString(idPool)), new BsonDocument().append("gamblerLogin", new BsonString(login)));
+
+        collection.updateOne(filter,new Document("$set", new Document("haveCheckResult", true)));
+
+        return true;
+    }
+
+    // Met a jour le solde d'un joueur en fonction du montant parié et du multiplicateur de gains
+    private static int updateAccountGoldWin(int ammountBet, String idPool, String login) throws URISyntaxException, SQLException {
+
+        String query = "SELECT solde FROM USERS WHERE login=?";
+
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setString(1, login);
+            ResultSet res = pstmt.executeQuery();
+            if(res.next()) {
                 int soldeAccount = res.getInt(1);
                 res.close();
-                int amountWon;
+                int amountWon = 0;
                 boolean type;
                 query = "SELECT pooltype FROM BETPOOL WHERE idbetpool=?";
                 try (PreparedStatement pstmt3 = c.prepareStatement(query);) {
-                    pstmt3.setString(1, idPool);
+                    pstmt3.setInt(1, Integer.parseInt(idPool));
                     ResultSet restype = pstmt3.executeQuery();
-                    type = restype.getBoolean(1);
-                    restype.close();
+                    if(restype.next()) {
+                        type = restype.getBoolean(1);
+                        restype.close();
+                        if (type) {
+                            amountWon = ammountBet * 5;
+                        } else {
+                            amountWon = (int) Math.round(ammountBet * 1.2);
+                        }
+                    }
                 }
-                if (type) {
-                    amountWon = amount_i * 5;
-                } else {
-                    amountWon = (int) Math.round(amount_i * 1.2);
-                }
+
                 soldeAccount = soldeAccount + amountWon;
                 query = "UPDATE USERS SET solde=? WHERE login=?";
                 try (PreparedStatement pstmt2 = c.prepareStatement(query);) {
                     pstmt2.setInt(1, soldeAccount);
                     pstmt2.setString(2, login);
-                    pstmt2.executeQuery();
+                    pstmt2.executeUpdate();
                 }
                 return amountWon;
             }
         }
         return -1;
+
     }
 
+    // Met a jour le resultat d'une pool, elle est faite 1 fois par pool (Apres que la date courrante soit supérieur a la date des resultats
+    private static double updateDBResultValue(String idPool, String login) throws URISyntaxException, SQLException, IOException {
+
+        String query = "SELECT * FROM betpool WHERE idbetpool=?";
+
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setInt(1, Integer.parseInt(idPool));
+            ResultSet res = pstmt.executeQuery();
+            if(res.next()) {
+                String crypt = res.getString("cryptocurrency");
+                Timestamp time = res.getTimestamp("resultbet");
+                Boolean poolType = res.getBoolean("pooltype");
+                double openingPrice = res.getDouble("openingprice");
+
+                res.close();
+
+
+                double resultValue = APITools.getPriceSpecificTime(getCryptNickname(crypt),"EUR",(time.getTime()/1000)+"");
+
+
+                MongoCollection<Document> collection = getMongoCollection("L_Bet");
+
+                BsonDocument filter = new BsonDocument().append("idBetPool", new BsonString(idPool));
+                if(poolType) {
+                    collection.updateOne(filter, new Document("$set", new Document("resultValue", resultValue)));
+                }else{
+                    collection.updateOne(filter, new Document("$set", new Document("resultValue", (resultValue > openingPrice)? 1.0 : -1.0)));
+                }
+                return resultValue;
+            }
+        }
+        return 0;
+    }
+
+    // renvoi la liste des pari
     public static JSONArray getListBets(String login) {
         MongoCollection<Document> collection = getMongoCollection("Bet");
         JSONArray array = new JSONArray();
@@ -298,6 +372,7 @@ public class BetTools {
 
     }
 
+    // Renvoi les informations d'un pari
     public static Document getBet(String login, String idPool) {
         MongoCollection<Document> collection = getMongoCollection("Bet");
         Document d_tmp =
@@ -306,5 +381,51 @@ public class BetTools {
                                 new BsonDocument().append("idBetPool", new BsonString(idPool))))
                         .first();
         return d_tmp;
+    }
+
+    // Renvoi true si le résultat d'un pari est disponible, c'est a dire que la date corurante est après la date des résultats
+    public static boolean betResultIsAvailable(String idPool) throws URISyntaxException, SQLException {
+        String query = "SELECT * FROM BETPOOL WHERE idbetpool=?";
+
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
+            pstmt.setInt(1, Integer.parseInt(idPool));
+            ResultSet res = pstmt.executeQuery();
+
+            if (res.next()) {
+                if (res.getTimestamp("resultbet").before(new Timestamp(System.currentTimeMillis()))) {
+                    pstmt.close();
+                    c.close();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Renvoi true si un utilisateur a deja vérifier le résultat de son pari
+    public static boolean haveCheckResultAlready(String login, String idPool) {
+        MongoCollection<Document> collection = getMongoCollection("Bet");
+        Document d_tmp =
+                collection
+                        .find(and(new BsonDocument().append("gamblerLogin", new BsonString(login)),
+                                new BsonDocument().append("idBetPool", new BsonString(idPool))))
+                        .first();
+        return d_tmp.getBoolean("haveCheckResult");
+    }
+
+
+
+    private static String getCryptNickname(String cryptFullName){
+        switch (cryptFullName){
+            case "Bitcoin": return "BTC";
+            case "Ethereum": return "ETH";
+            case "EthereumClassic": return "ETC";
+            case "LiteCoin": return "LTC";
+            case "BitcoinCash" : return "BCH";
+            case "ZCash": return "ZCH";
+            case "Dash": return "DASH";
+            default: return cryptFullName;
+        }
     }
 }

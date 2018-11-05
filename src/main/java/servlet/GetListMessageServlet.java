@@ -3,12 +3,14 @@ package servlet;
 import bd.CryptoEnum;
 import org.json.JSONObject;
 import services.BetPoolService;
+import services.ServiceTools;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.Service;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -36,12 +38,20 @@ public class GetListMessageServlet extends HttpServlet {
             String token = ValidatorHelper.getParam(req, "token", true);
             String from = ValidatorHelper.getParam(req, "from", false);
             String to = ValidatorHelper.getParam(req, "to", false);
-            if(ValidatorHelper.isInteger(idPool)) {
+            if(ValidatorHelper.isInteger(idPool) && from == null) {
                 out.println(BetPoolService.getListMessagePool(login, token, Integer.parseInt(idPool)));
+            }
+            else if(ValidatorHelper.isInteger(idPool)){
+                out.println(BetPoolService.getListMessagePool(login, token, Integer.parseInt(idPool), from));
+            }
+            else{
+                out.print(
+                        ServiceTools.serviceKO(idPool+" not a valid idPool")
+                );
             }
         }catch(Exception e){
             out.print(
-                    "CREATE POOL LOG KO: "+ e
+                    ServiceTools.serviceKO(e.getMessage())
             );
         }
 

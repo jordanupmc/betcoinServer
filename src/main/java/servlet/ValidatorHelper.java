@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,11 @@ public class ValidatorHelper {
         }
         return field;
     }
+
+
     public static String getParam(JSONObject jo, String paramName, boolean required) throws ValidationException {
+        if(jo==null) throw new ValidationException("JSON param is empty");
+
         String field = jo.getString(paramName);
         if(field == null || field.trim().isEmpty()){
             if(required)
@@ -47,6 +52,7 @@ public class ValidatorHelper {
             throw new ValidationException(s+ " is not a valid email");
         return true;
     }
+    /*Return si s contient des espaces*/
     public static boolean containsWhiteSpace(String s) throws ValidationException{
         Pattern whitespace = Pattern.compile("\\s+");
         Matcher matcher = whitespace.matcher(s);
@@ -57,6 +63,7 @@ public class ValidatorHelper {
         return false;
     }
 
+    /*Return si s est correspond au format d'une date SQL*/
     public static boolean isDateSQL(String s) throws ValidationException{
         format.setLenient(false);
         if(s == null) return false;
@@ -68,6 +75,22 @@ public class ValidatorHelper {
             throw new ValidationException(s+ " is not a valid date ( yyyy-MM-dd )");
         }
     }
+
+    /*Return si date < today*/
+    public static boolean isBeforeToday(String date)throws ValidationException{
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date d= null;
+        try {
+            d = sdf.parse(date);
+            Date currentDate = new Date();
+            if(sdf.format(d).compareTo(sdf.format(currentDate)) == 0||d.after(currentDate))throw new ValidationException("Vous ne pouvez pas parrié à votre age");
+            return d.before(currentDate);
+        } catch (ParseException e) {
+            throw new ValidationException("Vous ne pouvez pas parrié à votre age");
+        }
+
+    }
+
     public static boolean checkBoolean(String val) throws ValidationException {
         if(val == null) throw new ValidationException(val+" is not a boolean value");
 
@@ -77,6 +100,7 @@ public class ValidatorHelper {
         throw new ValidationException(val+" is not a boolean value");
     }
 
+    /*Return un JSONObject a partir d'un HttpServletRequest*/
     public static JSONObject getJSONParameter(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         StringBuilder sb = new StringBuilder();
         String s;
