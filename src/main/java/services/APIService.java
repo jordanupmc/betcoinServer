@@ -13,6 +13,10 @@ public class APIService {
             JSONObject json = serviceOK();
             String tmp = APITools.getCrypto(cryptName, devise, fin, debut, isHours);
             Document doc = new Document(Document.parse(tmp));
+            String resp = doc.get("Response").toString();
+            if(resp.equals("Error")){
+                return serviceKO(doc.get("Message").toString());
+            }
             json.append("results",doc);
             return json;
         }catch(Exception e){
