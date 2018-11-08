@@ -217,6 +217,7 @@ public class PoolTools {
            {       $project: {
                 messages: {$filter: {input: "$messages", as: "message",
                  cond: { $gt: [ "$$message._msgId", ObjectId("5bd1eb4f22515c000496ab98") ] }             }*/
+
         /*On recupere le tableau de messages de la pool qui a l'id idPool
         * Puis dans ce tableau on recupere les messages qui verifie _msgId > fromId ce qui permet d'avoir les messages posté apres fromId
         * */
@@ -249,7 +250,7 @@ public class PoolTools {
     }
 
 
-    /*Return la liste des messages d'une pool*/
+    /*Return la liste de tout les messages d'une pool*/
     public static JSONArray getListMessagePool(int idPool){
         MongoCollection<Document> collection = getMongoCollection("L_Message");
         Document d =

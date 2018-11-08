@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 
 import static services.ServiceTools.serviceKO;
 
@@ -31,7 +32,7 @@ public class MessagePoolServlet extends HttpServlet {
                 String idPool = ValidatorHelper.getParam(j, "idPool", true);
                 String token = ValidatorHelper.getParam(j, "token", true);
                 String msg = ValidatorHelper.getParam(j, "msg", true);
-
+                msg = URLDecoder.decode(msg,"utf-8");
 
                 out.print(
                         BetPoolService.messagePool(login, idPool, token, msg)
