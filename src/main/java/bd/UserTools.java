@@ -78,6 +78,7 @@ public class UserTools {
             json.put("first_name", data.getString("first_name"));
             json.put("birthday", data.getString("birthday"));
             json.put("country", data.getString("country"));
+            json.put("solde", data.getInt("solde"));
 
             MongoCollection<Document> collection = getMongoCollection("SubscribePool");
             Document d =
