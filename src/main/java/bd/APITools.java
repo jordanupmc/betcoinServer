@@ -27,7 +27,7 @@ public class APITools {
         }else{
             diffTot = diffInMinute;
         }
-        String retour = "https://min-api.cryptocompare.com/data/" +
+        return "https://min-api.cryptocompare.com/data/" +
                 (isHours==1 ? "histohour" : "histominute") +
                 "?fsym=" +
                 cryptName +
@@ -37,7 +37,6 @@ public class APITools {
                 diffTot +
                 "&toTs=" +
                 tmsp_fin;
-        return retour;
     }
 
     /*recupere les données de la cryptomonaie. isHours =1 signifie la valeur toute les heure, minute sinon*/
