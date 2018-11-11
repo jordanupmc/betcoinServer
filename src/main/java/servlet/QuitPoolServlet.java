@@ -33,10 +33,10 @@ public class QuitPoolServlet extends HttpServlet {
 
                 out.print(BetPoolService.quitPool(login, idPool, token));
             } catch (Exception e) {
-                out.print(serviceKO("QuitPool Failed : " + e.toString()));
+                out.print(serviceKO("QuitPool Failed"));
             }
         }else{
-            out.print(serviceKO("QuitPool Failed : Aucun parametre recu"));
+            out.print(serviceKO("QuitPool Failed"));
         }
 
         out.close();

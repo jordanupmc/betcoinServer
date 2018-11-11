@@ -34,10 +34,10 @@ public class CancelBetServlet extends HttpServlet {
                         BetService.cancelBet(login, idPool, token)
                 );
             }catch(Exception e){
-                out.print("CancelBet Fail:" +serviceKO(e.getMessage()));
+                out.print(serviceKO("CancelBet Fail"));
             }
         } else {
-            out.print(serviceKO("CancelBet Fail : Aucun parametre recu"));
+            out.print(serviceKO("CancelBet Fail"));
         }
         out.close();
     }

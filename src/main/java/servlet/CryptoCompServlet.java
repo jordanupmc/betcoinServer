@@ -37,7 +37,7 @@ public class CryptoCompServlet extends HttpServlet {
             JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,1);
             out.print(result);
         }catch(Exception e){
-            out.print(serviceKO("CryptoComp Fail : "+e.getMessage()));
+            out.print(serviceKO("CryptoComp Fail"));
         }
         out.close();
 

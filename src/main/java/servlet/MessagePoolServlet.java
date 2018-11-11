@@ -38,10 +38,10 @@ public class MessagePoolServlet extends HttpServlet {
                         BetPoolService.messagePool(login, idPool, token, msg)
                 );
             } catch (Exception e) {
-                out.print(serviceKO("MessagePool Fail : " + e.getMessage()));
+                out.print(serviceKO("MessagePool Fail"));
             }
         }else{
-            out.print(serviceKO("MessagePool Fail : Aucun parametre recu"));
+            out.print(serviceKO("MessagePool Fail"));
 
         }
 

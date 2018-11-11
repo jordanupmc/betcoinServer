@@ -23,10 +23,10 @@ public class UserService {
             else{
                j= serviceKO("Subscribe fail");
                if(!cmdp.equals(mdp))
-                    j= ServiceTools.serviceKO("Subscribe fail : two different password");
+                    j= serviceKO("The two passwords are different");
             }
         } catch (SQLException e) {
-            j= serviceKO("Subscribe Fail:"+e.getMessage());
+            j= serviceKO("Subscribe Fail");
         }
         return j;
     }
@@ -37,10 +37,10 @@ public class UserService {
 
         try {
             if(! SessionTools.checkToken(token, login))
-                return serviceKO("Subscribe Fail: Invalid Token");
+                return serviceKO("Please, log again", true);
 
             if(!UserTools.checkPasswd(login, password))
-                return serviceKO("Subscribe Fail: Wrong Password");
+                return serviceKO("Wrong Password");
 
             if(UserTools.unsubscribe(login)){
                 j = serviceOK();
@@ -67,9 +67,9 @@ public class UserService {
                 return j;
             }
             else
-                return serviceKO("Get Account Information : Erreur lors de la récupération des infos");
+                return serviceKO("We couldn't retrive the information about your account");
         }
-        return serviceKO("Get Account Information : Permission denied for "+login + " account");
+        return serviceKO("Permission denied for "+login + " account");
 
     }
 }

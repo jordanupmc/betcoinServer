@@ -38,7 +38,7 @@ public class GetBetServlet extends HttpServlet {
                     BetService.getBet(login,token,idPool)
             );
         }catch(Exception e){
-            out.print(serviceKO("GetBet Fail: "+e.toString()));
+            out.print(serviceKO("GetBet Fail"));
         }finally{
             out.close();
         }

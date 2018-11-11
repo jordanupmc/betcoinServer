@@ -37,7 +37,7 @@ public class VisualiseAccountServlet extends HttpServlet {
             out.print(AccountService.visualiseAcc(login, token));
 
         }catch(Exception e){
-            out.print("VisualiseAccount Fail :"+serviceKO(e.getMessage()));
+            out.print(serviceKO("VisualiseAccount Fail"));
         }
         out.close();
 

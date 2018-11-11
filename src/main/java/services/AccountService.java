@@ -20,20 +20,20 @@ public class AccountService {
         JSONObject json;
 
         boolean connected = userConnected(login);
-        if(!connected) return serviceKO("VisualiseAccount Fail : User not connected");
+        if(!connected) return serviceKO("You are not connected", true);
 
         if(!SessionTools.checkToken(token, login)){
-            return serviceKO("VisualiseAccount Fail : Wrong token");
+            return serviceKO("Please, login once again", true);
         }
         try {
             json = UserTools.visualiseAccount(login);
         } catch (URISyntaxException e) {
-            json = serviceKO(e.getMessage());
+            json = serviceKO("VisualiseAccount Failed", false);
         } catch (SQLException e) {
-            json = serviceKO(e.getMessage());
+            json = serviceKO("VisualiseAccount Failed", false);
         }
         if(json==null){
-            json = serviceKO("VisualiseAccount Failed : couldn't retrieve the informations");
+            json = serviceKO("We couldn't retrieve informations about your account", false);
         }
         return json;
     }
@@ -43,30 +43,24 @@ public class AccountService {
                                                 ArrayList<String> new_value, String token){
         JSONObject json;
 
-        if(!userConnected(login)) return serviceKO("ChangeFieldAccount Fail : User not connected");
+        if(!userConnected(login)) return serviceKO("You are not connected", true);
 
         if(!SessionTools.checkToken(token, login)){
-            return serviceKO("ChangeFieldAccount Fail : Invalid token");
+            return serviceKO("Please, login once again", true);
         }
         try {
             if (!checkPasswd(login, pwd)) {
-                return serviceKO("AccountModification Failed : Wrong password");
+                return serviceKO("Wrong password", false);
             }
-        }catch(SQLException e){
-            return serviceKO("AccountModification Failed : SQLException ");
-        }catch (URISyntaxException e){
-            return serviceKO("AccountModification Failed : URISyntaxException ");
-        }
-        try {
             if(UserTools.accountModification(login,field_name,new_value)){
                 json = serviceOK();
             }else{
-                json = serviceKO("AccountModification Failed : couldn't change your account's information");
+                json = serviceKO("We couldn't retrieve informations about your account", false);
             }
-        } catch (URISyntaxException e) {
-            json = serviceKO(e.getMessage());
-        } catch (SQLException e) {
-            json = serviceKO(e.getMessage());
+        }catch(SQLException e){
+            return serviceKO("AccountModification Failed", false);
+        }catch (URISyntaxException e){
+            return serviceKO("AccountModification Failed", false);
         }
 
         return json;

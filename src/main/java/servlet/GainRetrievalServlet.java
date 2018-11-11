@@ -37,10 +37,10 @@ public class GainRetrievalServlet extends HttpServlet {
                 out.print(BetService.retrieveGain(login, token, idPool));
 
             } catch (Exception e) {
-                out.print(serviceKO("GainRetrieval Fail:" + e.getMessage()));
+                out.print(serviceKO("GainRetrieval Fail"));
             }
         }else{
-            out.print(serviceKO("GainRetrieval Fail: Aucun Parametre recu"));
+            out.print(serviceKO("GainRetrieval Fail"));
 
         }
         out.close();

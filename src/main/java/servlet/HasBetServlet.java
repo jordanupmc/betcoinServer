@@ -38,7 +38,7 @@ public class HasBetServlet extends HttpServlet {
                     BetService.hasBet(login, idPool, token)
             );
         }catch(Exception e){
-            out.print(serviceKO("HasBet fail:"+e.getMessage()));
+            out.print(serviceKO("HasBet fail"));
         }
 
         out.close();

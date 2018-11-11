@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import static bd.BetTools.checkBetExist;
 import static bd.PoolTools.isSubscribed;
 import static bd.PoolTools.poolExist;
-import static bd.PoolTools.poolInfo;
 import static bd.SessionTools.checkToken;
 import static bd.SessionTools.userConnected;
 import static services.ServiceTools.serviceKO;
@@ -36,21 +35,21 @@ public class BetPoolService {
     public static JSONObject quitPool(String login, String idPool, String token) {
         JSONObject obj;
 
-        if (!userConnected(login)) return serviceKO("QuitPool Failed : User not connected");
+        if (!userConnected(login)) return serviceKO("You are not connected", true);
 
         if (!SessionTools.checkToken(token, login)) {
-            return serviceKO("QuitPool Fail : Wrong token");
+            return serviceKO("Please, login once again", true);
         }
         try {
             if (!poolExist(idPool)) {
-                return serviceKO("QuitPool Failed : Pool doesn't exists");
+                return serviceKO("This pool doesn't exists", false);
             }
 
             if(!isSubscribed(login,idPool)){
-                return serviceKO("QuitPool Failed : You are not subscribed to this pool");
+                return serviceKO("You are not subscribed to this pool, so you can't unsubscribe to it", false);
             }
 
-            if (checkBetExist(login, idPool)) return serviceKO("QuitPool Fail : Please cancel your bet before leaving the pool");
+            if (checkBetExist(login, idPool)) return serviceKO("Please cancel your bet before leaving the pool", false);
 
 
 
@@ -59,14 +58,14 @@ public class BetPoolService {
                 obj.put("login", login);
                 obj.put("quittedPool", idPool);
             } else {
-                obj = ServiceTools.serviceKO("QuitPool Failed : Couldn't quit pool " + idPool);
+                obj = ServiceTools.serviceKO("Couldn't quit pool " + idPool, false);
             }
         } catch (URISyntaxException e) {
             e.printStackTrace();
-            return ServiceTools.serviceKO("QuitPool Failed : URISyntaxException");
+            return ServiceTools.serviceKO("QuitPool Failed", false);
 
         } catch (SQLException e) {
-            return ServiceTools.serviceKO("QuitPool Failed: SQLException");
+            return ServiceTools.serviceKO("QuitPool Failed:", false);
         }
         return obj;
     }
@@ -75,21 +74,21 @@ public class BetPoolService {
     public static JSONObject enterPool(String login, String idPool, String token) {
 
         boolean connected = userConnected(login);
-        if (!connected) return serviceKO("EnterPool Fail : User not connected");
+        if (!connected) return serviceKO("You are not connected", true);
 
         if (!SessionTools.checkToken(token, login)) {
-            return serviceKO("EnterPool Fail : Wrong token");
+            return serviceKO("Please, log once again", true);
         }
 
         try {
             if (!poolExist(idPool)) {
-                return serviceKO("EnterPool Fail : This pool does not exist");
+                return serviceKO("This pool does not exist", false);
             }
         } catch (URISyntaxException e) {
-            return serviceKO("EnterPool Fail : URISyntaxException");
+            return serviceKO("EnterPool Fail", false);
         } catch (SQLException e) {
             e.printStackTrace();
-            return serviceKO("EnterPool Fail : SQLException");
+            return serviceKO("EnterPool Fail", false);
         }
 
         PoolTools.enterPool(login, idPool);
@@ -99,26 +98,27 @@ public class BetPoolService {
     /* service permettant de laisser un message sur un salon de pari */
     public static JSONObject messagePool(String login, String idPool, String token, String message) {
 
-        if (message.isEmpty()) {
-            return serviceKO("MessagePool Fail : Can't post a empty message");
-        }
+
 
         boolean connected = userConnected(login);
-        if (!connected) return serviceKO("MessagePool Fail : User not connected");
+        if (!connected) return serviceKO("You are not connected", true);
 
         if (!SessionTools.checkToken(token, login)) {
-            return serviceKO("MessagePool Fail : Wrong token");
+            return serviceKO("Please, log once again", true);}
+
+        if (message.isEmpty()) {
+            return serviceKO("It's not possible to post an empty message", false);
         }
 
         try {
             if (!poolExist(idPool)) {
-                return serviceKO("MessagePool Fail : This pool does not exist");
+                return serviceKO("This pool does not exist", false);
             }
         } catch (URISyntaxException e) {
-            return serviceKO("MessagePool Fail : URISyntaxException");
+            return serviceKO("MessagePool Fail", false);
         } catch (SQLException e) {
             e.printStackTrace();
-            return serviceKO("MessagePool Fail : SQLException");
+            return serviceKO("MessagePool Fail", false);
 
         }
 
@@ -131,14 +131,14 @@ public class BetPoolService {
         JSONObject json;
         try {
             if (!poolExist(idPool)) {
-                return serviceKO("Visualise Pool Failed : Pool doesn't exists");
+                return serviceKO("This pool doesn't exists", false);
             }
 
             json = PoolTools.poolInfo(idPool);
         }catch(URISyntaxException e){
-            json = serviceKO("Visualise Pool Failed : URISyntaxException");
+            json = serviceKO("Visualise Pool Failed", false);
         }catch(SQLException e){
-            json = serviceKO("Visualise Pool Failed : SQLException");
+            json = serviceKO("Visualise Pool Failed", false);
         }
         return json;
     }
@@ -147,17 +147,20 @@ public class BetPoolService {
     public static JSONObject getListMessagePool(String login, String token, int idPool){
         JSONObject json;
         JSONArray arr;
-        if(checkToken(token, login)){
-            if((arr = PoolTools.getListMessagePool(idPool)) !=null){
-                json = serviceOK();
-                json.put("messages", arr);
-                return json;
-            }
-            else
-                return serviceKO("getListMessagePool : La pool n'existe pas");
+
+        if (!SessionTools.checkToken(token, login)) {
+            return serviceKO("Please, log once again", true);
         }
-        else
-            return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
+
+
+        if((arr = PoolTools.getListMessagePool(idPool)) !=null){
+            json = serviceOK();
+            json.put("messages", arr);
+            return json;
+        }else
+            return serviceKO("This pool doesn't exists", false);
+
+
     }
 
     public static JSONObject getListMessagePool(String login, String token, int idPool, String fromId){
@@ -170,23 +173,23 @@ public class BetPoolService {
                 return json;
             }
             else
-                return serviceKO("getListMessagePool : La pool n'existe pas");
+                return serviceKO("This pool doesn't exists", false);
         }
         else
-            return serviceKO("getListMessagePool : "+login+" n'est pas connecté !" );
+            return serviceKO("Please, log once again", true);
     }
 
     public static JSONObject deleteMessage(String login, String idPool, String token, String msgId) {
-        if(!checkToken(token, login)) return serviceKO("deleteMessage  Failed : Pool doesn't exists");
+        if(!checkToken(token, login)) return serviceKO("Please, log once again", true);
         try {
-            if (!poolExist(idPool)) return serviceKO("deleteMessage  Failed : Pool doesn't exists");
+            if (!poolExist(idPool)) return serviceKO("This pool doesn't exists", false);
 
             if(PoolTools.deleteMessage(idPool, msgId)) {
                 return serviceOK();
             }
-            return serviceKO("Echec de la suppression du message");
+            return serviceKO("Delete message failed", false);
         }catch (Exception sq){
-            return serviceKO("deleteMessage  Failed : Erreur interne");
+            return serviceKO("DeleteMessage  Failed", false);
         }
 
 

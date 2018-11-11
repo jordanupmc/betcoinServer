@@ -37,7 +37,7 @@ public class CryptoCompMinServlet extends HttpServlet {
             JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,0);
             out.print(result);
         }catch(Exception e){
-            out.print(serviceKO("CryptoCompMin Fail :" +e.getMessage()));
+            out.print(serviceKO("CryptoCompMin Fail"));
         }
         out.close();
 

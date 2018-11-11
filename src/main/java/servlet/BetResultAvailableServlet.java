@@ -38,7 +38,7 @@ public class BetResultAvailableServlet extends HttpServlet {
                     BetService.betResultAvailable(login, idPool, token)
             );
         }catch(Exception e){
-            out.print(serviceKO("BetResultAvailable fail:"+e.getMessage()));
+            out.print(serviceKO("BetResultAvailable fail"));
         }
 
         out.close();

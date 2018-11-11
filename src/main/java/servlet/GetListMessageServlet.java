@@ -51,7 +51,7 @@ public class GetListMessageServlet extends HttpServlet {
             }
         }catch(Exception e){
             out.print(
-                    ServiceTools.serviceKO(e.getMessage())
+                    ServiceTools.serviceKO("GetListMessage Fail")
             );
         }
 

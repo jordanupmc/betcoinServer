@@ -15,12 +15,12 @@ public class APIService {
             Document doc = new Document(Document.parse(tmp));
             String resp = doc.get("Response").toString();
             if(resp.equals("Error")){
-                return serviceKO(doc.get("Message").toString());
+                return serviceKO(doc.get("Message").toString(), false);
             }
             json.append("results",doc);
             return json;
         }catch(Exception e){
-            return serviceKO("Getting Crypto Currency Failed : IOException");
+            return serviceKO("Getting Crypto Currency Failed", false);
         }
     }
 

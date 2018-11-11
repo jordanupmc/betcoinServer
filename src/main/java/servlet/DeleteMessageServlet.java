@@ -35,10 +35,10 @@ public class DeleteMessageServlet extends HttpServlet {
                         BetPoolService.deleteMessage(login, idPool, token, msgId)
                 );
             } catch (Exception e) {
-                out.print(serviceKO("DeleteMessageServlet Fail :" + e.getMessage()));
+                out.print(serviceKO("DeleteMessageServlet Fail"));
             }
         }else{
-            out.print(serviceKO("DeleteMessageServlet Fail : Aucun parametre recu"));
+            out.print(serviceKO("DeleteMessageServlet Fail"));
         }
 
         out.close();

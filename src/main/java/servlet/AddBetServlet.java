@@ -34,10 +34,10 @@ public class AddBetServlet extends HttpServlet {
                 String token = ValidatorHelper.getParam(j, "token", true);
                 out.print(BetService.addBet(token, login, idPool, ammount, value));
             } catch (Exception e) {
-                out.print(serviceKO("AddBet Fail: " + e.toString()));
+                out.print(serviceKO("AddBet Fail"));
             }
         }else{
-            out.print(serviceKO("AddBet Fail: Aucun parametre recu"));
+            out.print(serviceKO("AddBet Fail"));
         }
         out.close();
     }

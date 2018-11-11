@@ -37,7 +37,7 @@ public class VisualisePoolInfoServlet extends HttpServlet {
             out.print(BetPoolService.visualisePool(idPool));
 
         }catch(Exception e){
-            out.print(serviceKO("VisualisePoolIngo Fail :"+e.getMessage()));
+            out.print(serviceKO("VisualisePoolIngo Fail"));
         }
         out.close();
 

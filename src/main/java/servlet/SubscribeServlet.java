@@ -45,14 +45,14 @@ public class SubscribeServlet extends HttpServlet {
                     );
                 }
                 else {
-                    out.print(serviceKO("Subscribe fail : Parametre format incorrect"));
+                    out.print(serviceKO("Subscribe fail"));
                 }
             }catch (ValidationException ve){
-                out.print(serviceKO("Subscribe fail :"+ve.getMessage()));
+                out.print(serviceKO("Subscribe fail"));
             }
         }
         else{
-            out.print(serviceKO("Subscribe fail : Aucun parametre recu"));
+            out.print(serviceKO("Subscribe fail"));
         }
         out.close();
 

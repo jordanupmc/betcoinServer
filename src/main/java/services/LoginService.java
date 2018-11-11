@@ -23,13 +23,13 @@ public class LoginService {
             passwd_OK = checkPasswd(login, mdp);
             accountClosed= accountClosed(login);
         } catch (URISyntaxException e) {
-            return serviceKO("Connect Fail : URISyntaxException");
+            return serviceKO("Connect Fail");
         } catch (SQLException e) {
-            return serviceKO("Connect Fail : SQLException");
+            return serviceKO("Connect Fail");
         }
 
-        if(accountClosed) return serviceKO("Connect Fail : Account closed");
-        if(!passwd_OK) return serviceKO("Connect Fail : Invalid login and/or wrong password");
+        if(accountClosed) return serviceKO("Account closed");
+        if(!passwd_OK) return serviceKO("Invalid login and/or wrong password");
 
         // Si l'on se connecte alors que l'on est deja connecté, la nouvelle connexion est prioritaire
        /* boolean connected = userConnected(login);
@@ -40,10 +40,10 @@ public class LoginService {
             token = SessionTools.connect(login, mdp);
         } catch (URISyntaxException e) {
             e.printStackTrace();
-            return serviceKO("Connect Fail : URISyntaxException");
+            return serviceKO("Connect Fail");
         } catch (SQLException e) {
             e.printStackTrace();
-            return serviceKO("Connect Fail : SQLException");
+            return serviceKO("Connect Fail");
         }
 
         JSONObject j = serviceOK();
@@ -55,14 +55,14 @@ public class LoginService {
     public static JSONObject disconnect(String login, String token){
         JSONObject json;
 
-        if(!userConnected(login)) return serviceKO("Disconnection Fail : User not connected");
+        if(!userConnected(login)) return serviceKO("You are not connected", true);
 
         if(SessionTools.checkToken(token, login)){
             SessionTools.disconnect(login,token);
             json = serviceOK();
             json.put("disconnectedLogin",login);
         }else{
-            json = serviceKO("Disconnection Fail : Wrong token");
+            json = serviceKO("Please, log again", true);
         }
         return json;
     }

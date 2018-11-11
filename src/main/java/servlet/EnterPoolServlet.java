@@ -34,10 +34,10 @@ public class EnterPoolServlet extends HttpServlet {
                         BetPoolService.enterPool(login, idPool, token)
                 );
             } catch (Exception e) {
-                out.print(serviceKO("EnterPool Fail :" + e.getMessage()));
+                out.print(serviceKO("EnterPool Fail"));
             }
         }else{
-            out.print(serviceKO("EnterPool Fail : Aucun parametre recu"));
+            out.print(serviceKO("EnterPool Fail"));
         }
 
         out.close();

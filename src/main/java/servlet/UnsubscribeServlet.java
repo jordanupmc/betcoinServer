@@ -35,10 +35,10 @@ public class UnsubscribeServlet extends HttpServlet {
                 out.println(UserService.unsubscribe(login, token, password));
 
             } catch (ValidationException ve) {
-                out.println(ServiceTools.serviceKO("Unsubscribe fail :" + ve.getMessage()));
+                out.println(ServiceTools.serviceKO("Unsubscribe fail"));
             }
         }else{
-            out.println(ServiceTools.serviceKO("Unsubscribe fail : Aucun Parametre recu" ));
+            out.println(ServiceTools.serviceKO("Unsubscribe fail" ));
         }
         out.close();
     }

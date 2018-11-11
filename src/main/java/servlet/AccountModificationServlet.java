@@ -48,10 +48,10 @@ public class AccountModificationServlet extends HttpServlet {
                 for (Object o : arrayfield) {
                     String tmp = o.toString();
                     if (tmp.contains("iduser")) {
-                        out.print(serviceKO("Account Modification Failed : no change in idUser allowed"));
+                        out.print(serviceKO("You can't change your idUser"));
                         return;
                     } else if (tmp.contains("login")) {
-                        out.print(serviceKO("Account Modification Failed : no change in login allowed"));
+                        out.print(serviceKO("You can't change your login"));
                         return;
                     }
                     if (!arrayValue.get(arrayfield.indexOf(o)).toString().equals("")) {
@@ -68,10 +68,10 @@ public class AccountModificationServlet extends HttpServlet {
                 out.print(AccountService.changeFieldAccount(login, pwd, fieldTab, valueTab, token));
 
             } catch (Exception e) {
-                out.print(serviceKO("Account Modification Fail :"+e.getMessage()));
+                out.print(serviceKO("Account Modification Fail :"));
             }
         }else {
-            out.print(serviceKO("Account Modification Fail : Aucun Parametre recu"));
+            out.print(serviceKO("Account Modification Fail"));
         }
 
         out.close();
@@ -80,10 +80,6 @@ public class AccountModificationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
-
-
-
 
     }
 }
