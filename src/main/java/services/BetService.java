@@ -144,7 +144,7 @@ public class BetService {
                 json.append("result", "You lost your bet, try again next time");
                 return json;
             }else{
-                return serviceKO("Gain Retrieval Failed");
+                return serviceKO("Gain Retrieval Failed : Contact Us");
             }
         } catch (URISyntaxException e) {
             return serviceKO("Gain Retrieval Failed");
