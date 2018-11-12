@@ -61,8 +61,7 @@ public class APITools {
 
     public static double getPriceSpecificTime(String cryptName, String devise, String time) throws IOException {
         String source ="";
-        String url = createURL(cryptName,devise,time,time,1);
-        System.out.println(url);
+        String url = createURL(cryptName,devise,time,(Integer.parseInt(time)+3600) + "",1);
         URL oracle = new URL(url);
         URLConnection yc = oracle.openConnection();
         BufferedReader in = new BufferedReader(
