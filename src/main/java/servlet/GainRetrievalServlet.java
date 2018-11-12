@@ -27,16 +27,21 @@ public class GainRetrievalServlet extends HttpServlet {
         resp.setContentType("text / plain");
         PrintWriter out = resp.getWriter();
         JSONObject j = ValidatorHelper.getJSONParameter(req,resp);
+        System.out.println(j.toString());
 
         if(j != null) {
             try {
                 String login = ValidatorHelper.getParam(j, "login", true);
+                System.out.println(login);
                 String token = ValidatorHelper.getParam(j, "token", true);
+                System.out.println(token);
+
                 String idPool = ValidatorHelper.getParam(j, "idPool", true);
+                System.out.println(idPool);
 
                 out.print(BetService.retrieveGain(login, token, idPool));
 
-            } catch (Exception e) {
+            } catch (ValidationException e) {
                 out.print(serviceKO("GainRetrieval Fail : " + e.getMessage()));
             }
         }else{
