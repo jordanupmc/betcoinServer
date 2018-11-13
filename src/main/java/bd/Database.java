@@ -27,9 +27,9 @@ jdbc:postgresql://ec2-54-225-68-133.compute-1.amazonaws.com/ds85knecevckl?sslmod
 
     /* renvois une connection à la base de données postgreSQL */
     public static Connection getConnection() throws URISyntaxException, SQLException {
-        //URI dbUri = new URI(System.getenv("DATABASE_URL"));
-        URI dbUri = new URI("postgres://ntzmikexhujzmd:a4ef7dd8a60e2e952477f2706492458bcdabfe44ede05ed8714a59fabc19a72e@ec2-54-225-68-133.compute-1.amazonaws.com:5432/ds85knecevckl"
-        );
+        URI dbUri = new URI(System.getenv("DATABASE_URL"));
+        /*URI dbUri = new URI("postgres://ntzmikexhujzmd:a4ef7dd8a60e2e952477f2706492458bcdabfe44ede05ed8714a59fabc19a72e@ec2-54-225-68-133.compute-1.amazonaws.com:5432/ds85knecevckl"
+        );*/
         String username = dbUri.getUserInfo().split(":")[0];
         String password = dbUri.getUserInfo().split(":")[1];
 
