@@ -64,12 +64,7 @@ public class ValidatorHelper {
         return false;
     }
 
-    public static boolean isMinor(String s) throws ValidationException{
-        Date birthday = java.sql.Date.valueOf(s);
-        Date today = new Date();
-        long diffStamp = today.getTime() - birthday.getTime();
-        if(diff/)
-    }
+
     /*Return si s est correspond au format d'une date SQL*/
     public static boolean isDateSQL(String s) throws ValidationException{
         format.setLenient(false);
