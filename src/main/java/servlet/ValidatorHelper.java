@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,6 +64,12 @@ public class ValidatorHelper {
         return false;
     }
 
+    public static boolean isMinor(String s) throws ValidationException{
+        Date birthday = java.sql.Date.valueOf(s);
+        Date today = new Date();
+        long diffStamp = today.getTime() - birthday.getTime();
+        if(diff/)
+    }
     /*Return si s est correspond au format d'une date SQL*/
     public static boolean isDateSQL(String s) throws ValidationException{
         format.setLenient(false);

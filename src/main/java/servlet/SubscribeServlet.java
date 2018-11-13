@@ -48,7 +48,7 @@ public class SubscribeServlet extends HttpServlet {
                     out.print(serviceKO("Subscribe fail"));
                 }
             }catch (ValidationException ve){
-                out.print(serviceKO("Subscribe fail"));
+                out.print(serviceKO(ve.getMessage()));
             }
         }
         else{

@@ -17,16 +17,17 @@ public class UserService {
     public static JSONObject subscribe(String login, String mdp, String cmdp ,String email, String nom, String prenom,  Date birthDate, String country){
         JSONObject j;
         try {
-            if(cmdp.equals(mdp) && UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
+            if(!cmdp.equals(mdp)){
+                return serviceKO("The two passwords are different");
+            }
+            if(UserTools.subscribe(login, mdp, email, nom, prenom, birthDate, country)){
                 j = serviceOK();
             }
             else{
                j= serviceKO("Subscribe fail");
-               if(!cmdp.equals(mdp))
-                    j= serviceKO("The two passwords are different");
             }
         } catch (SQLException e) {
-            j= serviceKO("Subscribe Fail");
+            j= serviceKO(e.getMessage());
         }
         return j;
     }
