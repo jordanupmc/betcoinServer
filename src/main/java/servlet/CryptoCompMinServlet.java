@@ -6,6 +6,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.json.JSONObject;
@@ -20,7 +21,7 @@ public class CryptoCompMinServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
+//        doGet(req, resp);
     }
 
     @Override
@@ -36,8 +37,8 @@ public class CryptoCompMinServlet extends HttpServlet {
             String debut = ValidatorHelper.getParam(req, "debut", true);
             JSONObject result = APIService.getCryptoCurrency(cryptname,devise,fin,debut,0);
             out.print(result);
-        }catch(Exception e){
-            out.print(serviceKO("CryptoCompMin Fail"));
+        }catch(ValidationException e){
+            out.print(serviceKO(e.getMessage()));
         }
         out.close();
 

@@ -33,12 +33,12 @@ public class ConnectServlet extends HttpServlet {
                 out.print(
                         LoginService.connect(login, mdp)
                 );
-            }catch(Exception e){
-                out.print(serviceKO("Connect Fail"));
+            }catch(ValidationException e){
+                out.print(serviceKO(e.getMessage()));
             }
         }
         else {
-            out.print(serviceKO("ConnectFail"));
+            out.print(serviceKO("Aucun arguments"));
         }
         out.close();
     }

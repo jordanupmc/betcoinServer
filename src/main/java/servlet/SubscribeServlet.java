@@ -45,14 +45,14 @@ public class SubscribeServlet extends HttpServlet {
                     );
                 }
                 else {
-                    out.print(serviceKO("Subscribe fail"));
+                    out.print(serviceKO("Format Arguments incorrect"));
                 }
             }catch (ValidationException ve){
                 out.print(serviceKO(ve.getMessage()));
             }
         }
         else{
-            out.print(serviceKO("Subscribe fail"));
+            out.print(serviceKO("Aucun arguments"));
         }
         out.close();
 

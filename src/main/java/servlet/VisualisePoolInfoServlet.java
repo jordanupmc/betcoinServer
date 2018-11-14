@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -36,8 +37,8 @@ public class VisualisePoolInfoServlet extends HttpServlet {
 
             out.print(BetPoolService.visualisePool(idPool));
 
-        }catch(Exception e){
-            out.print(serviceKO("VisualisePoolIngo Fail"));
+        }catch(ValidationException e){
+            out.print(serviceKO(e.getMessage()));
         }
         out.close();
 

@@ -32,7 +32,7 @@ import static services.ServiceTools.serviceOK;
 public class BetService {
 
     /* service pour l'ajout d'un pari par un utilisateur */
-    public static JSONObject addBet(String token, String login, String idPool, String ammount, String value) throws URISyntaxException, SQLException {
+    public static JSONObject addBet(String token, String login, String idPool, String ammount, String value){
 
 
         boolean connected = userConnected(login);
@@ -42,32 +42,26 @@ public class BetService {
         if (!SessionTools.checkToken(token, login)) {
             return serviceKO("Please, log again", true);
         }
-
-        if (!poolExist(idPool)) {
-            return serviceKO("Pool doesn't exists", false);
-        }
-
         try {
+            if (!poolExist(idPool)) {
+                return serviceKO("Pool doesn't exists", false);
+            }
             if (!betPoolOpen(idPool)) {
                 return serviceKO("Too late to add a new bet", false);
             }
+            if (checkBetExist(login, idPool)) return serviceKO("Only one bet allowed by Pool and User");
+
+            if (!isSubscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
+            if(!hasEnoughCoin(login,ammount)){
+                return serviceKO("You don't have enough coin to place this bet");
+            }
+            if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value))) {
+                return serviceOK();
+            }
         } catch (SQLException e) {
             return serviceKO("AddBet Fail", false);
-
         } catch (URISyntaxException e) {
             return serviceKO("AddBet Fail", false);
-
-        }
-
-
-        if (checkBetExist(login, idPool)) return serviceKO("Only one bet allowed by Pool and User");
-
-        if (!isSubscribed(login, idPool)) return serviceKO("AddBet Fail : User not subscribed to the pool");
-        if(!hasEnoughCoin(login,ammount)){
-            return serviceKO("You don't have enough coin to place this bet");
-        }
-        if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value))) {
-            return serviceOK();
         }
         return serviceKO("BetPool not found");
     }

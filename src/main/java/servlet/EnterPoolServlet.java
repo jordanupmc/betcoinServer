@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -33,11 +34,11 @@ public class EnterPoolServlet extends HttpServlet {
                 out.print(
                         BetPoolService.enterPool(login, idPool, token)
                 );
-            } catch (Exception e) {
-                out.print(serviceKO("EnterPool Fail"));
+            } catch (ValidationException e) {
+                out.print(serviceKO(e.getMessage()));
             }
         }else{
-            out.print(serviceKO("EnterPool Fail"));
+            out.print(serviceKO("Aucun arguments"));
         }
 
         out.close();

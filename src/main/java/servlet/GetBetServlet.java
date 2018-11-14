@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -37,8 +38,8 @@ public class GetBetServlet extends HttpServlet {
             out.print(
                     BetService.getBet(login,token,idPool)
             );
-        }catch(Exception e){
-            out.print(serviceKO("GetBet Fail"));
+        }catch(ValidationException e){
+            out.print(serviceKO(e.getMessage()));
         }finally{
             out.close();
         }

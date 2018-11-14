@@ -8,8 +8,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
 
 import static services.ServiceTools.serviceKO;
 
@@ -33,11 +36,11 @@ public class AddBetServlet extends HttpServlet {
                 String value = ValidatorHelper.getParam(j, "betValue", true);
                 String token = ValidatorHelper.getParam(j, "token", true);
                 out.print(BetService.addBet(token, login, idPool, ammount, value));
-            } catch (Exception e) {
-                out.print(serviceKO("AddBet Fail"));
+            } catch (ValidationException e) {
+                out.print(serviceKO(e.getMessage()));
             }
         }else{
-            out.print(serviceKO("AddBet Fail"));
+            out.print(serviceKO("Aucun arguments"));
         }
         out.close();
     }

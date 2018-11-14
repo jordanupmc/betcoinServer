@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
@@ -37,11 +38,11 @@ public class MessagePoolServlet extends HttpServlet {
                 out.print(
                         BetPoolService.messagePool(login, idPool, token, msg)
                 );
-            } catch (Exception e) {
-                out.print(serviceKO("MessagePool Fail"));
+            } catch (ValidationException e) {
+                out.print(serviceKO(e.getMessage()));
             }
         }else{
-            out.print(serviceKO("MessagePool Fail"));
+            out.print(serviceKO("Aucun arguments"));
 
         }
 

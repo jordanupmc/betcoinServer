@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.*;
+import javax.xml.bind.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -67,11 +68,11 @@ public class AccountModificationServlet extends HttpServlet {
 
                 out.print(AccountService.changeFieldAccount(login, pwd, fieldTab, valueTab, token));
 
-            } catch (Exception e) {
-                out.print(serviceKO("Account Modification Fail :"));
+            } catch (ValidationException e) {
+                out.print(serviceKO(e.getMessage()));
             }
         }else {
-            out.print(serviceKO("Account Modification Fail"));
+            out.print(serviceKO("Aucun aruguments"));
         }
 
         out.close();
