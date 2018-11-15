@@ -36,14 +36,18 @@ public class ValidatorHelper {
 
     public static String getParam(JSONObject jo, String paramName, boolean required) throws ValidationException {
         if (jo == null) throw new ValidationException("JSON param is empty");
-
-        String field = jo.getString(paramName);
-        if (field == null || field.trim().isEmpty()) {
-            if (required)
-                throw new ValidationException(paramName + " is required");
-            return null;
+        if(jo.has(paramName)) {
+            String field = jo.getString(paramName);
+            if (field == null || field.trim().isEmpty()) {
+                if (required)
+                    throw new ValidationException(paramName + " is required");
+                return null;
+            }
+            return field;
         }
-        return field;
+        if (required)
+            throw new ValidationException(paramName + " is required");
+        return null;
     }
 
     /*Return si la chaine est un email*/
