@@ -35,7 +35,10 @@ public class AddBetServlet extends HttpServlet {
                 String ammount = ValidatorHelper.getParam(j, "betAmmount", true);
                 String value = ValidatorHelper.getParam(j, "betValue", true);
                 String token = ValidatorHelper.getParam(j, "token", true);
-                out.print(BetService.addBet(token, login, idPool, ammount, value));
+                if(ValidatorHelper.isInteger(ammount) && ValidatorHelper.isDouble(value))
+                    out.print(BetService.addBet(token, login, idPool, ammount, value));
+                else
+                    out.print(serviceKO("Ammount is not a valid Integer"));
             } catch (ValidationException e) {
                 out.print(serviceKO(e.getMessage()));
             }

@@ -144,6 +144,15 @@ public class ValidatorHelper {
         return true;
     }
 
+    public static boolean isDouble(String num) throws ValidationException{
+        try{
+            Double.parseDouble(num);
+        }catch(NumberFormatException nf){
+            throw new ValidationException(num + "is not a valid Double value");
+        }
+        return true;
+    }
+
     public static boolean isLengthInfTo(String s, int limit) throws ValidationException {
         if(s.length()<limit)return true;
         throw  new ValidationException(s.substring(0,11) + "... dépasse la limite de charactere (" + limit + ")");

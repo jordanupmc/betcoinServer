@@ -58,9 +58,7 @@ public class BetService {
             if (BetTools.addBet(idPool, login, Integer.parseInt(ammount), Double.parseDouble(value))) {
                 return serviceOK();
             }
-        } catch (SQLException e) {
-            return serviceKO("AddBet Fail", false);
-        } catch (URISyntaxException e) {
+        } catch (SQLException | URISyntaxException e) {
             return serviceKO("AddBet Fail", false);
         }
         return serviceKO("BetPool not found");
