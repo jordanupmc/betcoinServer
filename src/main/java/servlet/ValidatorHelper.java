@@ -19,14 +19,15 @@ public class ValidatorHelper {
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     public static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-    private ValidatorHelper(){}
+    private ValidatorHelper() {
+    }
 
     /*Return null si le champs est null ou vide ET qu'il n'est pas requis sinon return le field*/
     public static String getParam(HttpServletRequest req, String paramName, boolean required) throws ValidationException {
         String field = req.getParameter(paramName);
-        if(field == null || field.trim().isEmpty()){
-            if(required)
-                throw new ValidationException(paramName+ " is required");
+        if (field == null || field.trim().isEmpty()) {
+            if (required)
+                throw new ValidationException(paramName + " is required");
             return null;
         }
         return field;
@@ -34,58 +35,60 @@ public class ValidatorHelper {
 
 
     public static String getParam(JSONObject jo, String paramName, boolean required) throws ValidationException {
-        if(jo==null) throw new ValidationException("JSON param is empty");
+        if (jo == null) throw new ValidationException("JSON param is empty");
 
         String field = jo.getString(paramName);
-        if(field == null || field.trim().isEmpty()){
-            if(required)
-                throw new ValidationException(paramName+ " is required");
+        if (field == null || field.trim().isEmpty()) {
+            if (required)
+                throw new ValidationException(paramName + " is required");
             return null;
         }
         return field;
     }
 
     /*Return si la chaine est un email*/
-    public static boolean isEmail(String s) throws ValidationException{
-        if(s == null) return false;
-        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(s);
-        if(!matcher.find())
-            throw new ValidationException(s+ " is not a valid email");
+    public static boolean isEmail(String s) throws ValidationException {
+        if (s == null) return false;
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(s);
+        if (!matcher.find())
+            throw new ValidationException(s + " is not a valid email");
         return true;
     }
+
     /*Return si s contient des espaces*/
-    public static boolean containsWhiteSpace(String s) throws ValidationException{
+    public static boolean containsWhiteSpace(String s) throws ValidationException {
         Pattern whitespace = Pattern.compile("\\s+");
         Matcher matcher = whitespace.matcher(s);
         String result = "";
         if (matcher.find()) {
-            throw new ValidationException(s+ " contains white space");
+            throw new ValidationException(s + " contains white space");
         }
         return false;
     }
 
 
     /*Return si s est correspond au format d'une date SQL*/
-    public static boolean isDateSQL(String s) throws ValidationException{
+    public static boolean isDateSQL(String s) throws ValidationException {
         format.setLenient(false);
-        if(s == null) return false;
+        if (s == null) return false;
 
-        try{
+        try {
             format.parse(s);
             return true;
         } catch (ParseException e) {
-            throw new ValidationException(s+ " is not a valid date ( yyyy-MM-dd )");
+            throw new ValidationException(s + " is not a valid date ( yyyy-MM-dd )");
         }
     }
 
     /*Return si date < today*/
-    public static boolean isBeforeToday(String date)throws ValidationException{
+    public static boolean isBeforeToday(String date) throws ValidationException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date d= null;
+        Date d = null;
         try {
             d = sdf.parse(date);
             Date currentDate = new Date();
-            if(sdf.format(d).compareTo(sdf.format(currentDate)) == 0||d.after(currentDate))throw new ValidationException("Vous ne pouvez pas parrié à votre age");
+            if (sdf.format(d).compareTo(sdf.format(currentDate)) == 0 || d.after(currentDate))
+                throw new ValidationException("Vous ne pouvez pas parrié à votre age");
             return d.before(currentDate);
         } catch (ParseException e) {
             throw new ValidationException("Vous ne pouvez pas parrié à votre age");
@@ -94,12 +97,12 @@ public class ValidatorHelper {
     }
 
     public static boolean checkBoolean(String val) throws ValidationException {
-        if(val == null) throw new ValidationException(val+" is not a boolean value");
+        if (val == null) throw new ValidationException(val + " is not a boolean value");
 
         val = val.toLowerCase();
-        if(val.equals("true") || val.equals("false"))
+        if (val.equals("true") || val.equals("false"))
             return true;
-        throw new ValidationException(val+" is not a boolean value");
+        throw new ValidationException(val + " is not a boolean value");
     }
 
     /*Return un JSONObject a partir d'un HttpServletRequest*/
@@ -110,23 +113,28 @@ public class ValidatorHelper {
             sb.append(s);
         }
         PrintWriter out = resp.getWriter();
-        if(sb.length()<=1)return null;
+        if (sb.length() <= 1) return null;
         return new JSONObject(sb.toString());
     }
 
     public static boolean isInteger(String s) {
-        return isInteger(s,10);
+        return isInteger(s, 10);
     }
 
     public static boolean isInteger(String s, int radix) {
-        if(s.isEmpty()) return false;
-        for(int i = 0; i < s.length(); i++) {
-            if(i == 0 && s.charAt(i) == '-') {
-                if(s.length() == 1) return false;
+        if (s.isEmpty()) return false;
+        for (int i = 0; i < s.length(); i++) {
+            if (i == 0 && s.charAt(i) == '-') {
+                if (s.length() == 1) return false;
                 else continue;
             }
-            if(Character.digit(s.charAt(i),radix) < 0) return false;
+            if (Character.digit(s.charAt(i), radix) < 0) return false;
         }
         return true;
+    }
+
+    public static boolean isLengthInfTo(String s, int limit) throws ValidationException {
+        if(s.length()<limit)return true;
+        throw  new ValidationException(new StringBuilder().append(s).append(" dépasse la limite de charactere (").append(limit).append(")").toString());
     }
 }

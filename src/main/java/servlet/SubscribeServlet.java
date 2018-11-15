@@ -21,7 +21,8 @@ import static services.ServiceTools.serviceKO;
         urlPatterns = {"/subscribe"}
 )
 public class SubscribeServlet extends HttpServlet {
-
+    private static final int MAX_SIZE_LOGIN = 100;
+    private static final int MAX_SIZE_NAME = 100;
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter out = resp.getWriter();
@@ -39,7 +40,7 @@ public class SubscribeServlet extends HttpServlet {
                 String pays = ValidatorHelper.getParam(j, "country", true);
 
                 if(ValidatorHelper.isEmail(email) && ValidatorHelper.isDateSQL(dateNaiss) && ValidatorHelper.isBeforeToday(dateNaiss) && !ValidatorHelper.containsWhiteSpace(login)
-                ) {
+               && ValidatorHelper.isLengthInfTo(login, MAX_SIZE_LOGIN) && ValidatorHelper.isLengthInfTo(prenom, MAX_SIZE_NAME) && ValidatorHelper.isLengthInfTo(nom, MAX_SIZE_NAME) ) {
                     out.print(
                             UserService.subscribe(login, mdp, cmdp,email, nom, prenom, Date.valueOf(dateNaiss), pays)
                     );
