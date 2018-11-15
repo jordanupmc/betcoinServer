@@ -1,5 +1,6 @@
 package servlet;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,13 +38,19 @@ public class ValidatorHelper {
     public static String getParam(JSONObject jo, String paramName, boolean required) throws ValidationException {
         if (jo == null) throw new ValidationException("JSON param is empty");
         if(jo.has(paramName)) {
-            String field = jo.getString(paramName);
-            if (field == null || field.trim().isEmpty()) {
+            try {
+                String field = jo.getString(paramName);
+                if (field == null || field.trim().isEmpty()) {
+                    if (required)
+                        throw new ValidationException(paramName + " is required");
+                    return null;
+                }
+                return field;
+            }catch(JSONException je){
                 if (required)
                     throw new ValidationException(paramName + " is required");
                 return null;
             }
-            return field;
         }
         if (required)
             throw new ValidationException(paramName + " is required");
