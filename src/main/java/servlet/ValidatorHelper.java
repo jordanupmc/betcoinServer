@@ -135,6 +135,6 @@ public class ValidatorHelper {
 
     public static boolean isLengthInfTo(String s, int limit) throws ValidationException {
         if(s.length()<limit)return true;
-        throw  new ValidationException(new StringBuilder().append(s).append(" dépasse la limite de charactere (").append(limit).append(")").toString());
+        throw  new ValidationException(s.substring(0,11) + "... dépasse la limite de charactere (" + limit + ")");
     }
 }
