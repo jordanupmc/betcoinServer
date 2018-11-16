@@ -79,7 +79,7 @@ public class BetTools {
                 collection
                         .find(new BsonDocument().append("idBetPool", new BsonString(idPool)))
                         .first();
-        Timestamp tsp = new Timestamp(System.currentTimeMillis());
+        Timestamp tsp = new Timestamp(System.currentTimeMillis()+3600000);
         if (d == null) {
             Document newpool = new Document();
             newpool.append("idBetPool", idPool);
