@@ -149,7 +149,12 @@ public class PoolTools {
                 Document data = (Document) result.get(0);
                 ArrayList<Document> data_arr = (ArrayList<Document>) data.get("Data");
                 Document objFinal = data_arr.get(0);
-                double value = (double) objFinal.get("close");
+                double value;
+                if(objFinal.get("close") instanceof Double){
+                    value = objFinal.getDouble("close");
+                }else{
+                    value = objFinal.getInteger("close") + 0.0;
+                }
                 pstmt.setDouble(3, value);
             }
             pstmt.executeUpdate();
