@@ -299,9 +299,9 @@ public class BetTools {
                         type = restype.getBoolean(1);
                         restype.close();
                         if (type) {
-                            amountWon = ammountBet * 5;
+                            amountWon = ammountBet * 10;
                         } else {
-                            amountWon = (int) Math.round(ammountBet * 1.2);
+                            amountWon = (int) Math.round(ammountBet * 1.5);
                         }
                     }
                 }
