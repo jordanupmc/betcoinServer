@@ -254,7 +254,7 @@ public class PoolTools {
 
     public static JSONArray getEnsembleUrlChat(JSONArray messages) throws URISyntaxException, SQLException {
         Set<String> logins = new HashSet<>();
-
+        System.out.println("MESS LENGTH = "+messages.length());
         for(int i=0; i< messages.length(); i++){
             JSONObject current = messages.getJSONObject(i);
             logins.add(current.getString("gamblerLogin"));

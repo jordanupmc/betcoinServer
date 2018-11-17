@@ -73,6 +73,7 @@ public class UserTools {
         }
         sb.substring(0, sb.length()-4);
         String query="SELECT FROM USERS WHERE "+ sb;
+        System.out.println(query);
         JSONArray arr = new JSONArray();
 
         try (Connection c = Database.getConnection();
