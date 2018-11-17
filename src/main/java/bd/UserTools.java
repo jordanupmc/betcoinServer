@@ -72,8 +72,7 @@ public class UserTools {
             sb.append("login=?").append(" OR ");
         }
         sb.substring(0, sb.length()-4);
-        String query="SELECT FROM USERS WHERE "+ sb;
-        System.out.println(query);
+        String query = "SELECT FROM USERS WHERE " + sb.substring(0, sb.length() - 4);
         JSONArray arr = new JSONArray();
 
         try (Connection c = Database.getConnection();

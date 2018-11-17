@@ -146,7 +146,7 @@ public class BetPoolService {
 
     public static JSONObject getListMessagePool(String login, String token, int idPool){
         JSONObject json;
-        JSONArray arr;
+        JSONArray arr, setMail;;
 
         if (!SessionTools.checkToken(token, login)) {
             return serviceKO("Please, log once again", true);
@@ -156,6 +156,12 @@ public class BetPoolService {
         if((arr = PoolTools.getListMessagePool(idPool)) !=null){
             json = serviceOK();
             json.put("messages", arr);
+            try {
+                if( (setMail = PoolTools.getEnsembleUrlChat(arr)) != null)
+                    json.put("setMail", setMail);
+            } catch (URISyntaxException | SQLException e) {
+                return serviceKO("Echec recuperation des mails");
+            }
             return json;
         }else
             return serviceKO("This pool doesn't exists", false);
