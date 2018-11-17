@@ -28,6 +28,10 @@ public class APITools {
         }else{
             diffTot = diffInMinute;
         }
+
+        if(diffTot == 0){
+            diffTot=1;
+        }
         return "https://min-api.cryptocompare.com/data/" +
                 (isHours==1 ? "histohour" : "histominute") +
                 "?fsym=" +
@@ -62,7 +66,7 @@ public class APITools {
 
     public static double getPriceSpecificTime(String cryptName, String devise, String time) throws IOException {
         String source ="";
-        String url = createURL(cryptName,devise,time,(Integer.parseInt(time)+3600) + "",1);
+        String url = createURL(cryptName,devise,time, time,1);
         URL oracle = new URL(url);
         URLConnection yc = oracle.openConnection();
         BufferedReader in = new BufferedReader(
