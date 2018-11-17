@@ -1,6 +1,9 @@
 package launch;
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
+import bd.UserTools;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -22,7 +25,12 @@ public class Main {
             webPort = "8080";
         }
 
-        tomcat.setPort(Integer.valueOf(webPort));
+        Set<String> set = new HashSet<>();
+        set.add("jojo");
+        set.add("Justin");
+        set.add("Paul");
+        System.out.println(UserTools.getMultipleEmail(set));
+ /*       tomcat.setPort(Integer.valueOf(webPort));
 
         StandardContext ctx = (StandardContext) tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
         System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
@@ -36,6 +44,6 @@ public class Main {
         ctx.setResources(resources);
 
         tomcat.start();
-        tomcat.getServer().await();
+        tomcat.getServer().await();*/
     }
 }

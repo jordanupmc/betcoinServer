@@ -14,7 +14,9 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static bd.SessionTools.removeSessionUser;
 import static bd.Database.getMongoCollection;
@@ -59,6 +61,34 @@ public class UserTools {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static JSONArray getMultipleEmail(Set<String> logins) throws URISyntaxException, SQLException {
+        if(logins.isEmpty())return null;
+
+        StringBuilder sb = new StringBuilder();
+
+        for(String login : logins){
+            sb.append("login=?").append(" OR ");
+        }
+        sb.substring(0, sb.length()-4);
+        String query="SELECT FROM USERS WHERE "+ sb;
+        JSONArray arr = new JSONArray();
+
+        try (Connection c = Database.getConnection();
+             PreparedStatement pstmt = c.prepareStatement(query);) {
+
+            Iterator<String> setIterator = logins.iterator();
+            for(int i=1; setIterator.hasNext(); i++ ){
+                pstmt.setString(i, setIterator.next());
+            }
+            try(ResultSet resultSet = pstmt.executeQuery();){
+                while(resultSet.next()){
+                    arr.put(resultSet.getString(1));
+                }
+            }
+        }
+        return arr;
     }
 
     /* renvois un JSON avec toutes les informations affichable de l'utilisateur */

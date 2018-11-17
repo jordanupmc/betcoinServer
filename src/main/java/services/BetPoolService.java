@@ -166,10 +166,17 @@ public class BetPoolService {
     public static JSONObject getListMessagePool(String login, String token, int idPool, String fromId){
         JSONObject json;
         JSONArray arr;
+        JSONArray setMail;
         if(checkToken(token, login)){
             if((arr = PoolTools.getListMessagePool(idPool, fromId)) !=null){
                 json = serviceOK();
                 json.put("messages", arr);
+                try {
+                    if( (setMail = PoolTools.getEnsembleUrlChat(arr)) != null)
+                        json.put("setMail", setMail);
+                } catch (URISyntaxException | SQLException e) {
+                    return serviceKO("Echec recuperation des mails");
+                }
                 return json;
             }
             else
