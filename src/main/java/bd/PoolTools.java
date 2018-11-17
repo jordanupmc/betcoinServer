@@ -254,13 +254,20 @@ public class PoolTools {
 
     public static JSONArray getEnsembleUrlChat(JSONArray messages) throws URISyntaxException, SQLException {
         Set<String> logins = new HashSet<>();
-        System.out.println("MESS LENGTH = "+messages.length());
         for(int i=0; i< messages.length(); i++){
             JSONObject current = messages.getJSONObject(i);
             logins.add(current.getString("gamblerLogin"));
         }
 
-        return UserTools.getMultipleEmail(logins);
+        Map<String, String> map = UserTools.getMultipleEmail(logins);
+        if(map == null)return null;
+
+        JSONArray res = new JSONArray();
+
+        for(Map.Entry<String, String> entry: map.entrySet()){
+            res.put(new JSONObject().put("login", entry.getKey()).put("gravatarUrl", APITools.getGravatarUrl(entry.getValue())));
+        }
+        return res;
     }
 
     /*Return la liste de tout les messages d'une pool*/

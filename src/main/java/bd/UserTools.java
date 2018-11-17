@@ -13,10 +13,8 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.sql.Date;
+import java.util.*;
 
 import static bd.SessionTools.removeSessionUser;
 import static bd.Database.getMongoCollection;
@@ -63,7 +61,7 @@ public class UserTools {
         }
     }
 
-    public static JSONArray getMultipleEmail(Set<String> logins) throws URISyntaxException, SQLException {
+    public static Map<String, String> getMultipleEmail(Set<String> logins) throws URISyntaxException, SQLException {
         if(logins.isEmpty())return null;
 
         StringBuilder sb = new StringBuilder();
@@ -72,8 +70,8 @@ public class UserTools {
             sb.append("login=?").append(" OR ");
         }
         sb.substring(0, sb.length()-4);
-        String query = "SELECT email FROM USERS WHERE " + sb.substring(0, sb.length() - 4);
-        JSONArray arr = new JSONArray();
+        String query = "SELECT login, email FROM USERS WHERE " + sb.substring(0, sb.length() - 4);
+        Map<String, String> arr = new HashMap<>();
 
         try (Connection c = Database.getConnection();
              PreparedStatement pstmt = c.prepareStatement(query);) {
@@ -84,8 +82,7 @@ public class UserTools {
             }
             try(ResultSet resultSet = pstmt.executeQuery();){
                 while(resultSet.next()){
-                    arr.put(resultSet.getString(1));
-                    System.out.println("je rentre !");
+                    arr.put(resultSet.getString(1),resultSet.getString(2));
                 }
             }
         }
