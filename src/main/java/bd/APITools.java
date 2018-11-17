@@ -1,6 +1,7 @@
 package bd;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -75,12 +76,20 @@ public class APITools {
 
         double value = 0.0;
         JSONObject obj = new JSONObject(source);
-        JSONArray array = obj.getJSONArray("Data");
-        for(int i =0; i<array.length(); i++){
-            if(array.getJSONObject(i).get("time").toString().equals(time)) {
-                return array.getJSONObject(i).getDouble("close");
+        try {
+            JSONArray array = obj.getJSONArray("Data");
+
+            for(int i =0; i<array.length(); i++){
+                if(array.getJSONObject(i).get("time").toString().equals(time)) {
+                    return array.getJSONObject(i).getDouble("close");
+                }
             }
+        }catch(JSONException je){
+            System.out.println("URL : "+url);
+            System.out.println("JsonObject : "+obj.toString());
+            throw je;
         }
+
         return 0;
 
     }
