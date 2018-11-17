@@ -72,7 +72,7 @@ public class UserTools {
             sb.append("login=?").append(" OR ");
         }
         sb.substring(0, sb.length()-4);
-        String query = "SELECT FROM USERS WHERE " + sb.substring(0, sb.length() - 4);
+        String query = "SELECT email FROM USERS WHERE " + sb.substring(0, sb.length() - 4);
         JSONArray arr = new JSONArray();
 
         try (Connection c = Database.getConnection();
@@ -85,6 +85,7 @@ public class UserTools {
             try(ResultSet resultSet = pstmt.executeQuery();){
                 while(resultSet.next()){
                     arr.put(resultSet.getString(1));
+                    System.out.println("je rentre !");
                 }
             }
         }
