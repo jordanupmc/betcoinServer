@@ -423,7 +423,7 @@ public class BetTools {
             case "EthereumClassic": return "ETC";
             case "LiteCoin": return "LTC";
             case "BitcoinCash" : return "BCH";
-            case "ZCash": return "ZCH";
+            case "ZCash": return "ZEC";
             case "Dash": return "DASH";
             default: return cryptFullName;
         }
