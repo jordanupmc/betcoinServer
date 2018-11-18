@@ -13,10 +13,8 @@ import org.json.JSONObject;
 import javax.print.Doc;
 import java.net.URISyntaxException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 
 import static bd.BetTools.cancelBet;
 import static bd.Database.getMongoCollection;
@@ -254,6 +252,23 @@ public class PoolTools {
         return tmp;
     }
 
+    public static JSONArray getEnsembleUrlChat(JSONArray messages) throws URISyntaxException, SQLException {
+        Set<String> logins = new HashSet<>();
+        for(int i=0; i< messages.length(); i++){
+            JSONObject current = messages.getJSONObject(i);
+            logins.add(current.getString("gamblerLogin"));
+        }
+
+        Map<String, String> map = UserTools.getMultipleEmail(logins);
+        if(map == null)return null;
+
+        JSONArray res = new JSONArray();
+
+        for(Map.Entry<String, String> entry: map.entrySet()){
+            res.put(new JSONObject().put("login", entry.getKey()).put("gravatarUrl", APITools.getGravatarUrl(entry.getValue())));
+        }
+        return res;
+    }
 
     /*Return la liste de tout les messages d'une pool*/
     public static JSONArray getListMessagePool(int idPool){
